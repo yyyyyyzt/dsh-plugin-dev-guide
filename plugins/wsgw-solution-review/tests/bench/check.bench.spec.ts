@@ -1,5 +1,5 @@
 // T-REQ-17 / T-DES-14 / NFR-02: check() over a ~200 KB synthetic solution must finish within 2 s.
-// Excluded from `pnpm test` (vitest.config.ts); run with `pnpm vitest run tests/bench`.
+// Excluded from `pnpm test` (vitest.config.ts); run with `pnpm bench`.
 import { describe, expect, it } from 'vitest'
 import { check } from '../../src/engine/check.js'
 import { parseMarkdown } from '../../src/engine/parse/markdown.js'

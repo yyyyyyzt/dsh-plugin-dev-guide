@@ -7,9 +7,16 @@ import { verify } from './verifiers/index.js'
 
 type ReportIssue = Omit<Issue, 'issueId' | 'reviewId' | 'seq'>
 
+const fullTextCache = new WeakMap<Doc, string>()
+
 function fullText(doc: Doc): string {
-  const parts = [...flattenHeadings(doc).map((h) => h.text), ...sentencesIn(doc, null).map((s) => s.quote)]
-  return normalize(parts.join('\n'))
+  let text = fullTextCache.get(doc)
+  if (text === undefined) {
+    const parts = [...flattenHeadings(doc).map((h) => h.text), ...sentencesIn(doc, null).map((s) => s.quote)]
+    text = normalize(parts.join('\n'))
+    fullTextCache.set(doc, text)
+  }
+  return text
 }
 
 export function isApplicable(doc: Doc, rule: Rule, lexicon: Lexicon): boolean {

@@ -60,19 +60,21 @@ function sentenceAt(doc: Doc, start: number, end: number, sectionPath: string, c
   return { quote, norm: normalize(quote), sectionPath, range: rangeOf(doc.source, s, e), cell }
 }
 
-/** Sentences (paragraph pieces + table cells) inside `scope` (null = whole document), in document order. */
-export function sentencesIn(doc: Doc, scope: HeadingNode[] | null): Sentence[] {
+// Every verifier leaf asks for sentences; split and normalize each document once.
+const sentenceCache = new WeakMap<Doc, Sentence[]>()
+
+function allSentences(doc: Doc): Sentence[] {
+  const cached = sentenceCache.get(doc)
+  if (cached) return cached
   const out: Sentence[] = []
   for (const b of doc.blocks) {
     if (b.type === 'paragraph') {
-      if (!inScope(b.range.start.offset, scope)) continue
       const raw = doc.source.slice(b.range.start.offset, b.range.end.offset)
       for (const p of splitSentences(raw)) {
         const s = sentenceAt(doc, b.range.start.offset + p.start, b.range.start.offset + p.end, b.sectionPath, false)
         if (s) out.push(s)
       }
     } else if (b.type === 'table') {
-      if (!inScope(b.table.range.start.offset, scope)) continue
       b.table.cellRanges.forEach((row, ri) => {
         if (ri === 0) return
         for (const r of row) {
@@ -82,7 +84,15 @@ export function sentencesIn(doc: Doc, scope: HeadingNode[] | null): Sentence[] {
       })
     }
   }
+  sentenceCache.set(doc, out)
   return out
+}
+
+/** Sentences (paragraph pieces + table cells) inside `scope` (null = whole document), in document order. */
+export function sentencesIn(doc: Doc, scope: HeadingNode[] | null): Sentence[] {
+  const all = allSentences(doc)
+  if (scope === null) return all
+  return all.filter((s) => inScope(s.range.start.offset, scope))
 }
 
 export function tablesIn(doc: Doc, scope: HeadingNode[] | null): TableBlock[] {

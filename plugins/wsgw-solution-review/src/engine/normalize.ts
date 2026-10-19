@@ -73,16 +73,31 @@ export function normalize(text: string): string {
   return build(text).text
 }
 
+// Line-start table per source so offset → line/column is a binary search instead of a rescan
+// (a 200 KB document yields thousands of sentences; rescanning per sentence is quadratic).
+let lineIndexSource: string | undefined
+let lineIndex: number[] = []
+
+function lineStarts(source: string): number[] {
+  if (source === lineIndexSource) return lineIndex
+  const starts = [0]
+  for (let i = 0; i < source.length; i++) if (source.charCodeAt(i) === 10) starts.push(i + 1)
+  lineIndexSource = source
+  lineIndex = starts
+  return starts
+}
+
 export function offsetAt(source: string, offset: number): Offset {
-  let line = 1
-  let lastBreak = -1
-  for (let i = 0; i < offset && i < source.length; i++) {
-    if (source.charCodeAt(i) === 10) {
-      line++
-      lastBreak = i
-    }
+  const clamped = Math.max(0, Math.min(offset, source.length))
+  const starts = lineStarts(source)
+  let lo = 0
+  let hi = starts.length - 1
+  while (lo < hi) {
+    const mid = (lo + hi + 1) >> 1
+    if (starts[mid]! <= clamped) lo = mid
+    else hi = mid - 1
   }
-  return { line, column: offset - lastBreak, offset }
+  return { line: lo + 1, column: clamped - starts[lo]! + 1, offset }
 }
 
 export function rangeOf(source: string, start: number, end: number): Range {
