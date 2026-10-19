@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-19（S0 完成）。
+> 最后更新：2026-10-19（S1 文档完成，待用户确认）。
 
 ## 0. 这个仓库现在是什么
 
@@ -135,18 +135,18 @@ wsgw-solution-review (bundle, cordis.patch.yml)
 ### 4.4 结论策略（确定性）
 
 ```
-confirmed = 已登记且通过证据门禁的 hard 问题 ∪ hybrid 问题
+confirmed = 校验器登记的 hard/hybrid 问题 ∪ 通过证据门禁的 hybrid 问题 ∪ 专家采纳/改写/新增的问题（驳回的除外）
 ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
            = 建议整改 若 ∃ major ∈ confirmed 或 |minor ∈ confirmed| ≥ minorThreshold
            = 通过     否则
 ```
-`soft` 与 `待人工` 项只列出不计分。`final_verdict` 仅由 `review_decide`/`review_finalize` 在专家确认后写入。
+`soft` 与 `待人工` 项只列出不计分。`final_verdict` 仅由 `review_decide(set_final_verdict)` 在专家确认后写入。精确定义见 `plugins/wsgw-solution-review/docs/design.md` §6。
 
 ### 4.5 记忆模型（持久化，取代向量库）
 
 | 表 | 记录 | 由谁写 | 谁读 |
 |---|---|---|---|
-| `rules` | learned 层覆盖（status / severity 调整 / 阈值） | 专家经对话 | 引擎、dashboard |
+| `rule_overrides` | learned 层覆盖（status / severity / suggestion / 参数白名单）、规则级统计、审计、草案规则 | 专家经对话（`rules_propose`）、finalize（统计） | 引擎、dashboard |
 | `reviews` | 一次审查：方案摘要、`ai_verdict`、`final_verdict`、耗时 | finalize | dashboard、评测 |
 | `issues` | 每条问题及证据、来源（hard / hybrid / soft / expert） | record_issue / decide | finalize、评测 |
 | `feedback` | 专家对每条的 `adopt / reject / rewrite` + 原因 + 改写文 | decide | 记忆聚合 |

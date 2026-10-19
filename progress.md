@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-19　|　当前步骤：**S0 完成，S1 待开始**
+> 更新：2026-10-19　|　当前步骤：**S1 六份文档已写出，待用户确认后进入 S2**
 
 ## 1. 步骤总览
 
@@ -10,7 +10,7 @@
 | 步骤 | 内容 | 完成定义 | 状态 |
 |---|---|---|---|
 | S0 | 归档旧版、建立 `AGENTS.md` / `progress.md` | 旧 32 文件在 `archive/`；两份指引可读；PR 已开 | ✅ 2026-10-19 |
-| S1 | 文档定稿：需求 V1.0、设计 V1.0、规则 schema、对话协议、评测方案、dashboard 规格 | 六份文档互不矛盾，用户确认；每份文档末尾有「测试要点」清单供 S2 取用 | ⬜ |
+| S1 | 文档定稿：需求 V1.0、设计 V1.0、规则 schema、对话协议、评测方案、dashboard 规格 | 六份文档互不矛盾，用户确认；每份文档末尾有「测试要点」清单供 S2 取用 | 🟡 2026-10-19 六份已写出（测试要点共 74 条），待用户确认 |
 | S2 | 测试用例：工程骨架 + fixtures + 全部用例（红灯 / todo） | `pnpm test` 能跑，用例数与 S1 测试要点一一对应 | ⬜ |
 | S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ⬜ |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ⬜ |
@@ -97,7 +97,13 @@
 | 步骤 | 证据 |
 |---|---|
 | S0 | `git mv` 32 个文件到 `archive/legacy-review-tool/`（见 commit）；`AGENTS.md`、`progress.md`、`archive/README.md` 新建；README 目录表指向新项目 |
+| S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 11 / hybrid 12 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
 
-S1 第一份文档：`plugins/wsgw-solution-review/docs/requirements.md`（V1.0）。写法：以 `AGENTS.md` §2、§4 为纲，逐条给出验收标准与测试要点；完成后请用户确认，再写 `design.md`。
+等待用户确认 S1 文档（重点确认：附录 A 的规则分级与种子方案预期、`review-protocol.md` §2–§3 的 persona 与 SOP 文案、`evaluation.md` §7 脱敏规则）。确认后进入 S2：
+
+1. `plugins/wsgw-solution-review/` 工程骨架（package.json / tsconfig / vitest / tsdown 配置），依赖解析自 npm 的 `@deepseek-ai/*@0.2.1-rc.2`；
+2. `tests/fixtures/`：种子方案 + 6 个变体 + `expected/seed.json`（取自附录 A「种子方案预期」列）+ `rules.sample.yaml`；
+3. 74 条测试要点逐条落成 `*.spec.ts`（允许 `.todo` / 红灯），`pnpm test` 可运行；
+4. 更新本文件 S2 行与证据。
