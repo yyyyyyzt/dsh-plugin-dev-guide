@@ -26,7 +26,8 @@
 |---|---|---|
 | **项目章程（agent 指引）** | [AGENTS.md](./AGENTS.md) | 目标、铁律（能装插件就不自研）、六项决策、技术基线、架构、研究主张与指标、质量门禁 |
 | **进度与决策日志** | [progress.md](./progress.md) | 分步骤计划 S0–S6（文档 → 测试 → 开发）、决策记录、待定问题、证据链 |
-| **插件源码与文档** | `plugins/wsgw-solution-review/` | S1 起创建：`docs/`（需求 / 设计 / 规则模型 / 对话协议 / 评测 / 看板）→ `test/` → `src/` |
+| **插件源码与文档** | `plugins/wsgw-solution-review/` | `docs/`（需求 / 设计 / 规则模型 / 对话协议 / 评测 / 看板）→ `tests/`（S2，红灯/todo）→ `src/`（S3 起）；`pnpm install && pnpm test` |
+| **论文笔记** | `paper/innovation-notes.md` | 贡献定位、相关工作对照、新颖性风险、实验—主张映射（S6 稿件的种子） |
 | **旧版归档** | [archive/](./archive/README.md) | 第一版 Python 原型（已冻结、不可导入），仅保留 30 份历史意见与种子方案作为评测与夹具素材 |
 
 ## 快速开始

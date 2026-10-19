@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-19　|　当前步骤：**S1 六份文档已写出，待用户确认后进入 S2**
+> 更新：2026-10-19　|　当前步骤：**S2 测试用例完成（引擎用例红灯、其余 todo），进入 S3a 引擎实现**
 
 ## 1. 步骤总览
 
@@ -10,8 +10,8 @@
 | 步骤 | 内容 | 完成定义 | 状态 |
 |---|---|---|---|
 | S0 | 归档旧版、建立 `AGENTS.md` / `progress.md` | 旧 32 文件在 `archive/`；两份指引可读；PR 已开 | ✅ 2026-10-19 |
-| S1 | 文档定稿：需求 V1.0、设计 V1.0、规则 schema、对话协议、评测方案、dashboard 规格 | 六份文档互不矛盾，用户确认；每份文档末尾有「测试要点」清单供 S2 取用 | 🟡 2026-10-19 六份已写出（测试要点共 74 条），待用户确认 |
-| S2 | 测试用例：工程骨架 + fixtures + 全部用例（红灯 / todo） | `pnpm test` 能跑，用例数与 S1 测试要点一一对应 | ⬜ |
+| S1 | 文档定稿：需求 V1.0、设计 V1.0、规则 schema、对话协议、评测方案、dashboard 规格 | 六份文档互不矛盾，用户确认；每份文档末尾有「测试要点」清单供 S2 取用 | 🟡 2026-10-19 六份已写出（测试要点共 74 条）；用户「继续开发」视为默认确认，三处细节仍可改（见 §7） |
+| S2 | 测试用例：工程骨架 + fixtures + 全部用例（红灯 / todo） | `pnpm test` 能跑，用例数与 S1 测试要点一一对应 | ✅ 2026-10-19 `pnpm test`：184 条引擎用例红灯（全部 `NotImplementedError`）、107 条 todo；`pnpm typecheck` 通过 |
 | S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ⬜ |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ⬜ |
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ⬜ |
@@ -32,14 +32,20 @@
 | `evaluation.md` | 指标定义（`AGENTS.md` §5.3 展开）、在线标注规则、离线评测集构建、消融设计、统计方法、数据脱敏 |
 | `dashboard.md` | 四页信息架构、每页数据来源（表 / 聚合）、交互（规则启停、候选规则审批入口只读 + 跳转对话）、空状态、slot 与 tab 注册 |
 
-### S2 测试（`plugins/wsgw-solution-review/tests/`）
+### S2 测试（`plugins/wsgw-solution-review/tests/`）✅
 
-- `fixtures/`：种子方案 + 变体（缺压测、否定句、无 Mermaid、附件引用缺失、占位表格）、规则 YAML 样例、预期问题清单。
-- `engine/*.spec.ts`：解析器、每种校验器、证据门禁、结论策略、记忆聚合。
-- `store/*.spec.ts`：domain spec、读写、版本。
-- `tools/*.spec.ts`：工具 schema 与 execute 契约。
-- `protocol/*.e2e.ts`：mock LLM 回放。
-- `client/check-bundle.mjs`：bundle 结构校验。
+| 位置 | 内容 | 状态 |
+|---|---|---|
+| `package.json` / `tsconfig*.json` / `vitest.config.ts` | 工程骨架：strict TS（`exactOptionalPropertyTypes`、`noUncheckedIndexedAccess`）、vitest 3；**暂不依赖 DSH 包**（S3b 加入） | ✅ |
+| `src/engine/types.ts` + 各单元 stub | 引擎全部类型；每个函数抛 `NotImplementedError`，保证红灯而非编译失败 | ✅ |
+| `rules/capability-open-access.rules.yaml` | 28 条 shipped 规则（附录 A/B）+ 词表。**S5 的「规则迁移」提前到 S2**，因 T-RUL-12 需要 | ✅ |
+| `fixtures/` | `seed.md` + 7 个变体（no-impl / negated / placeholder / missing-attachment / mermaid-incomplete / mermaid-ok / compliant）；`expected/seed.json`（28 条清单预期）与 `expected/variants.json`；8 个规则 YAML 样例（1 合法 7 非法） | ✅ |
+| `engine/*.spec.ts`（184 条） | normalize 9、parse 12、mermaid 7、section 7、table 9、statement 18、quantity 6、mermaid-sequence 10、cross-ref 7、combinators 24、check 33、gate 15、verdict 11、memory 15、rules 21、render 10（含 `it.each` 展开） | 🔴 红灯（S3a 变绿） |
+| `store/` `tools/` `api/` `client/` `protocol/` `eval/`（107 条 `it.todo`） | 以 T-ID 命名的占位用例；需要 DSH 运行时或 S4/S5 产物 | ⬜ todo |
+| `bench/check.bench.spec.ts` | 200 KB 合成文档 ≤ 2 s（默认不跑，`pnpm vitest run tests/bench`） | 🔴 |
+| `client/check-bundle.mjs` | banner / footer / 外部化白名单 / 未内联 React / 体积 | 待 S4 有 bundle 后运行 |
+
+覆盖对照：74 条测试要点全部有对应用例（T-REQ 20 / T-DES 14 / T-RUL 12 / T-PRO 10 / T-EVA 9 / T-DSH 9），其中需运行时的以 todo 占位。
 
 ### S3–S6
 
@@ -97,13 +103,22 @@
 | 步骤 | 证据 |
 |---|---|
 | S0 | `git mv` 32 个文件到 `archive/legacy-review-tool/`（见 commit）；`AGENTS.md`、`progress.md`、`archive/README.md` 新建；README 目录表指向新项目 |
+| S2 | `plugins/wsgw-solution-review/`：`pnpm install && pnpm typecheck && pnpm test` → `Tests 117 failed | 97 skipped | 107 todo (321)`（failed/skipped 全部源于 `NotImplementedError`，skipped 为 `beforeAll` 内 stub 抛错连带）；三次提交 `chore(review)` / `feat(review)` / `test(review)` | 
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 11 / hybrid 12 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
 
-等待用户确认 S1 文档（重点确认：附录 A 的规则分级与种子方案预期、`review-protocol.md` §2–§3 的 persona 与 SOP 文案、`evaluation.md` §7 脱敏规则）。确认后进入 S2：
+S1 三处细节仍可由用户调整（不阻塞）：附录 A 中 CAP-001 对种子方案判 blocker；`review-protocol.md` §2–§3 persona / SOP 文案；论文是否脱敏产品名。
 
-1. `plugins/wsgw-solution-review/` 工程骨架（package.json / tsconfig / vitest / tsdown 配置），依赖解析自 npm 的 `@deepseek-ai/*@0.2.1-rc.2`；
-2. `tests/fixtures/`：种子方案 + 6 个变体 + `expected/seed.json`（取自附录 A「种子方案预期」列）+ `rules.sample.yaml`；
-3. 74 条测试要点逐条落成 `*.spec.ts`（允许 `.todo` / 红灯），`pnpm test` 可运行；
-4. 更新本文件 S2 行与证据。
+进入 **S3a 引擎实现**（纯函数，无 I/O），目标 `pnpm test:engine` 全绿：
+
+1. `normalize.ts`（NFKC、空白、强调符、偏移映射、`findQuote`、`splitSentences`）→ 9 条；
+2. `parse/markdown.ts`（mdast + gfm：标题树与 path、bodyRange、表格 cellRanges、Mermaid/图片/代码块、sha256）与 `parse/mermaid.ts` → 19 条；
+3. 六个校验器 + `all`/`first` → 81 条；
+4. `check.ts`（适用性、tier 分流、清单）→ 33 条；`gate.ts` → 15；`verdict.ts` → 11；`memory.ts` → 15；`rules.ts`（zod schema、静态约束、merge 白名单）→ 21；`render/opinion.ts` → 10；
+5. 跑 `tests/bench` 验证 200 KB ≤ 2 s；
+6. 更新本文件 S3a 行。
+
+论文侧：`paper/innovation-notes.md` v0.1 已写（贡献 C1–C5、相关工作对照、新颖性风险、实验—主张映射、骨架、对开发的反向要求）；其中两条新待办归 S5：合成生成器输出问题级真值；「模拟专家」脚本验证 warn 机制。等待用户就 §8 四个事项表态。
+
+环境备注：本机 Node v22.14.0，DSH 0.2.1-rc.2 要求 `^22.19`；S3c 真机 `dsh web` 前需升级 Node（S2/S3a 的 vitest 不受影响）。
