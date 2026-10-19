@@ -73,11 +73,11 @@ describe('shipped pack (T-RUL-12 schema half)', () => {
     pack = shippedPack()
   })
 
-  it('has 28 active rules: 11 hard, 12 hybrid, 5 soft', () => {
+  it('has 28 active rules: 10 hard, 13 hybrid, 5 soft', () => {
     expect(pack.rules).toHaveLength(28)
     const count = (tier: Rule['tier']) => pack.rules.filter((r) => r.tier === tier).length
-    expect(count('hard')).toBe(11)
-    expect(count('hybrid')).toBe(12)
+    expect(count('hard')).toBe(10)
+    expect(count('hybrid')).toBe(13)
     expect(count('soft')).toBe(5)
     expect(pack.rules.every((r) => r.status === 'active')).toBe(true)
   })

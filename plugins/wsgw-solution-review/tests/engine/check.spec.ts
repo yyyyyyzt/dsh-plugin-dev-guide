@@ -134,7 +134,13 @@ describe('check() on seed variants (T-RUL-12)', () => {
           for (const [ruleId, quote] of Object.entries(exp.evidenceQuotes!)) {
             const issue = report.hardIssues.find((i) => i.ruleId === ruleId)
             const cand = report.hybridCandidates.find((c) => c.ruleId === ruleId)
-            const quotes = [...(issue?.evidence.map((e) => e.quote) ?? []), ...(cand?.snippets.map((s) => s.quote) ?? [])]
+            // Passing rules carry no issue/candidate; their verifying span surfaces in the checklist note.
+            const entry = report.checklist.find((c) => c.ruleId === ruleId)
+            const quotes = [
+              ...(issue?.evidence.map((e) => e.quote) ?? []),
+              ...(cand?.snippets.map((s) => s.quote) ?? []),
+              ...(entry?.note ? [entry.note] : []),
+            ]
             expect(quotes.some((q) => q.includes(quote)), `${ruleId} ${quote}`).toBe(true)
           }
         })

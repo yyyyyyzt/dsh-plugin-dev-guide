@@ -328,7 +328,7 @@ lexicon:
 | DOC-004 | 改造逻辑明确 | major | llm | **soft** | — | 清单 |
 | DOC-005 | 消息链路时序图 | major | llm | **hard** | `applicability.families: [message]`；`mermaid-sequence(participantFamilies: [message], minMessages 3)`；「解绑后仍推送原因」部分并入 INT-002 候选 | not-applicable |
 
-统计：hard 7、hybrid 12、soft 5；其中 `llm+data` 两条（CAP-003 / CAP-004）分别改为 hybrid（数据可选）与 soft。
+统计：hard 6、hybrid 13、soft 5（按上表逐条计数；早先版本误记为 7/12）；其中 `llm+data` 两条（CAP-003 / CAP-004）分别改为 hybrid（数据可选）与 soft。
 
 ## 附录 B：新增结构性规则（来自模板与历史意见）
 
@@ -339,4 +339,4 @@ lexicon:
 | DOC-011 | 必备章节完整 | major | **hard** | `all[ section(background), section(approach), section(data-plan), section(implementation), section(resources), section(risk), section(attachments) ]` | 模板 | pass |
 | DOC-012 | 附件引用一致 | minor | **hard** | `cross-ref` | 模板 | pass |
 
-合计 28 条：hard 11、hybrid 12、soft 5。对种子方案的预期自动登记：CAP-001（blocker）、CAP-002、CHN-001、DOC-001、CAP-006（major）→ 预审 `ai_verdict = 不通过`（存在 blocker）；另有 CAP-003、SEC-001、SEC-002、SEC-003、SEC-004、INT-002、INT-003 七条进入 LLM 候选判断。这与历史上该类方案多为「建议整改」的分布有张力——正是专家复核（驳回 CAP-001 或降级）与记忆回流要解决的问题；S5 评测将报告该规则的驳回率并据此调参。
+合计 28 条：hard 10、hybrid 13、soft 5（S3a 实现时按规则包逐条核对纠正，原文误记为 11/12/5；T-RUL-12 以此为准）。对种子方案的预期自动登记：CAP-001（blocker）、CAP-002、CHN-001、DOC-001、CAP-006（major）→ 预审 `ai_verdict = 不通过`（存在 blocker）；另有 CAP-003、SEC-001、SEC-002、SEC-003、SEC-004、INT-002、INT-003 七条进入 LLM 候选判断。这与历史上该类方案多为「建议整改」的分布有张力——正是专家复核（驳回 CAP-001 或降级）与记忆回流要解决的问题；S5 评测将报告该规则的驳回率并据此调参。
