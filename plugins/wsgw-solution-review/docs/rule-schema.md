@@ -54,7 +54,7 @@ rules:
 | `question` | string | 是 | 面向 LLM 与专家的审查问句 |
 | `rationale` | string | 是 | 为什么要查 |
 | `suggestion` | string | 是 | 默认整改建议（措辞范例的种子） |
-| `applicability` | `null | { families?: string[]; sections?: string[]; tableRows?: {column, equals} }` | 否 | 适用性前置条件；不满足 → `not-applicable`，不列为问题 |
+| `applicability` | `null | { families?: string[]; sections?: string[]; tableRows?: {column, equals} }` | 否 | 适用性前置条件；不满足 → `not-applicable`，不列为问题。`families` 在全文（段落、标题、表格单元格）上匹配，因此族词必须足够专指（如用「消息推送」而不是「消息」） |
 | `verifier` | §3 | `hard`/`hybrid` 必填；`soft` 必须为空 | |
 | `status` | `active|draft|retired` | 是 | |
 | `provenance` | `{ source, examples[] }` | 是 | `legacy:<id>` / `template` / `expert:<reviewId>` |
@@ -66,12 +66,12 @@ schema 校验在加载时执行（zod）；任何一条失败则整个规则包�
 | tier | 校验器 | 校验器允许的结果 | 谁能登记问题 | 计入 `ai_verdict` |
 |---|---|---|---|---|
 | `hard` | 必填，且 `decisive`（每个子校验器都只产生 pass / fail / not-applicable） | `pass` `fail` `not-applicable` | 只有校验器（`review_check` 自动登记）；LLM 对 hard 规则调用 `review_record_issue` 被拒绝（`HARD_RULE_VERIFIER_OWNED`） | 是 |
-| `hybrid` | 必填 | `candidate` `fail` `pending` `not-applicable` | 校验器 `fail`（必须带 `absence` 证据）自动登记；`candidate` 交给 LLM，LLM 登记时证据必须落在候选片段内 | 是（含自动 fail 与门禁通过的 LLM 登记） |
+| `hybrid` | 必填 | `candidate` `fail` `pass` `pending` `not-applicable` | 校验器 `fail`（只能来自确定性判定：`absence` 证据或结构性子校验器）自动登记；`candidate` 交给 LLM，LLM 登记时证据必须落在候选片段内；`pass` 只能来自结构性子校验器（section / table / quantity / mermaid-sequence / cross-ref） | 是（含自动 fail 与门禁通过的 LLM 登记） |
 | `soft` | 禁止 | — | LLM 可登记，一律 `pending` | 否 |
 
 设计约束：
 
-- `hybrid` 永不自动 `pass`：候选存在 ≠ 满足要求；LLM 不登记问题即视为该规则「未发现问题」，清单上标 `reviewed-no-issue`。
+- `hybrid` 的 `statement`（非 decisive）部分永不产生 `pass`：候选存在 ≠ 满足要求；LLM 不登记问题即视为该规则「未发现问题」，清单上标 `reviewed-no-issue`。结构性子校验器（如 SEC-002 的 Mermaid 鉴权链路检查）的 `pass` 是确定性验证，直接记 `pass`。
 - `hard` 规则一旦 `fail`，专家仍可在复核中驳回（记入反馈，驱动规则调参）。
 - 规则加载时静态检查：`hard` 的校验器树里不得出现 `whenNoCandidate: pending` 或非 decisive 的 `statement`。
 
@@ -126,7 +126,8 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
 | `families` | 必填 | 关键词族 key 列表（`lexicon.families.*`），任一命中即为候选句 |
 | `requireAll` | false | 要求每个族都至少命中一句 |
 | `negationWindow` | 6 | 关键词前 N 字内出现否定词（`lexicon.negations`）→ 句子标 `negated` |
-| `assertionOnly` | — | 正则列表；命中且句内无因果词（因为/由于/通过/链路/依据）→ 标 `assertion-only` |
+| `assertionOnly` | — | 正则列表；命中且句内无因果词 → 标 `assertion-only` |
+| `causalWords` | `[因为, 由于, 通过, 链路, 依据, 基于, 只与, 仅与, 不调用, 不接触]` | 判断「有依据」的词；可按规则覆盖 |
 | `decisive` | false | `true`（hard 用）：存在未否定候选 → `pass`；只有否定候选 → `fail`（证据为否定句）；无候选 → 看 `whenNoCandidate` |
 | `whenNoCandidate` | `pending` | `fail`（absence 证据，quote=「未提及：<族名>」，range=首个限定章节末尾或文末）/ `pending` / `pass` |
 
@@ -269,11 +270,11 @@ lexicon:
     channel-id:  [渠道标识, 渠道编号, 渠道号, member, channel, appCode]
     idempotent:  [幂等, 重试, 重复请求, 去重, 防重]
     channel-ctl: [渠道管控, 渠道开关, 配额, 熔断, 下线, 黑名单, 白名单, 渠道限流]
-    sync:        [数据同步, 同步数据, 实时同步, 异步, 消息队列, MQ, 定时任务]
+    sync:        [数据同步, 同步数据, 实时同步, 异步同步, MQ, 定时任务]
     tracking:    [埋点, 打点, 数据采集]
     tracking-impl: [SDK, 上报, 接口, 字段, 事件, 实现方式, 采集方式]
-    message:     [消息, 推送, 订阅, 通知, 站内信]
-    ui-change:   [样式, 交互, 页面优化, 文字优化, UI, 原型, 按钮]
+    message:     [消息推送, 订阅消息, 推送, 订阅, 站内信, 消息卡片]
+    ui-change:   [样式, 交互优化, 交互调整, 页面优化, 文字优化, UI, 原型, 按钮]
     prototype:   [原型, UE, 对比, 优化前后, 效果图]
 ```
 
