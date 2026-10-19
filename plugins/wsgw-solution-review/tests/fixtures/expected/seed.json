@@ -1,0 +1,50 @@
+{
+  "$comment": "Expected review_check outcome for tests/fixtures/seed.md with rules/capability-open-access.rules.yaml. Source: docs/rule-schema.md Appendix A/B column 种子方案预期.",
+  "fixture": "seed.md",
+  "aiVerdict": "不通过",
+  "autoRegistered": ["CAP-001", "CAP-002", "CAP-006", "CHN-001", "DOC-001"],
+  "hybridCandidates": ["CAP-003", "SEC-001", "SEC-002", "SEC-003", "SEC-004", "INT-002", "INT-003"],
+  "checklist": {
+    "CAP-001": "fail",
+    "CAP-002": "fail",
+    "CAP-003": "candidate",
+    "CAP-004": "soft",
+    "CAP-005": "not-applicable",
+    "CAP-006": "fail",
+    "SEC-001": "candidate",
+    "SEC-002": "candidate",
+    "SEC-003": "candidate",
+    "SEC-004": "candidate",
+    "SEC-005": "soft",
+    "INT-001": "pass",
+    "INT-002": "candidate",
+    "INT-003": "candidate",
+    "INT-004": "pass",
+    "INT-005": "pending",
+    "CHN-001": "fail",
+    "SYN-001": "not-applicable",
+    "CFG-001": "soft",
+    "MON-001": "not-applicable",
+    "DOC-001": "fail",
+    "DOC-002": "not-applicable",
+    "DOC-003": "soft",
+    "DOC-004": "soft",
+    "DOC-005": "not-applicable",
+    "DOC-010": "pass",
+    "DOC-011": "pass",
+    "DOC-012": "pass"
+  },
+  "candidateFlags": {
+    "CAP-003": ["assertion-only"]
+  },
+  "evidenceKinds": {
+    "CAP-001": "absence",
+    "CAP-002": "absence",
+    "CAP-006": "text",
+    "CHN-001": "absence",
+    "DOC-001": "absence"
+  },
+  "evidenceQuotes": {
+    "CAP-006": "上线前期会带来大量新增用户"
+  }
+}

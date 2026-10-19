@@ -1,0 +1,46 @@
+{
+  "$comment": "Per-variant expectations. Only the rules whose outcome differs from seed.json (or is the point of the variant) are listed. Source: docs/design.md §14, docs/rule-schema.md.",
+  "seed-no-impl.md": {
+    "checklist": { "DOC-011": "fail", "CAP-002": "fail" },
+    "evidenceKinds": { "DOC-011": "absence", "CAP-002": "absence" },
+    "absenceMentions": { "DOC-011": "实施方案" }
+  },
+  "seed-negated.md": {
+    "checklist": { "CAP-002": "fail" },
+    "evidenceKinds": { "CAP-002": "text" },
+    "evidenceQuotes": { "CAP-002": "暂不开展压测" }
+  },
+  "seed-placeholder.md": {
+    "checklist": { "DOC-011": "fail", "CAP-003": "fail", "SEC-004": "fail" },
+    "evidenceQuotes": { "DOC-011": "略" }
+  },
+  "seed-missing-attachment.md": {
+    "checklist": { "DOC-012": "fail", "INT-001": "fail" },
+    "evidenceQuotes": { "DOC-012": "附件 4" }
+  },
+  "seed-mermaid-incomplete.md": {
+    "checklist": { "DOC-001": "pass", "SEC-002": "fail" },
+    "evidenceKinds": { "SEC-002": "mermaid" },
+    "noteMentions": { "SEC-002": ["openid", "phone"] }
+  },
+  "seed-mermaid-ok.md": {
+    "checklist": { "DOC-001": "pass", "SEC-002": "pass" }
+  },
+  "seed-compliant.md": {
+    "aiVerdict": "通过",
+    "autoRegistered": [],
+    "checklist": {
+      "CAP-001": "candidate",
+      "CAP-002": "pass",
+      "CAP-003": "candidate",
+      "CAP-006": "pass",
+      "SEC-002": "pass",
+      "INT-002": "candidate",
+      "INT-005": "candidate",
+      "CHN-001": "candidate",
+      "DOC-001": "pass"
+    },
+    "candidateFlagsAbsent": { "CAP-003": ["assertion-only"] },
+    "evidenceQuotes": { "CAP-006": "新增用户 50 万" }
+  }
+}

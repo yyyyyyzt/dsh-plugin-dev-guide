@@ -1,0 +1,24 @@
+pack:
+  id: t
+  name: t
+  version: 0.0.1
+  scenario: t
+  description: t
+lexicon:
+  headings: { resources: [资源评估] }
+  placeholders: ["/"]
+  negations: [不]
+  families: { loadtest: [压测] }
+rules:
+  - id: CAP-002
+    title: t
+    dimension: capacity
+    severity: major
+    tier: hard
+    question: q
+    rationale: r
+    suggestion: s
+    applicability: null
+    verifier: { kind: statement, params: { families: [loadtest], decisive: true, whenNoCandidate: fail } }
+    status: active
+    provenance: { source: t, examples: [] }
