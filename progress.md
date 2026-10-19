@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-19　|　当前步骤：**S2 测试用例完成（引擎用例红灯、其余 todo），进入 S3a 引擎实现**
+> 更新：2026-10-19　|　当前步骤：**S3a 引擎实现完成（214 条引擎用例全绿、bench 0.54 s），进入 S3b 存储与工具**
 
 ## 1. 步骤总览
 
@@ -12,7 +12,7 @@
 | S0 | 归档旧版、建立 `AGENTS.md` / `progress.md` | 旧 32 文件在 `archive/`；两份指引可读；PR 已开 | ✅ 2026-10-19 |
 | S1 | 文档定稿：需求 V1.0、设计 V1.0、规则 schema、对话协议、评测方案、dashboard 规格 | 六份文档互不矛盾，用户确认；每份文档末尾有「测试要点」清单供 S2 取用 | 🟡 2026-10-19 六份已写出（测试要点共 74 条）；用户「继续开发」视为默认确认，三处细节仍可改（见 §7） |
 | S2 | 测试用例：工程骨架 + fixtures + 全部用例（红灯 / todo） | `pnpm test` 能跑，用例数与 S1 测试要点一一对应 | ✅ 2026-10-19 `pnpm test`：184 条引擎用例红灯（全部 `NotImplementedError`）、107 条 todo；`pnpm typecheck` 通过 |
-| S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ⬜ |
+| S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ✅ 2026-10-19 `pnpm test:engine` 214 passed；`pnpm bench` 200 KB 0.54 s；`pnpm typecheck` 通过 |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ⬜ |
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ⬜ |
 | S4 | Client dashboard（sidebar-right tab 四页）+ 设置卡片 + 只读 API | bundle 校验脚本通过；页面展示规则 / 记录 / 记忆 / 评测；录屏 | ⬜ |
@@ -40,14 +40,27 @@
 | `src/engine/types.ts` + 各单元 stub | 引擎全部类型；每个函数抛 `NotImplementedError`，保证红灯而非编译失败 | ✅ |
 | `rules/capability-open-access.rules.yaml` | 28 条 shipped 规则（附录 A/B）+ 词表。**S5 的「规则迁移」提前到 S2**，因 T-RUL-12 需要 | ✅ |
 | `fixtures/` | `seed.md` + 7 个变体（no-impl / negated / placeholder / missing-attachment / mermaid-incomplete / mermaid-ok / compliant）；`expected/seed.json`（28 条清单预期）与 `expected/variants.json`；8 个规则 YAML 样例（1 合法 7 非法） | ✅ |
-| `engine/*.spec.ts`（184 条） | normalize 9、parse 12、mermaid 7、section 7、table 9、statement 18、quantity 6、mermaid-sequence 10、cross-ref 7、combinators 24、check 33、gate 15、verdict 11、memory 15、rules 21、render 10（含 `it.each` 展开） | 🔴 红灯（S3a 变绿） |
+| `engine/*.spec.ts`（184 条） | normalize 9、parse 12、mermaid 7、section 7、table 9、statement 18、quantity 6、mermaid-sequence 10、cross-ref 7、combinators 24、check 33、gate 15、verdict 11、memory 15、rules 21、render 10（含 `it.each` 展开） | ✅ 全绿（S3a） |
 | `store/` `tools/` `api/` `client/` `protocol/` `eval/`（107 条 `it.todo`） | 以 T-ID 命名的占位用例；需要 DSH 运行时或 S4/S5 产物 | ⬜ todo |
-| `bench/check.bench.spec.ts` | 200 KB 合成文档 ≤ 2 s（默认不跑，`pnpm vitest run tests/bench`） | 🔴 |
+| `bench/check.bench.spec.ts` | 200 KB 合成文档 ≤ 2 s（默认不跑，`pnpm bench`） | ✅ 0.54 s |
 | `client/check-bundle.mjs` | banner / footer / 外部化白名单 / 未内联 React / 体积 | 待 S4 有 bundle 后运行 |
 
 覆盖对照：74 条测试要点全部有对应用例（T-REQ 20 / T-DES 14 / T-RUL 12 / T-PRO 10 / T-EVA 9 / T-DSH 9），其中需运行时的以 todo 占位。
 
-### S3–S6
+### S3a（引擎实现，2026-10-19）
+
+| 位置 | 内容 | 状态 |
+|---|---|---|
+| `src/engine/normalize.ts` | NFKC + 去强调符 + 空白折叠，带源偏移映射；`findQuote/findAllQuotes`（忽略空白匹配）、`splitSentences`、行号索引（二分） | ✅ |
+| `src/engine/parse/markdown.ts` `parse/mermaid.ts` | mdast+gfm：标题树与 path（H1 为标题不入 path）、bodyRange、表格 cellRanges、Mermaid 时序图参与者/消息、图片、sha256、stats | ✅ |
+| `src/engine/verifiers/*` | section / table / statement / quantity / mermaid-sequence / cross-ref + `all`/`first`；公共层 `common.ts`（章节定位、句子切分与缓存、族词命中、占位符、缺失证据） | ✅ |
+| `src/engine/rules.ts` | zod schema + 静态约束（soft 无校验器、hard 必须 decisive 且 `whenNoCandidate≠pending`、词表 key 存在、id 唯一）；`mergeRules` 白名单覆盖、草案追加、hard+pending 拒绝 | ✅ |
+| `src/engine/check.ts` `gate.ts` `verdict.ts` | 适用性判定、tier 分流与清单；证据门禁七类原因、候选内优先定位；结论策略（仅 confirmed/adopted/rewritten × hard/hybrid/expert 计数） | ✅ |
+| `src/engine/memory.ts` `render/opinion.ts` | 统计聚合、召回与「常被驳回」告警、范例上限、专家新增→候选规则（维度猜测）、滑动采纳率；正式意见渲染与版本文件名 | ✅ |
+
+实现中对 S2 产物的两处修正：(1) 附录 A/B 合计数原文误记 11/12/5，按逐条分级实为 **hard 10 / hybrid 13 / soft 5**，文档与 `rules.spec.ts` 同步改正；(2) `check.spec.ts` 对 pass 规则的「预期引文」改为也接受清单 `note`（pass 无 issue/candidate，可引用的证据只在 note 里），`quantity` 的 pass note 改为引用「上下文词 + 数字」片段。
+
+### S3b–S6
 
 按 §1 表格；细目在各自开始时补入本文件。
 
@@ -74,6 +87,8 @@
 | 2026-10-19 | 论文：产品全部脱敏为「能源互联网平台」；目标期刊改为 MDPI *Computers*（按 ReqPlan-Eval 先例写法）；试点预计上百份；不做第二模型复跑 | 用户决定（S2 后） |
 | 2026-10-19 | 论文叙事从「准确率提升」改为「审查知识引入问题 + 知识编译器视角」；方法允许为组合与微改；实现与论文叙事分离 | 用户否决 v0.1；`paper/innovation-notes.md` v0.2 |
 | 2026-10-19 | `/review` `/rules` `/memory` 命令只做 host 侧即时查询；发起审查用自然语言 | DSH `ctx.commands` 的 handler 不经过模型（见 `docs/subsystems/commands.zh.md`） |
+| 2026-10-19 | 规则分级合计以附录 A/B 逐条为准（hard 10 / hybrid 13 / soft 5），不为凑数改任何规则的 tier | S3a 实现时发现统计误记；MON-001 旧 check_method 为 rule 但校验器是非 decisive statement，维持 hybrid |
+| 2026-10-19 | 门禁定位同一引文多次出现时：先取落在候选片段内的命中，再取声明章节内的，最后取首个 | T-DES-06 用例揭示同一章节内重复句的情形 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -106,20 +121,20 @@
 |---|---|
 | S0 | `git mv` 32 个文件到 `archive/legacy-review-tool/`（见 commit）；`AGENTS.md`、`progress.md`、`archive/README.md` 新建；README 目录表指向新项目 |
 | S2 | `plugins/wsgw-solution-review/`：`pnpm install && pnpm typecheck && pnpm test` → `Tests 117 failed | 97 skipped | 107 todo (321)`（failed/skipped 全部源于 `NotImplementedError`，skipped 为 `beforeAll` 内 stub 抛错连带）；三次提交 `chore(review)` / `feat(review)` / `test(review)` | 
+| S3a | `pnpm test` → `Tests 214 passed | 107 todo (321)`；`pnpm bench` → 200 KB `check()` 0.54 s（首版 19.6 s，`offsetAt` 每句重扫源文件为 O(n²)，改为行号索引 + 按 Doc 缓存句子/全文后修复）；`pnpm typecheck` 通过；五次提交 `feat(review)` ×4 / `perf(review)` ×1 |
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
 
 S1 三处细节仍可由用户调整（不阻塞）：附录 A 中 CAP-001 对种子方案判 blocker；`review-protocol.md` §2–§3 persona / SOP 文案；论文是否脱敏产品名。
 
-进入 **S3a 引擎实现**（纯函数，无 I/O），目标 `pnpm test:engine` 全绿：
+S3a 已完成。进入 **S3b Host 存储与工具**（需引入 DSH 包，先升级 Node 到 ^22.19）：
 
-1. `normalize.ts`（NFKC、空白、强调符、偏移映射、`findQuote`、`splitSentences`）→ 9 条；
-2. `parse/markdown.ts`（mdast + gfm：标题树与 path、bodyRange、表格 cellRanges、Mermaid/图片/代码块、sha256）与 `parse/mermaid.ts` → 19 条；
-3. 六个校验器 + `all`/`first` → 81 条；
-4. `check.ts`（适用性、tier 分流、清单）→ 33 条；`gate.ts` → 15；`verdict.ts` → 11；`memory.ts` → 15；`rules.ts`（zod schema、静态约束、merge 白名单）→ 21；`render/opinion.ts` → 10；
-5. 跑 `tests/bench` 验证 200 KB ≤ 2 s；
-6. 更新本文件 S3a 行。
+1. `pnpm add @deepseek-ai/dsh-plugin-sdk`（或 rc.2 对应包名，以 `dsh-v0.2.1-rc.2` 的 `package.json` 为准）；补 `tsconfig` 路径；
+2. storage domain：`reviews` / `issues` / `feedback` / `rule_overrides` / `exemplars` / `eval_runs`（`docs/design.md` §7），把 `tests/store/domain.spec.ts` 12 条 todo 变成断言；
+3. 工具：`review_parse` / `review_check` / `review_record_issue`（走 `gate`，hard 规则抛 `HARD_RULE_VERIFIER_OWNED`）/ `review_decide` / `review_status` / `review_finalize` / `rules_list` / `rules_propose` / `memory_recall`，把 `tests/tools/tools.spec.ts` 42 条 todo 变成断言；
+4. 规则包**有效版本号**字段（论文反向要求：`pack.version` + override 修订计数，写入 `reviews`，供「可审计」性质的实验引用）；
+5. `--dump-config` 能组装；更新本文件 S3b 行。
 
 论文侧：`paper/innovation-notes.md` v0.2 已重写（问题定义 / 编译器叙事 / 四性质评测），S3b 需加规则包有效版本号字段；其余（贡献 C1–C5、相关工作对照、新颖性风险、实验—主张映射、骨架、对开发的反向要求）；其中两条新待办归 S5：合成生成器输出问题级真值；「模拟专家」脚本验证 warn 机制。待决见 notes §9。
 
