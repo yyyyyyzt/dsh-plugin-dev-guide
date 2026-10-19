@@ -4,7 +4,7 @@
 
 ## legacy-review-tool/（2026-08 旧版「网上国网技术方案 AI 审查工具」演示）
 
-Python FastAPI + 单页 HTML 的旧版原型，与本仓库的 DSH 插件指南没有功能关系，已被 `plugins/dsh-solution-review/`（DSH 插件重做版）取代。保留原因与复用方式：
+Python FastAPI + 单页 HTML 的旧版原型，与本仓库的 DSH 插件指南没有功能关系，已被 `plugins/wsgw-solution-review/`（DSH 插件重做版）取代。保留原因与复用方式：
 
 | 路径 | 性质 | 对新版的价值 |
 |---|---|---|

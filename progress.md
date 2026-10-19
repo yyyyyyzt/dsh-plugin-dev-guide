@@ -1,6 +1,6 @@
-# progress.md — dsh-solution-review 进度
+# progress.md — wsgw-solution-review 进度
 
-> 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/dsh-solution-review/docs/`）。
+> 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
 > 更新：2026-10-19　|　当前步骤：**S0 完成，S1 待开始**
 
 ## 1. 步骤总览
@@ -21,7 +21,7 @@
 
 ## 2. 各步骤交付清单
 
-### S1 文档（`plugins/dsh-solution-review/docs/`）
+### S1 文档（`plugins/wsgw-solution-review/docs/`）
 
 | 文件 | 内容要点 |
 |---|---|
@@ -32,7 +32,7 @@
 | `evaluation.md` | 指标定义（`AGENTS.md` §5.3 展开）、在线标注规则、离线评测集构建、消融设计、统计方法、数据脱敏 |
 | `dashboard.md` | 四页信息架构、每页数据来源（表 / 聚合）、交互（规则启停、候选规则审批入口只读 + 跳转对话）、空状态、slot 与 tab 注册 |
 
-### S2 测试（`plugins/dsh-solution-review/tests/`）
+### S2 测试（`plugins/wsgw-solution-review/tests/`）
 
 - `fixtures/`：种子方案 + 变体（缺压测、否定句、无 Mermaid、附件引用缺失、占位表格）、规则 YAML 样例、预期问题清单。
 - `engine/*.spec.ts`：解析器、每种校验器、证据门禁、结论策略、记忆聚合。
@@ -58,18 +58,28 @@
 | 2026-10-19 | 台账不进产品 | 用户决策 5 |
 | 2026-10-19 | Word/PDF 转换、LLM 客户端、表单、Word 生成一律不自研，用 DSH 原生插件 | 用户铁律「能装插件就装插件」 |
 | 2026-10-19 | 指引文件命名为 `AGENTS.md`（而非 `agent.md`） | DSH `agent-instructions` 与 Cursor 均按此名自动加载；语义等同用户所说的 agent.md |
+| 2026-10-19 | 包名与目录 `wsgw-solution-review`（wsgw = 网上国网） | 用户拍板 Q1 |
+| 2026-10-19 | 模型默认 DeepSeek；插件只经 DSH provider / agent 访问模型，不绑定厂商；评测走 `ctx.llm`，温度 0 | 用户拍板 Q2 |
+| 2026-10-19 | 正式意见 = Markdown 文件 + 可选 `present` 交付；格式沿用历史意见「意见：<结论>（1）（2）…」 | 用户拍板 Q3 |
+| 2026-10-19 | 首批规则：旧 24 条按可验证性分级，分级结果定稿在 `docs/rule-schema.md` 附录 A | 用户拍板 Q4 |
+| 2026-10-19 | 历史方案原文不可得：离线评测用**合成方案**（按 30 条历史意见反向植入缺陷），论文中明示为 synthetic；真实原文到位后替换 | 用户拍板 Q5 |
+| 2026-10-19 | 论文数据匿名；脱敏方法定稿在 `docs/evaluation.md` §7 | 用户拍板 Q6 |
+| 2026-10-19 | 部署 Web profile；未来开放 ip:port 到局域网 → 看板 API 只读、鉴权沿用 DSH、不自建用户体系；专家身份通过会话内一次性提问记录 | 用户拍板 Q7 |
+| 2026-10-19 | `/review` `/rules` `/memory` 命令只做 host 侧即时查询；发起审查用自然语言 | DSH `ctx.commands` 的 handler 不经过模型（见 `docs/subsystems/commands.zh.md`） |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
-| # | 问题 | 默认 | 需要用户何时拍板 |
+| # | 问题 | 结论（2026-10-19 用户拍板） | 状态 |
 |---|---|---|---|
-| Q1 | 插件包名 | 目录与包名暂用 `dsh-solution-review`；发布前再决定是否加 npm scope | S4 前 |
-| Q2 | 模型与接入 | 走 DSH 自带 provider（DeepSeek 账号 / API key）；内网模型通过 DSH 的自定义 provider 配置，插件不感知 | S3c 真机验证前 |
-| Q3 | 正式意见格式 | 采用历史意见格式：`意见：<结论>` + `（1）（2）…` 分点；如有正式公文模板请提供样例 | S1 `review-protocol.md` |
-| Q4 | 首批规则范围 | 从 24 条中迁移：有结构可验证的进 hard / hybrid（预计 15 条左右），`llm+data` 两条退役，其余 soft | S1 `rule-schema.md` 定稿后、S5 迁移时 |
-| Q5 | 历史方案原文 | 若能拿到 30 条意见对应的方案 Markdown（或 Word，用 office skill 转），离线评测可提前到 S5 初；否则只做在线标注 | S5 前 |
-| Q6 | 论文数据脱敏与署名 | 方案与意见脱敏后作为匿名数据集随稿件开源；署名、单位待定 | S6 |
-| Q7 | 部署形态 | DSH Web（`dsh web`）单机；Desktop 不单独验证 | S3c |
+| Q1 | 插件包名 | `wsgw-solution-review`；npm scope 发布前再定 | ✅ |
+| Q2 | 模型与接入 | 默认 DeepSeek，走 DSH provider；插件不感知厂商 | ✅ |
+| Q3 | 正式意见格式 | Markdown + 可选 `present`；沿用历史意见格式 | ✅ |
+| Q4 | 首批规则范围 | 旧 24 条按可验证性分级（`docs/rule-schema.md` 附录 A） | ✅ |
+| Q5 | 历史方案原文 | 暂不可得；S5 用合成方案；论文明示 synthetic | ✅ |
+| Q6 | 论文数据脱敏与署名 | 匿名；脱敏方法见 `docs/evaluation.md` §7；署名单位 S6 再定 | ✅（署名待定） |
+| Q7 | 部署形态 | Web profile；未来局域网开放 ip:port；看板只读、鉴权沿用 DSH | ✅ |
+| Q8 | 正式公文模板样例 | 若有正式红头/表单模板，提供样例后在 `review-protocol.md` §6 增加模板变体；默认沿用历史意见格式 | ⬜ 不阻塞 |
+| Q9 | 专家身份 | 局域网多人使用时如何区分专家：默认每个会话首次复核前用 `ask_user_question` 问一次姓名/工号并写入 `reviews.reviewer`；不自建账号体系 | ⬜ 不阻塞，按默认 |
 
 ## 5. 推迟 / 拒绝
 
@@ -90,4 +100,4 @@
 
 ## 7. 下一步
 
-S1 第一份文档：`plugins/dsh-solution-review/docs/requirements.md`（V1.0）。写法：以 `AGENTS.md` §2、§4 为纲，逐条给出验收标准与测试要点；完成后请用户确认，再写 `design.md`。
+S1 第一份文档：`plugins/wsgw-solution-review/docs/requirements.md`（V1.0）。写法：以 `AGENTS.md` §2、§4 为纲，逐条给出验收标准与测试要点；完成后请用户确认，再写 `design.md`。
