@@ -81,7 +81,7 @@ const VerifierSchema: z.ZodType<VerifierSpec> = z.lazy(() =>
   ]),
 ) as z.ZodType<VerifierSpec>
 
-const RuleSchema = z.object({
+export const RuleSchema = z.object({
   id: z.string().regex(RULE_ID),
   title: z.string().min(1).max(20),
   dimension: z.enum(['capacity', 'security', 'interface', 'channel', 'data_sync', 'config', 'monitoring', 'documentation']),
@@ -236,6 +236,32 @@ export function parseRulePack(yamlText: string): RulePack {
     rules.push(rule)
   }
   return { pack: meta.data, lexicon: lexicon.data, rules }
+}
+
+// A single-rule YAML as the agent drafts it in `rules_propose(draft)`: status and provenance may be omitted.
+const DraftRuleSchema = RuleSchema.extend({
+  status: z.enum(['active', 'draft', 'retired']).default('draft'),
+  provenance: z
+    .object({ source: z.string().min(1), examples: z.array(z.string()) })
+    .default({ source: 'expert-draft', examples: [] }),
+})
+
+export function parseRuleDraft(yamlText: string, lexicon: Lexicon): Rule {
+  let raw: unknown
+  try {
+    raw = parseYaml(yamlText)
+  } catch (e) {
+    throw new RulePackError(`rule draft is not valid YAML: ${(e as Error).message}`, null, 'yaml')
+  }
+  const parsed = DraftRuleSchema.safeParse(raw)
+  if (!parsed.success) {
+    const field = firstIssuePath(parsed.error) || 'rule'
+    throw new RulePackError(`invalid rule draft (${field}): ${parsed.error.issues[0]?.message ?? ''}`, rawRuleId(raw), field)
+  }
+  const rule = parsed.data as Rule
+  checkTier(rule)
+  checkLexiconRefs(rule, lexicon)
+  return rule
 }
 
 // ---------- merge ----------
