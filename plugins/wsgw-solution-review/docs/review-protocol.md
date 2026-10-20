@@ -191,7 +191,7 @@ agent: [review_decide reject CAP-001 reason=…; adopt_rest]
 agent: [ask_user_question 最终结论：建议整改（推荐）/ 通过 / 不通过]
 专家: 建议整改
 agent: [review_decide set_final_verdict; review_finalize; present]
-已生成《技术方案预审意见》reviews/rv_20261019_k3m9qa.md：意见：建议整改，共 6 条。CAP-001 已被驳回 1 次。
+已生成《技术方案预审意见》reviews/rv_20261019_k3m7qa.md：意见：建议整改，共 6 条。CAP-001 已被驳回 1 次。
 ```
 
 ## 9. 测试要点（供 S2）
