@@ -212,7 +212,7 @@ ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
 
 **这些包的 `latest` dist-tag 不可靠,要按 DSH 版本对齐着装。** `npm view @deepseek-ai/dsh-client-runtime version` 给的是 `0.0.1-rc.1`,一个陈旧发布;它依赖 `@deepseek-ai/dsh-compact`,而那个包已改名 `dsh-compaction`,registry 里没有,于是安装直接 404。
 
-实际与 DSH 对齐的版本是 `0.1.1-rc.2`(和 `@deepseek-ai/dsh` 同号),只有 2 个依赖,干净。
+本工作区实测时的对齐版本是 `0.1.1-rc.2`(和 `@deepseek-ai/dsh` 同号),当时只有 2 个依赖;0.2.1-rc.2 的 client-runtime 版本号与 DSH 同号,依赖数以 `npm view` 为准。
 
 ```bash
 npm view @deepseek-ai/dsh-client-runtime versions   # 看列表,不要只看 latest

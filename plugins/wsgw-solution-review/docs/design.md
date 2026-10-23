@@ -41,7 +41,7 @@ plugins/wsgw-solution-review/
 │  │  ├─ store.ts               defineDomain spec + ReviewStore 服务（ctx.solutionReview）
 │  │  ├─ config.ts              schemastery Config
 │  │  ├─ commands.ts            /review /rules /memory
-│  │  ├─ api.ts                 只读 HTTP 路由
+│  │  ├─ api.ts                 HTTP 路由（读 + 受限写）
 │  │  ├─ skills.ts              SkillProvider（随包 SKILL.md）
 │  │  └─ settings.ts            installSettingsSection
 │  └─ client/
@@ -281,9 +281,9 @@ export const reviewDomain = defineDomain({
 | `/rules` | 空 或 `<dimension|tier>` | 生效规则表（id / tier / severity / status / 采纳率） |
 | `/memory` | `<ruleId>` | 该规则统计 + 最近 5 条范例 + 最近 3 条驳回原因 |
 
-## 10. HTTP 路由（看板只读）
+## 10. HTTP 路由（看板读 + 受限写）
 
-前缀 `/plugins/wsgw-solution-review/api`，全部 `GET`，`Content-Type: application/json`，非 GET 返回 405，跨源返回 403（校验 `Origin`/`Host` 同源）。
+前缀 `/plugins/wsgw-solution-review/api`，`Content-Type: application/json`。`GET` 读；`POST` / `PATCH` 写。所有路由校验 `Origin`/`Host` 同源（跨源 403），写路由沿用 DSH Web 鉴权（未授权 401），并记录审计（who / when / reviewId）。
 
 | 路由 | 返回 |
 |---|---|
@@ -293,7 +293,19 @@ export const reviewDomain = defineDomain({
 | `/memory` | 按规则号聚合：stats、范例数、候选规则、趋势序列（按审查序号的 adopt 率） |
 | `/eval` | `eval_runs` 列表与最新一轮明细 |
 
-鉴权沿用 DSH Web 本身（路由在同一 `node:http` 载体后面，受同一访问控制）；本包不新增凭证。局域网开放时建议在 DSH 层配置 TLS 与访问令牌（S3c 验证并写入 README）。
+写路由：
+
+| 路由 | 请求 | 行为 |
+|---|---|---|
+| `PATCH /rules/:id` | `{status?, severity?, params?}` | 写 `rule_overrides`；`params` 仅白名单；审计 |
+| `POST /rule-candidates/:id` | `{action:'accept'|'dismiss'}` | 审批候选；等价 `rules_propose` |
+| `POST /reviews/:id/issues/:issueId` | `{action:'adopt'|'reject'|'rewrite', text?, reason?}` | 写 `feedback` 与 `issues.status`；等价 `review_decide` |
+| `POST /reviews/:id/reviewer` | `{reviewer}` | 写 `reviews.reviewer` |
+| `POST /reviews/:id/final-verdict` | `{finalVerdict, reviewer?}` | 唯一看板写最终结论入口；要求 reviewer 已知 |
+
+所有写操作走 `ReviewStore` 的同一方法，不复制业务逻辑；写后返回最新聚合。删除记录、直接编辑正式意见正文不开放。
+
+鉴权沿用 DSH Web 本身（路由在同一 `node:http` 载体后面，受同一访问控制）；本包不新增凭证。局域网开放时建议在 DSH 层配置 TLS 与访问令牌（S3c 验证并写入 README）。细粒度权限（只读 / 审批人 / 规则管理员）后置。
 
 ## 11. 配置与设置
 
@@ -314,7 +326,7 @@ export const reviewDomain = defineDomain({
 ## 13. 安全
 
 - 文件读取只经 `ctx.fs`（受 DSH 文件系统策略），不直接 `node:fs` 读用户路径；输出目录在工作目录内（绝对路径需在配置显式允许）。
-- 路由只读、同源校验、无写接口。
+- 路由同源校验；写路由需 DSH 鉴权并写审计；删除记录与正文编辑不开放。
 - 日志不输出方案全文与证据原文（只输出 reviewId / ruleId / 长度）。
 - 不收集、不上传任何数据；评测脚本只在本机运行。
 

@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-20　|　当前步骤：**S3b 完成、S3c 大部分完成：插件可一条命令装进 `web` profile，真机 `dsh web` 加载成功；剩 mock LLM 协议回放与有模型的端到端种子审查**
+> 更新：2026-10-23　|　当前步骤：**P0 已完成（工具输出明细 / hybrid 无候选 = 待人工 / absence 显式标注）+ 仓库清理；下一步 S3c 的协议回放与真机种子审查**
 
 ## 1. 步骤总览
 
@@ -9,14 +9,14 @@
 
 | 步骤 | 内容 | 完成定义 | 状态 |
 |---|---|---|---|
-| S0 | 归档旧版、建立 `AGENTS.md` / `progress.md` | 旧 32 文件在 `archive/`；两份指引可读；PR 已开 | ✅ 2026-10-19 |
+| S0 | 建立 `AGENTS.md` / `progress.md`；旧版已删除 | 两份指引可读；PR 已开 | ✅ 2026-10-19（2026-10-23 旧版全删） |
 | S1 | 文档定稿：需求 V1.0、设计 V1.0、规则 schema、对话协议、评测方案、dashboard 规格 | 六份文档互不矛盾，用户确认；每份文档末尾有「测试要点」清单供 S2 取用 | 🟡 2026-10-19 六份已写出（测试要点共 74 条）；用户「继续开发」视为默认确认，三处细节仍可改（见 §7） |
 | S2 | 测试用例：工程骨架 + fixtures + 全部用例（红灯 / todo） | `pnpm test` 能跑，用例数与 S1 测试要点一一对应 | ✅ 2026-10-19 `pnpm test`：184 条引擎用例红灯（全部 `NotImplementedError`）、107 条 todo；`pnpm typecheck` 通过 |
 | S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ✅ 2026-10-19 `pnpm test:engine` 214 passed；`pnpm bench` 200 KB 0.54 s；`pnpm typecheck` 通过 |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ✅ 2026-10-20 `pnpm test` 284 passed（store 12 / tools 45 / host 13 条由 todo 转为断言）；`--dump-config` 出现两行 |
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | 🟡 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。**未完成**：mock LLM 协议回放（`tests/protocol/` 仍 todo）、有模型的端到端种子审查 |
-| S4 | Client dashboard（sidebar-right tab 四页）+ 设置卡片 + 只读 API | bundle 校验脚本通过；页面展示规则 / 记录 / 记忆 / 评测；录屏 | ⬜ |
-| S5 | 数据迁移与评测：24 条规则重写入新 schema；30 条历史意见做覆盖分析与分布校准；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
+| S4 | Client dashboard（sidebar-right tab 四页）+ 设置卡片 + 可写 API（规则 / 候选 / 复核） | bundle 校验脚本通过；页面展示并可修改规则 / 记录 / 记忆 / 评测；录屏 | ⬜ |
+| S5 | 数据迁移与评测：24 条规则重写入新 schema；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
 | S6 | 论文：大纲 → 实验 → 稿件（Applied Sciences 模板） | 稿件初稿 + 图表 + 可复现包 | ⬜ |
 
 ## 2. 各步骤交付清单
@@ -30,7 +30,7 @@
 | `rule-schema.md` | 规则 YAML schema、三级 tier 语义、6 种校验器的输入 / 输出 / 证据锚点格式、否定词与占位词表、shipped/learned 分层与覆盖规则、规则生命周期（draft→active→retired） |
 | `review-protocol.md` | 对话协议：命令与触发、skill SOP 文本初稿、`ask_user_question` 批次与选项文案、专家自然语言意见的归一化、定稿模板（公文风格，取自历史意见格式）、异常路径（无证据、专家中途退出、重复审查） |
 | `evaluation.md` | 指标定义（`AGENTS.md` §5.3 展开）、在线标注规则、离线评测集构建、消融设计、统计方法、数据脱敏 |
-| `dashboard.md` | 四页信息架构、每页数据来源（表 / 聚合）、交互（规则启停、候选规则审批入口只读 + 跳转对话）、空状态、slot 与 tab 注册 |
+| `dashboard.md` | 四页信息架构、每页数据来源（表 / 聚合）、交互（规则启停、候选审批、复核决定可写）、空状态、slot 与 tab 注册 |
 
 ### S2 测试（`plugins/wsgw-solution-review/tests/`）✅
 
@@ -121,6 +121,10 @@
 | 2026-10-20 | `rule_overrides.stats.shown` 语义 = 该规则在已定稿审查中被提出（含 verifier 与专家登记）的次数；`adopt/reject/rewrite` 取最后一次决定 | 复核多次改口只算最终决定；统计在 `finalize` 时整体重算，幂等 |
 | 2026-10-20 | `review_decide` 增加 `answer` 参数（专家原话归一化：采纳 / 驳回 / 改成…），与结构化 `action` 并存 | T-PRO-04/05：`ask_user_question` 的自由回复不应由模型二次解释 |
 | 2026-10-20 | 错误码新增 `BAD_DRAFT`、`CANDIDATE_NOT_FOUND` | `rules_propose(draft / accept_draft / dismiss)` 需要 |
+| 2026-10-23 | `archive/` 全删（34 个 path）；30 条历史意见 / 45 个意见点不再随仓库分发；论文只引用聚合口径 | 用户决策「直接全删」；原始数据可由 git 历史恢复 |
+| 2026-10-23 | 看板从只读改为**可写**：规则启停 / 级别 / 参数、候选审批、复核决定；沿用 DSH 鉴权，细粒度权限后置 | 用户决策「允许改写，前期降低维护成本」；统一走 store 写入口，避免两套逻辑 |
+| 2026-10-23 | 文档基线字符串直接改 `dsh-v0.2.1-rc.2` / `pnpm@11.28.5`；行为章节标「待逐章复核」 | 用户决策「直接改」；只改字符串不等于已验证 0.2.1 行为 |
+| 2026-10-23 | P0：hybrid 无候选一律 `pending`；`whenNoCandidate: fail` 仅 hard；absence 只由校验器产生并显式标注「非引文」；工具输出返回明细而非摘要 | 2026-10-23 审查复盘：hybrid 自动 fail、证据伪装、工具只回计数 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -132,7 +136,7 @@
 | Q4 | 首批规则范围 | 旧 24 条按可验证性分级（`docs/rule-schema.md` 附录 A） | ✅ |
 | Q5 | 历史方案原文 | 暂不可得；S5 用合成方案；论文明示 synthetic | ✅ |
 | Q6 | 论文数据脱敏与署名 | 匿名；脱敏方法见 `docs/evaluation.md` §7；署名单位 S6 再定 | ✅（署名待定） |
-| Q7 | 部署形态 | Web profile；未来局域网开放 ip:port；看板只读、鉴权沿用 DSH | ✅ |
+| Q7 | 部署形态 | Web profile；未来局域网开放 ip:port；看板可写（规则 / 候选 / 复核）、鉴权沿用 DSH；细粒度权限后置 | ✅ 2026-10-23 修订 |
 | Q8 | 正式公文模板样例 | 若有正式红头/表单模板，提供样例后在 `review-protocol.md` §6 增加模板变体；默认沿用历史意见格式 | ⬜ 不阻塞 |
 | Q9 | 专家身份 | 局域网多人使用时如何区分专家：默认每个会话首次复核前用 `ask_user_question` 问一次姓名/工号并写入 `reviews.reviewer`；不自建账号体系 | ⬜ 不阻塞，按默认 |
 
@@ -151,22 +155,23 @@
 
 | 步骤 | 证据 |
 |---|---|
-| S0 | `git mv` 32 个文件到 `archive/legacy-review-tool/`（见 commit）；`AGENTS.md`、`progress.md`、`archive/README.md` 新建；README 目录表指向新项目 |
+| S0 | 2026-10-23 按用户决策 `git rm -r archive`（34 path）；`AGENTS.md`、`progress.md` 保留；README 目录表移除归档行 |
 | S2 | `plugins/wsgw-solution-review/`：`pnpm install && pnpm typecheck && pnpm test` → `Tests 117 failed | 97 skipped | 107 todo (321)`（failed/skipped 全部源于 `NotImplementedError`，skipped 为 `beforeAll` 内 stub 抛错连带）；三次提交 `chore(review)` / `feat(review)` / `test(review)` | 
 | S3a | `pnpm test` → `Tests 214 passed | 107 todo (321)`；`pnpm bench` → 200 KB `check()` 0.54 s（首版 19.6 s，`offsetAt` 每句重扫源文件为 O(n²)，改为行号索引 + 按 Doc 缓存句子/全文后修复）；`pnpm typecheck` 通过；五次提交 `feat(review)` ×4 / `perf(review)` ×1 |
 | S3b / S3c | `pnpm typecheck` 通过；`pnpm test` → `Tests 284 passed | 53 todo (337)`；`pnpm build` 生成 `lib/`。真机（Node v22.23.3，隔离 `DSH_HOME`）：`npx @deepseek-ai/dsh@0.2.1-rc.2 plugin --profile web add .` → `+ wsgw-solution-review link:…`，`dsh.profile.bundles` 追加；`--profile web --dump-config` 第 1230–1308 行为 `wsgw-solution-review` 与 `preset-wsgw-solution-review` 两行；`dsh web --no-open` 启动无告警，浏览器中：模式下拉出现「方案审查」、Plugins 页列出插件（启用）、`/` 面板列出 memory / review / rules，`/rules hard` 返回 10 行（CAP-002 CAP-006 INT-001 INT-004 DOC-001 DOC-002 DOC-005 DOC-010 DOC-011 DOC-012），`/review` 返回「暂无审查记录…」，`/memory CAP-001` 返回统计 0/0/0/0。已知 UI 现象：在「新会话」页直接回车命令不会切到会话视图，结果在会话创建后一并显示；带参数提示的命令需回车两次（第一次只是接受补全） |
+| P0（2026-10-23） | `pnpm typecheck` 通过；`pnpm test` → `Tests 288 passed | 53 todo (341)`；`pnpm build` 通过。工具输出已含自动登记问题/候选原文/soft 规则/检查清单与计数（`review_check`、`review_status`、`rules_list`）；hybrid 无候选一律 `pending`，`whenNoCandidate: fail` 仅允许 hard；LLM 的 absence 伪引文被 `ABSENCE_NOT_ALLOWED` 拒绝，校验器 absence 统一标注「非引文」。新增 `invalid-hybrid-fail.yaml`、renderer / gate / hybrid 断言；`review_check` 种子期望改为 `建议整改`（3 条 hard 自动登记，CAP-001 / CHN-001 转 pending）。 |
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
 
 S1 三处细节仍可由用户调整（不阻塞）：附录 A 中 CAP-001 对种子方案判 blocker；`review-protocol.md` §2–§3 persona / SOP 文案；论文是否脱敏产品名。
 
-S3b 已完成；S3c 剩两项：
+S3b 已完成；P0（工具输出明细 / hybrid 无候选 = 待人工 / absence 显式标注）+ 仓库清理已于 2026-10-23 完成。S3c 剩两项：
 
 1. `tests/protocol/`：用 mock LLM（或脚本化 agent）回放「预审 → 复核 → 定稿」，断言落库与 `reviews/<id>.md`；
 2. 配置 DeepSeek 密钥后在真机「方案审查」会话里走通种子方案（`tests/fixtures/seed.md`），记录首个 `rv_*` 与意见文件；顺带确认 `present` 交付与 `ask_user_question` 批次文案。
 
-随后进入 **S4 Client dashboard**（`docs/dashboard.md`，`tests/client/` 与 `tests/api/` 的 todo），以及 S5 的 npm 发布（当前只支持本地目录安装）。
+S4 Client dashboard 改为**可写**（`docs/dashboard.md`，`tests/client/` 与 `tests/api/` 的 todo）；S5 的 npm 发布仍只支持本地目录安装。
 
 论文侧（暂停中）：`paper/innovation-notes.md` v0.2；S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。
 

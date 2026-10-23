@@ -1,16 +1,16 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-19（S1 文档完成，待用户确认）。
+> 最后更新：2026-10-23（文档基线对齐 `dsh-v0.2.1-rc.2`；P0 修复；`archive/` 已删除）。
 
 ## 0. 这个仓库现在是什么
 
 两个并存、互不耦合的部分：
 
-1. **DSH 插件开发指南**（原有）：`README.md`、`docs/`、`examples/hello-plugin`、`scripts/discover-plugins.mjs`、`plugins.md`。基线 `dsh-v0.1.1-rc.2`，按 `docs/maintenance.md` 维护。
+1. **DSH 插件开发指南**（原有）：`README.md`、`docs/`、`examples/hello-plugin`、`scripts/discover-plugins.mjs`、`plugins.md`。基线 `dsh-v0.2.1-rc.2`，按 `docs/maintenance.md` 维护。
 2. **wsgw-solution-review**（新，本指引的主体；wsgw = 网上国网）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 *Applied Sciences* 或同类）。代码位于 `plugins/wsgw-solution-review/`，论文位于 `paper/`。
 
-旧版 Python 原型已整体移入 `archive/legacy-review-tool/`（见 `archive/README.md`），**不再维护、不得 import**。
+旧版 Python 原型已于 2026-10-23 按用户决策从工作区删除；历史结论保留在 §7 与 `paper/`，原始数据不再随仓库分发，**不得 import 或重建**。
 
 ## 1. 仓库地图
 
@@ -21,7 +21,6 @@
 | `plugins/wsgw-solution-review/` | 插件工程（docs / rules / src / tests / client） | S1 起创建 |
 | `plugins/wsgw-solution-review/docs/` | 需求、设计、规则 schema、对话协议、评测方案——**唯一事实来源** | S1 |
 | `paper/` | 论文大纲、实验脚本、图表、稿件 | S6 |
-| `archive/` | 归档（旧版原型、历史文档） | 冻结 |
 | `docs/`、`examples/`、`scripts/`、`plugins.md` | DSH 插件开发指南（原有内容） | 独立维护 |
 
 ## 2. 项目目标与边界
@@ -45,7 +44,7 @@
    | 页面 | 右侧 Sidebar tab（`ctx.sidebarRightTabs`）+ 设置卡片 | 不建独立前端工程、不自建 Router |
 2. **先文档，再测试用例，最后开发。** 每个步骤的顺序不可倒置：`docs/` 里的对应章节定稿 → `tests/` 里写出用例（允许先 `.todo` / 红灯）→ 实现让其变绿。没有对应文档条目的代码不合并。
 3. **AI 只做初筛，不自动驳回。** 存储与输出中必须区分 `ai_verdict`（建议）与 `final_verdict`（仅专家可写）。任何未经专家确认的 LLM 判断不得进入正式意见。
-4. **证据必须可验证。** 每条问题的 `evidence[].quote` 必须能在方案原文中按子串命中（归一化空白后），否则该问题降级为 `待人工`，且不参与结论计算。这条由工具侧强制，不靠提示词。
+4. **证据必须可验证。** 文本证据的 `quote` 必须能在方案原文中按子串命中（归一化空白后）；`kind: absence` 只能由校验器产生，必须记录缺失项与定位章节，展示时标注「absence / 非引文」，不得伪装成原文引用。LLM 提交的 absence 一律拒绝。未通过门禁的问题降级为 `待人工`，不参与结论计算。这条由工具侧强制。
 5. **结论由策略决定，不由模型一句话决定。** `ai_verdict` 是已确认问题集合上的确定性函数（§4.4）。
 6. **不要越做越大。** 任何新增能力先问：能否通过安装插件/配置解决？是否在 §2.3 的不做清单里？是否对论文主张有贡献？三问有一否即不做，记入 `progress.md` 的「推迟/拒绝」表。
 7. **文档同源。** 需求、设计、规则 schema 只在 `plugins/wsgw-solution-review/docs/` 维护一份；`progress.md` 只记状态与证据（测试名 / commit），不复述设计。发现冲突以 `docs/` 为准并立即修正。
@@ -65,17 +64,17 @@
 | # | 问题 | 结论 |
 |---|---|---|
 | 1 | 检索还要不要 | 不要向量库。「历史同类问题提醒」改为**按规则号读取记忆**（专家采纳/驳回/改写统计 + 措辞范例），由 storage-domain 持久化。轻量、可解释、改完即生效。 |
-| — | 包名 / 模型 / 格式 / 首批规则 / 历史原文 / 脱敏 / 部署（Q1–Q7，2026-10-19 用户拍板） | 包名 `wsgw-solution-review`；模型默认 DeepSeek（走 DSH provider，插件不绑定厂商）；正式意见 Markdown + 可选 `present`；首批规则从旧 24 条按可验证性分级（`docs/rule-schema.md` 附录）；历史方案原文暂不可得 → **合成（mock）方案**做离线评测并在论文中明示；论文数据匿名并给出脱敏方法（`docs/evaluation.md`）；部署为 Web profile，未来开放 ip:port 给局域网 → 看板路由只读、鉴权沿用 DSH。 |
+| — | 包名 / 模型 / 格式 / 首批规则 / 历史原文 / 脱敏 / 部署（Q1–Q7，2026-10-19 用户拍板） | 包名 `wsgw-solution-review`；模型默认 DeepSeek（走 DSH provider，插件不绑定厂商）；正式意见 Markdown + 可选 `present`；首批规则从旧 24 条按可验证性分级（`docs/rule-schema.md` 附录）；历史方案原文暂不可得 → **合成（mock）方案**做离线评测并在论文中明示；论文数据匿名并给出脱敏方法（`docs/evaluation.md`）；部署为 Web profile，未来开放 ip:port 给局域网 → 看板可写（规则 / 候选 / 复核），沿用 DSH 鉴权；细粒度权限后置。 |
 | 2 | 硬检查合格线 | 收紧：规则按**可验证性**分三级（§4.3）。只有带结构化校验器的规则才允许 `hard`；关键词出现≠通过；否定句、占位符（`/`、`无`、`略`）要识别。 |
 | 3 | 评测是否进这一版 | 进，但改口径：以**专家在对话中的采纳/驳回**作为在线标注（回流即标注），离线指标随之累积；30 条历史意见只用于结论分布校准与规则覆盖分析，不冒充 golden set。指标定义见 §5.3。 |
 | 4 | 专家复核算不算 MVP | 算，且是核心：复核在对话中完成，专家回复即记忆写入。 |
 | 5 | 台账 | 不进产品，不进验收。 |
-| 6 | 仓库 | 不拆；旧版进 `archive/`。 |
+| 6 | 仓库 | 不拆；旧版于 2026-10-23 删除。 |
 
 ## 3. 技术基线
 
-- **DSH**：`deepseek-harness` tag **`dsh-v0.2.1-rc.2`**（2026-10-17，master 最新预发布）。本插件按这一版开发；`engines.dsh` 初定 `">=0.2.1-rc.2 <0.3.0"`。注意本仓库 `docs/` 指南写的是 `0.1.1-rc.2`，两者行为有差异（Web 平面已改为 agent preset 组合、新增 storage / plugin-market / sidebar-right 等），**以 0.2.1-rc.2 源码与 `docs/subsystems/*.zh.md` 为准**。
-- **运行时**：Node `^22.19 || >=24`，pnpm `11.x`（DSH 根 `packageManager: pnpm@11.28.5`），TypeScript 6，vitest 4，tsdown 0.22（client bundle）。
+- **DSH**：`deepseek-harness` tag **`dsh-v0.2.1-rc.2`**（2026-10-17，master 最新预发布）。本插件按这一版开发；`engines.dsh` 初定 `">=0.2.1-rc.2 <0.3.0"`。本仓库 `docs/` 指南的版本字符串已对齐，但行为细节仍以 0.2.1-rc.2 源码与 `docs/subsystems/*.zh.md` 为准（Web 平面已改为 agent preset 组合，新增 storage / plugin-market / sidebar-right 等）。
+- **运行时**：Node `^22.19 || >=24`，pnpm `11.x`（DSH 根 `packageManager: pnpm@11.28.5`）。DSH 源码工具链以 checkout 为准；本插件工程使用 TypeScript 5.9 / vitest 3，client bundle 的 tsdown 0.22 在 S4 引入。
 - **本地开发回路**：克隆 deepseek-harness 并 `pnpm install && pnpm run build`；`pnpm dsh web --patch <本插件 cordis.yml>` 源码加载；或 `pnpm dsh plugin --profile web add <本插件目录>` 安装进 profile。Client 半每次 `pnpm run build` 后刷新页面（仓库外插件没有 HMR watcher）。
 - **DSH 原生能力对照**（Web profile 默认已挂载，插件直接 `inject`）：
 
@@ -105,7 +104,7 @@ wsgw-solution-review (bundle, cordis.patch.yml)
 │  ├─ review-engine     Markdown AST + Mermaid 解析 → 规则校验器 → 证据锚定 → 结论策略（纯函数，可单测）
 │  ├─ review-tools      review_parse / review_check / review_record_issue / review_status / review_decide / review_finalize / rules_list / rules_propose / memory_recall（挂在 preset 内，只有审查 agent 可见）
 │  ├─ review-commands   /review, /rules, /memory —— 只做 host 侧即时查询（DSH 命令不经过模型，不能用来发起审查）
-│  ├─ review-api        dashboard 只读 HTTP 路由 `/plugins/wsgw-solution-review/api/*`
+│  ├─ review-api        dashboard HTTP 路由（读 + 受限写）`/plugins/wsgw-solution-review/api/*`
 │  └─ settings          阈值、规则包目录、公文模板
 ├─ agent preset `solution-review`
 │  ├─ persona           审核专家口吻；只建议，不裁决
@@ -118,7 +117,7 @@ wsgw-solution-review (bundle, cordis.patch.yml)
 
 ### 4.2 对话协议（三阶段，一个会话内完成）
 
-1. **预审**：专家在「方案审查」preset 的会话里粘贴 Markdown、给出文件路径或附上 Word（由 office skill 先转 Markdown），说一句「预审这份方案」即可。工具链：`review_parse` 解析 → `review_check` 跑 `hard`/`hybrid` 校验器（hard 问题自动登记，hybrid 产出候选片段）→ agent 按 skill 对 hybrid 候选与 soft 规则逐条判断并经 `review_record_issue` 登记（证据门禁在此生效）→ `review_status` 给出 `ai_verdict` 与分层意见（结论 / 明细 / 检查清单）。
+1. **预审**：专家在「方案审查」preset 的会话里粘贴 Markdown、给出文件路径或附上 Word（由 office skill 先转 Markdown），说一句「预审这份方案」即可。若当前 profile 未安装 office skill，先安装/启用；不得用 OCR、unzip 或临时脚本替代，否则审查证据不是原文。工具链：`review_parse` 解析 → `review_check` 跑 `hard`/`hybrid` 校验器（hard 问题自动登记，hybrid 产出候选片段）→ agent 按 skill 对 hybrid 候选与 soft 规则逐条判断并经 `review_record_issue` 登记（证据门禁在此生效）→ `review_status` 给出 `ai_verdict` 与分层意见（结论 / 明细 / 检查清单）。
 2. **复核**：agent 用 `ask_user_question` 分批呈现问题，每条选项 `采纳 / 驳回 / 改写`（改写走自由文本），专家也可自然语言补充新意见；每个决定经 `review_decide` 落库。专家最后确认 `final_verdict`。
 3. **定稿与回流**：`review_finalize` 生成公文风格正式意见（Markdown，`present` 交付），同时写入反馈并刷新记忆：规则级采纳率、措辞范例（改写文本）、候选规则（专家新增且未命中任何规则的意见）。
 
@@ -127,7 +126,7 @@ wsgw-solution-review (bundle, cordis.patch.yml)
 规则 = `id / dimension / severity(blocker|major|minor) / tier / verifier / rationale / suggestion / status(active|draft|retired) / provenance`。
 
 - `tier: hard`：**必须**有结构化校验器，结果确定且带证据锚点；可独立产生问题。
-- `tier: hybrid`：校验器负责定位候选证据片段与否定/占位识别，LLM 只在候选片段上做语义判断；无候选片段时结果为 `待人工`，不是 `未通过`。
+- `tier: hybrid`：校验器负责定位候选证据片段与否定/占位识别，LLM 只在候选片段上做语义判断；无候选片段时结果为 `待人工`，不是 `未通过`。`whenNoCandidate: fail` 只允许 `hard`；缺章节 / 缺关键词的 absence 不得让 hybrid 自动 fail（加载时静态拒绝）。
 - `tier: soft`：纯语义规则，LLM 判断后一律标 `待人工`，不参与 `ai_verdict`。
 
 校验器种类（首批）：`section`（章节存在且非占位、最小字数）、`table`（必需列、非占位单元格）、`statement`（断言句模式 + 否定词/占位词识别）、`quantity`（数字 + 单位）、`mermaid-sequence`（参与方、消息、必含步骤如鉴权）、`cross-ref`（正文引用的附件必须在附件清单中）。规则文件为 YAML，随包发布为 `shipped` 层；专家改动与学习结果为 `learned` 层（storage），读取时按 id 覆盖——与 DSH 补丁分层同构。
@@ -135,7 +134,7 @@ wsgw-solution-review (bundle, cordis.patch.yml)
 ### 4.4 结论策略（确定性）
 
 ```
-confirmed = 校验器登记的 hard/hybrid 问题 ∪ 通过证据门禁的 hybrid 问题 ∪ 专家采纳/改写/新增的问题（驳回的除外）
+confirmed = 校验器登记的 hard 问题 ∪ 通过证据门禁的 hybrid 问题 ∪ 专家采纳/改写/新增的问题（驳回的除外）
 ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
            = 建议整改 若 ∃ major ∈ confirmed 或 |minor ∈ confirmed| ≥ minorThreshold
            = 通过     否则
@@ -183,7 +182,7 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 | 效率 | 会话时长、工具调用次数、token 用量 | `session-query` + token meter |
 | 消融 | 关键词 vs 结构化校验器；有 / 无证据门禁；有 / 无记忆层；模型直接给结论 vs 策略 | 批量评测脚本（`ctx.llm` 路径，固定提示词与温度） |
 
-历史 30 条意见（`archive/.../review_records.json`）的分布为 通过 15 / 建议整改 14 / 不通过 1，类别严重不均衡，因此**不用准确率单指标**，报告每类召回与 kappa；并用它做规则覆盖分析（每个意见点能否映射到现有规则）。
+原 30 条历史意见（45 个意见点，2026-10-23 已随 archive 删除）的分布为 通过 15 / 建议整改 14 / 不通过 1，类别严重不均衡，因此**不用准确率单指标**，报告每类召回与 kappa；论文只引用该统计口径，不再分发原文。
 
 ### 5.4 目标期刊与稿件约束
 
@@ -200,7 +199,7 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 ## 7. 历史与决策记录（为什么重做）
 
-旧版（2026-08，`archive/legacy-review-tool/`）的问题经复核属实，根因是**把「规则已声明」当成「规则可验证」**，并且没有任何持久化与反馈回路：
+旧版（2026-08，已删除；原始记录不再随仓库分发）的问题经复核属实，根因是**把「规则已声明」当成「规则可验证」**，并且没有任何持久化与反馈回路：
 
 | 现象 | 根因 | 新版对策 |
 |---|---|---|
@@ -218,5 +217,5 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 2. 每个步骤按「文档 → 测试 → 代码」三个 commit 以上提交，commit message 前缀 `docs(review):` / `test(review):` / `feat(review):` / `chore(review):`。
 3. 用户在对话中调整方向时：先改 `docs/`，再改 `progress.md` 的计划，最后动代码；在 `progress.md` 「决策日志」加一行。
 4. 需要用户决定的事项写进 `progress.md` 「开放问题」，给出默认选项并按默认继续，不阻塞。
-5. 不改 `archive/`；不改原有指南内容除非为了指向新项目（如 README 目录表）。
+5. 不重建 `archive/`；不改原有指南内容除非为了指向新项目（如 README 目录表）。
 6. 查 DSH API 一律以 `dsh-v0.2.1-rc.2` 的 `docs/subsystems/*.zh.md` 生成区域与包 README 为准；本仓库 `docs/*.md` 的指南仅作入门参考。

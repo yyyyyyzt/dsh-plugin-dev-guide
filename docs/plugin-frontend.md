@@ -4,8 +4,8 @@
 > [插件开发详解](./plugin-development.md)（通用 Cordis/Host 插件）和
 > [发布到社区指南](./publishing.md)（分发链路）配套阅读。
 >
-> **版本基线**：`deepseek-harness` 标签 `dsh-v0.1.1-rc.2`，
-> commit `b150a551`。该版本仍是 developer preview，本工作区按当前版本直接适配，不保留旧版兼容层；
+> **版本基线**：`deepseek-harness` 标签 `dsh-v0.2.1-rc.2`，commit 以当前 checkout 为准。该版本仍是 developer preview，本工作区按当前版本直接适配，不保留旧版兼容层；
+> 2026-10-23 仅对齐版本字符串，行为章节（Slot / 构建协议 / HMR / 设置卡片）仍需按 0.2.1 源码逐章复核。
 > 所有“服务有哪些方法、槽位有哪些字段”类问题，最终以源码 TypeScript 接口为准。
 >
 > 前端平面有三条硬限制会直接影响设计：`BootPluginRow` 没有 config 位也没有 priority、

@@ -5,7 +5,7 @@
 
 ## 1. 背景与目标
 
-网上国网（wsgw）每周有数十份技术方案需要专家预审，历史意见（30 份样本）显示问题高度集中在容量 / 安全 / 接口 / 文档四个维度，且措辞高度模板化（见 `archive/legacy-review-tool/data/eval/review_records.json`）。第一版工具（Python 原型）失败的根因是「规则已声明 ≠ 规则可验证」、无证据、无记忆、无反馈闭环（`AGENTS.md` §7）。
+网上国网（wsgw）每周有数十份技术方案需要专家预审，历史意见（30 份样本）显示问题高度集中在容量 / 安全 / 接口 / 文档四个维度，且措辞高度模板化（原 30 份 / 45 个意见点；原始数据已于 2026-10-23 随 archive 删除，仅保留分布口径）。第一版工具（Python 原型）失败的根因是「规则已声明 ≠ 规则可验证」、无证据、无记忆、无反馈闭环（`AGENTS.md` §7）。
 
 V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agent**，让专家：
 
@@ -22,11 +22,11 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 | 角色 | 描述 | V1.0 入口 |
 |---|---|---|
 | 审核专家（主用户） | 技术评审岗，负责出具预审意见；熟悉业务，不一定熟悉工具 | DSH Web 会话（选择「方案审查」agent preset）+ 右侧看板 |
-| 规则维护者 | 通常就是资深专家；维护规则包、审批候选规则 | 同上：对话里说「把 XX 规则停用」；看板只读查看 |
+| 规则维护者 | 通常就是资深专家；维护规则包、审批候选规则 | 同上：对话或看板调整规则 / 审批候选 |
 | 方案提交人 | 写方案的研发 | **V1.0 不直接使用**；收到正式意见 Markdown |
 | 研究者 | 做评测与论文 | 看板评测页 + `paper/` 脚本 |
 
-试点场景：**能力开放 / 三方接入**（支付宝、微信、鸿蒙等渠道接入网上国网能力）。种子方案：《网上国网余额查询能力对 AI 版支付宝开放技术方案》（`archive/legacy-review-tool/data/seed-solution.md`）。
+试点场景：**能力开放 / 三方接入**（支付宝、微信、鸿蒙等渠道接入网上国网能力）。种子方案：`tests/fixtures/seed.md`（合成，能力开放场景；原历史种子已删除）。
 
 ## 3. 术语
 
@@ -140,13 +140,13 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 
 - **FR-50** `rules_list` 返回生效规则（shipped 与 learned 合并后），支持按维度 / tier / status 过滤。
 - **FR-51** 专家在对话中可：停用 / 启用规则、调整严重级别、调整阈值；经 `rules_propose(action)` 写入 learned 层并立即生效（下一次 `review_check`）。shipped YAML 不被修改。
-- **FR-52** `rules_propose(action: 'draft')` 由 agent 根据候选规则起草新规则（YAML 字段齐全、tier 默认 soft），状态 `draft`；专家在对话中确认后转 `active`。看板只读展示候选与草案，审批动作在对话完成。
+- **FR-52** `rules_propose(action: 'draft')` 由 agent 根据候选规则起草新规则（YAML 字段齐全、tier 默认 soft），状态 `draft`；专家在对话或看板中确认后转 `active`。看板可展示候选与草案并执行 accept / dismiss。
 - **FR-53** 任何规则变更写审计字段（who / when / from reviewId）。
 
 ## 11. 看板（概要，细则见 `dashboard.md`）
 
 - **FR-60** 右侧 Sidebar tab「方案审查」四页：规则（生效规则与 tier / 严重级别 / 采纳率）、审查记录（列表 + 详情 + 正式意见预览）、记忆（范例、候选规则、规则级精确率趋势）、评测（`eval_runs` 结果与消融对比）。
-- **FR-61** 看板只读；所有写操作回到对话。
+- **FR-61** 看板可写：规则启停 / 严重级别 / 参数、候选规则审批、问题采纳 / 驳回 / 改写、最终结论。所有写操作走同一 `ReviewStore` 写入口并写审计；沿用 DSH 鉴权，细粒度权限后置。
 
 ## 12. 非功能需求
 
@@ -154,7 +154,7 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 - **NFR-02 时延**：`review_check` 对 200 KB 方案 ≤ 2 s（校验器部分，不含 LLM）；一轮完整预审（含模型）目标 ≤ 3 min。
 - **NFR-03 内网**：插件不发起任何外部网络请求；模型访问全部经 DSH provider（默认 DeepSeek，可换内网模型）。
 - **NFR-04 持久化**：所有记忆经 `ctx.storageDomain`（json 后端）；重启后可读；domain 版本变更需迁移说明。
-- **NFR-05 多用户**：Web profile 开放 ip:port 给局域网时可用；看板路由只读、同源校验、沿用 DSH 的鉴权；不自建账号；专家身份记录在 `reviews.reviewer`。
+- **NFR-05 多用户**：Web profile 开放 ip:port 给局域网时可用；看板读写路由均同源校验、沿用 DSH 鉴权；不自建账号；写操作记录操作者到审计字段，专家身份记录在 `reviews.reviewer`。
 - **NFR-06 可观测**：每次工具调用的耗时与结果计入 `reviews.metrics`；证据门禁拒绝计数可查。
 - **NFR-07 安全**：工具只读取工作目录内文件（经 DSH 文件系统）；输出目录可配置；不记录模型密钥；日志不含方案全文。
 - **NFR-08 可逆**：插件卸载不留服务 / 路由 / 工具；数据文件保留。
@@ -201,5 +201,5 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 | T-REQ-16 | 规则停用后 check 不产出（FR-51）；shipped 文件不变 | store + engine |
 | T-REQ-17 | 校验器纯函数性能：200 KB ≤ 2 s（NFR-02） | engine/bench |
 | T-REQ-18 | 重启后 domain 可读（NFR-04） | store |
-| T-REQ-19 | 看板 API 只读：非 GET 返回 405（NFR-05） | api |
+| T-REQ-19 | 看板写路由：同源 + 鉴权通过才写；跨源 / 未授权拒绝（NFR-05） | api |
 | T-REQ-20 | mock LLM 全协议回放（AC-10） | protocol/e2e |

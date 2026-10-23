@@ -1,6 +1,6 @@
 # 规则模型与校验器规范 V1.0
 
-> 状态：S1 定稿候选（2026-10-19）。本文定义规则 YAML schema、三级 tier 语义、6 类校验器、证据门禁、shipped/learned 分层与生命周期；附录 A 给出旧 24 条规则的分级结果（Q4 决策），附录 B 为新增结构性规则。
+> 状态：S1 定稿候选（2026-10-19）；2026-10-23 收紧 hybrid 语义：无候选 = `pending`，`whenNoCandidate: fail` 仅 hard。本文定义规则 YAML schema、三级 tier 语义、6 类校验器、证据门禁、shipped/learned 分层与生命周期；附录 A 给出旧 24 条规则的分级结果（Q4 决策），附录 B 为新增结构性规则。
 > 核心思想：**规则的权限由可验证性决定**——只有能被程序确定性验证的要求才能自动产生问题；LLM 只在校验器划定的候选证据上判断；纯语义要求一律待人工。
 
 ## 1. 规则包文件
@@ -66,7 +66,7 @@ schema 校验在加载时执行（zod）；任何一条失败则整个规则包�
 | tier | 校验器 | 校验器允许的结果 | 谁能登记问题 | 计入 `ai_verdict` |
 |---|---|---|---|---|
 | `hard` | 必填，且 `decisive`（每个子校验器都只产生 pass / fail / not-applicable） | `pass` `fail` `not-applicable` | 只有校验器（`review_check` 自动登记）；LLM 对 hard 规则调用 `review_record_issue` 被拒绝（`HARD_RULE_VERIFIER_OWNED`） | 是 |
-| `hybrid` | 必填 | `candidate` `fail` `pass` `pending` `not-applicable` | 校验器 `fail`（只能来自确定性判定：`absence` 证据或结构性子校验器）自动登记；`candidate` 交给 LLM，LLM 登记时证据必须落在候选片段内；`pass` 只能来自结构性子校验器（section / table / quantity / mermaid-sequence / cross-ref） | 是（含自动 fail 与门禁通过的 LLM 登记） |
+| `hybrid` | 必填 | `candidate` `pass` `pending` `not-applicable`（结构性子校验器仍可 `fail`） | 自动登记只允许结构性子校验器的确定性 `fail`（section / table / quantity / mermaid-sequence / cross-ref）；`statement` 无候选一律 `pending`，不得用 absence 让 hybrid 自动 fail；`candidate` 交给 LLM，LLM 登记时证据必须落在候选片段内；`pass` 只能来自结构性子校验器 | 是（结构 fail 与门禁通过的 LLM 登记） |
 | `soft` | 禁止 | — | LLM 可登记，一律 `pending` | 否 |
 
 设计约束：
@@ -74,6 +74,8 @@ schema 校验在加载时执行（zod）；任何一条失败则整个规则包�
 - `hybrid` 的 `statement`（非 decisive）部分永不产生 `pass`：候选存在 ≠ 满足要求；LLM 不登记问题即视为该规则「未发现问题」，清单上标 `reviewed-no-issue`。结构性子校验器（如 SEC-002 的 Mermaid 鉴权链路检查）的 `pass` 是确定性验证，直接记 `pass`。
 - `hard` 规则一旦 `fail`，专家仍可在复核中驳回（记入反馈，驱动规则调参）。
 - 规则加载时静态检查：`hard` 的校验器树里不得出现 `whenNoCandidate: pending` 或非 decisive 的 `statement`。
+- 规则加载时静态检查：`hybrid` 的 `statement` 不得 `decisive: true`，`whenNoCandidate` 只能是 `pending` / `pass`；出现 `fail` 直接拒绝加载（`HYBRID_ABSENCE_FAIL`）。
+- 缺章节 / 缺关键词属于 absence，不是「原文证据」；它只能由 hard 校验器产生并计入 `ai_verdict`，hybrid 的 absence 只进 `pending`。
 
 ## 3. 校验器
 
@@ -129,7 +131,7 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
 | `assertionOnly` | — | 正则列表；命中且句内无因果词 → 标 `assertion-only` |
 | `causalWords` | `[因为, 由于, 通过, 链路, 依据, 基于, 只与, 仅与, 不调用, 不接触]` | 判断「有依据」的词；可按规则覆盖 |
 | `decisive` | false | `true`（hard 用）：存在未否定候选 → `pass`；只有否定候选 → `fail`（证据为否定句）；无候选 → 看 `whenNoCandidate` |
-| `whenNoCandidate` | `pending` | `fail`（absence 证据，quote=「未提及：<族名>」，range=首个限定章节末尾或文末）/ `pending` / `pass` |
+| `whenNoCandidate` | `pending` | `pending` / `pass`；`fail` 仅 `hard` 可用（absence 证据，quote=「未提及：<族名>」）。hybrid 设为 `fail` 会被 schema 拒绝 |
 
 句子切分：按 `。；;！？\n` 与表格单元格边界切分，表格单元格作为独立句。
 
@@ -175,7 +177,8 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
 - 校验器产生的证据必须带 `range`；`absence` 证据的 `range` 为零长区间（插入点）。
 - LLM 提交的证据只需 `quote`（可选 `sectionPath`），`range` 由门禁回填。
 - `quote` 归一化后长度 8–300 字；表格单元格证据可短至 1 字但必须带 `kind:'table-cell'`（仅校验器可产生）。
-- 对话与正式意见中展示证据时格式：`「<quote>」（<sectionPath> · 第 <line> 行）`；absence 显示为 `（<sectionPath> 下未见 <期望内容>）`。
+- `absence` 不是原文引文：它由校验器产生，记录缺失项与定位章节；展示时必须标注 `absence`，不得写成 `「未提及：…」` 的引文格式。LLM 提交 `kind:'absence'` 一律拒绝。
+- 对话与正式意见中展示证据时格式：文本证据 `「<quote>」（<sectionPath> · 第 <line> 行）`；absence 显示为 `（<sectionPath> 下未见 <期望内容>；absence，非引文）`。
 
 ## 5. 证据门禁（`review_record_issue` 内强制）
 
@@ -187,6 +190,7 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
    - rule.tier = hard     → 抛 HARD_RULE_VERIFIER_OWNED（不登记）
 2. evidence 为空          → reason NO_EVIDENCE                     → pending
 3. 对每条 evidence:
+   - LLM 提交 kind='absence'，或 quote 以「未提及 / 未见 / 缺失 / 未找到 / 未说明 / 未明确 / 未提供」开头 → ABSENCE_NOT_ALLOWED（absence 不是引文）
    q = normalize(quote); len(q) < 8 → QUOTE_TOO_SHORT; > 300 → QUOTE_TOO_LONG
    在 normalize(doc.source) 中查找 q：
      - 有 sectionPath 且该章节内命中 → 取该命中
@@ -205,7 +209,7 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
 
 ### 6.1 覆盖层（`rule_overrides` 表，key = ruleId）
 
-允许覆盖的字段：`status`、`severity`、`suggestion`、`params`（仅白名单：`families` 的增删、`minChars`、`minMessages`、`minParticipants`、`whenNoCandidate`、`negationWindow`、`window`）。其余字段不可在运行期改。`draft` 字段承载整条新规则（`LRN-*`），结构同 §1.1。
+允许覆盖的字段：`status`、`severity`、`suggestion`、`params`（仅白名单：`families` 的增删、`minChars`、`minMessages`、`minParticipants`、`whenNoCandidate`、`negationWindow`、`window`）。其余字段不可在运行期改；`whenNoCandidate: fail` 仅 hard 规则可设，hybrid 上设 fail 会被 schema 拒绝。`draft` 字段承载整条新规则（`LRN-*`），结构同 §1.1。
 
 合并算法（`engine/rules.ts`）：
 
@@ -299,36 +303,36 @@ lexicon:
 
 ## 附录 A：旧 24 条规则的分级（Q4 决策）
 
-列「种子方案预期」为对 `archive/legacy-review-tool/data/seed-solution.md` 原样（时序图为图片）运行 `review_check` 的期望结果，是 S2 夹具 `expected/seed.json` 的来源。
+列「种子方案预期」为对 `tests/fixtures/seed.md`（合成种子，时序图为图片）运行 `review_check` 的期望结果，是 S2 夹具 `expected/seed.json` 的来源。原历史种子已随 archive 删除。
 
 | id | 标题 | severity | 旧 check_method | 新 tier | 校验器要点 | 种子方案预期 |
 |---|---|---|---|---|---|---|
-| CAP-001 | 限流与并发控制策略 | blocker | rule+llm | **hybrid** | `statement(families: ratelimit, sections: approach/data-plan/resources/risk, whenNoCandidate: fail)` | fail（未提及限流）→ 自动登记 blocker |
+| CAP-001 | 限流与并发控制策略 | blocker | rule+llm | **hybrid** | `statement(families: ratelimit, sections: approach/data-plan/resources/risk, whenNoCandidate: pending)` | pending（未提及限流 → 待人工，不自动登记） |
 | CAP-002 | 压测方案 | major | rule | **hard** | `statement(families: loadtest, sections: implementation/resources, decisive, whenNoCandidate: fail)` | fail |
-| CAP-003 | 资源扩容评估 | major | llm+data | **hybrid** | `all[ section(resources, minChars 10), statement(families: scale, sections: resources/data-plan, assertionOnly: ['无需扩容','不需要扩容'], whenNoCandidate: fail) ]` | candidate（「初步评估无需扩容资源」flag assertion-only）→ LLM 判断 |
+| CAP-003 | 资源扩容评估 | major | llm+data | **hybrid** | `all[ section(resources, minChars 10), statement(families: scale, sections: resources/data-plan, assertionOnly: ['无需扩容','不需要扩容'], whenNoCandidate: pending) ]` | candidate（「初步评估无需扩容资源」flag assertion-only）→ LLM 判断 |
 | CAP-004 | 现有接口性能影响评估 | major | llm+data | **soft** | — | 清单列出，LLM 可登记为 pending |
 | CAP-005 | 风控接入响应时间影响 | major | llm | **hybrid** | `applicability.families: [riskctl]`；`statement(families: riskctl, whenNoCandidate: pending)` | not-applicable（未提风控） |
-| SEC-001 | 安全防护与加密策略 | blocker | llm | **hybrid** | `statement(families: crypto, sections: approach/interface/risk, whenNoCandidate: fail)` | candidate（命中「鉴权」「token」等）→ LLM 判断 |
-| SEC-002 | 鉴权链路闭环 | blocker | llm | **hybrid** | `first[ mermaid-sequence(participantFamilies: [authcode, openid, login], requiredMessageFamilies: [authcode, openid, phone, bind-check, login]), statement(families: [authcode, openid, bind-check, login], requireAll, sections: access, whenNoCandidate: fail) ]` | mermaid not-applicable → statement candidate（文字链路完整）→ LLM 判断 |
+| SEC-001 | 安全防护与加密策略 | blocker | llm | **hybrid** | `statement(families: crypto, sections: approach/interface/risk, whenNoCandidate: pending)` | candidate（命中「鉴权」「token」等）→ LLM 判断 |
+| SEC-002 | 鉴权链路闭环 | blocker | llm | **hybrid** | `first[ mermaid-sequence(participantFamilies: [authcode, openid, login], requiredMessageFamilies: [authcode, openid, phone, bind-check, login]), statement(families: [authcode, openid, bind-check, login], requireAll, sections: access, whenNoCandidate: pending) ]` | mermaid not-applicable → statement candidate（文字链路完整）→ LLM 判断 |
 | SEC-003 | 实名信息业务用途 | major | llm | **hybrid** | `applicability.families: [realname]`；`statement(families: realname, whenNoCandidate: pending)` | candidate（接口表「用户实名授权 code」）→ LLM 判断 |
-| SEC-004 | 数据暴露面核实 | blocker | llm | **hybrid** | `all[ section(risk, minChars 10), statement(families: exposure, sections: risk, assertionOnly: ['无暴露风险','无风险'], whenNoCandidate: fail) ]` | candidate（「无暴露风险…不调用国网数据」有因果词「只与…交互」→ 不标 assertion-only）→ LLM 判断 |
+| SEC-004 | 数据暴露面核实 | blocker | llm | **hybrid** | `all[ section(risk, minChars 10), statement(families: exposure, sections: risk, assertionOnly: ['无暴露风险','无风险'], whenNoCandidate: pending) ]` | candidate（「无暴露风险…不调用国网数据」有因果词「只与…交互」→ 不标 assertion-only）→ LLM 判断；risk 章节为占位「无」时 section 结构 fail 仍可自动登记 |
 | SEC-005 | 需求必要性及合规性 | major | llm | **soft** | — | 清单 |
 | INT-001 | 接口文档完整性 | major | rule | **hard** | `all[ table(locate: {section: interface, headerAny: [参数]}, requiredColumns: [[参数名,参数名称,字段],[类型,数据格式],[必填,是否非空,是否必填]]), table(locate: {section: interface, headerAny: [返回,输出]}, requireRow: {column: [字段,参数], equalsAny: [resultCode, code, 返回码]}), cross-ref ]` | pass（接口表齐全；「附件 2」可解析） |
-| INT-002 | 边界逻辑覆盖 | major | llm | **hybrid** | `statement(families: boundary, sections: interface/approach, whenNoCandidate: fail)` | candidate（返回码 0101/0203 等异常码）→ LLM 判断「手机号与户号无绑定」是否覆盖 |
-| INT-003 | 现有逻辑改动影响 | major | llm | **hybrid** | `applicability.tableRows: {column: 变更类型, equals: 修改}`；`statement(families: [change, existing], requireAll, whenNoCandidate: fail)` | 适用（两个微服务「修改」）→ candidate（命中「修改」「现有数据架构」）→ LLM 判断是否评估了对现有逻辑的影响 |
+| INT-002 | 边界逻辑覆盖 | major | llm | **hybrid** | `statement(families: boundary, sections: interface/approach, whenNoCandidate: pending)` | candidate（返回码 0101/0203 等异常码）→ LLM 判断「手机号与户号无绑定」是否覆盖 |
+| INT-003 | 现有逻辑改动影响 | major | llm | **hybrid** | `applicability.tableRows: {column: 变更类型, equals: 修改}`；`statement(families: [change, existing], requireAll, whenNoCandidate: pending)` | 适用（两个微服务「修改」）→ candidate（命中「修改」「现有数据架构」）→ LLM 判断是否评估了对现有逻辑的影响 |
 | INT-004 | 渠道标识规范 | minor | rule | **hard** | `statement(families: channel-id, sections: interface, decisive, whenNoCandidate: fail)` | pass（「渠道编号 3389：阿宝」「渠道标识字段」） |
 | INT-005 | 幂等与重试策略 | minor | llm | **hybrid** | `statement(families: idempotent, sections: interface/approach, whenNoCandidate: pending)` | pending（只读查询，待人工） |
-| CHN-001 | 渠道管控策略 | major | llm | **hybrid** | `statement(families: channel-ctl, whenNoCandidate: fail)` | fail → 自动登记 |
+| CHN-001 | 渠道管控策略 | major | llm | **hybrid** | `statement(families: channel-ctl, whenNoCandidate: pending)` | pending（未提及渠道管控 → 待人工，不自动登记） |
 | SYN-001 | 异步同步机制 | major | llm | **hybrid** | `applicability.families: [sync]`；`statement(families: sync, whenNoCandidate: pending)` | not-applicable（「与现有数据架构一致」不含同步族词） |
 | CFG-001 | 可配置化设计 | minor | llm | **soft** | — | 清单 |
-| MON-001 | 埋点实现方式 | minor | rule | **hybrid** | `applicability.families: [tracking]`；`statement(families: tracking-impl, whenNoCandidate: fail)` | not-applicable |
+| MON-001 | 埋点实现方式 | minor | rule | **hybrid** | `applicability.families: [tracking]`；`statement(families: tracking-impl, whenNoCandidate: pending)` | not-applicable |
 | DOC-001 | 时序图完整性 | major | rule | **hard** | `mermaid-sequence(sections: approach, minParticipants 2, minMessages 3, treatImageAsFail)` | fail（图片，不可验证） |
 | DOC-002 | 优化前后对比 | minor | rule | **hard** | `applicability.families: [ui-change]`；`first[ cross-ref(listItemPattern 含 prototype 族), statement(families: prototype, decisive, whenNoCandidate: fail) ]` | not-applicable |
 | DOC-003 | 变更原因说明 | minor | llm | **soft** | — | 清单 |
 | DOC-004 | 改造逻辑明确 | major | llm | **soft** | — | 清单 |
 | DOC-005 | 消息链路时序图 | major | llm | **hard** | `applicability.families: [message]`；`mermaid-sequence(participantFamilies: [message], minMessages 3)`；「解绑后仍推送原因」部分并入 INT-002 候选 | not-applicable |
 
-统计：hard 6、hybrid 13、soft 5（按上表逐条计数；早先版本误记为 7/12）；其中 `llm+data` 两条（CAP-003 / CAP-004）分别改为 hybrid（数据可选）与 soft。
+统计：附录 A/B 合计 hard 10、hybrid 13、soft 5；其中附录 A 的 24 条为 hard 6、hybrid 13、soft 5，附录 B 的 CAP-006 / DOC-010 / DOC-011 / DOC-012 四条结构性规则为 hard。早先版本误记为 7/12；`llm+data` 两条（CAP-003 / CAP-004）分别改为 hybrid（数据可选）与 soft。
 
 ## 附录 B：新增结构性规则（来自模板与历史意见）
 
@@ -339,4 +343,4 @@ lexicon:
 | DOC-011 | 必备章节完整 | major | **hard** | `all[ section(background), section(approach), section(data-plan), section(implementation), section(resources), section(risk), section(attachments) ]` | 模板 | pass |
 | DOC-012 | 附件引用一致 | minor | **hard** | `cross-ref` | 模板 | pass |
 
-合计 28 条：hard 10、hybrid 13、soft 5（S3a 实现时按规则包逐条核对纠正，原文误记为 11/12/5；T-RUL-12 以此为准）。对种子方案的预期自动登记：CAP-001（blocker）、CAP-002、CHN-001、DOC-001、CAP-006（major）→ 预审 `ai_verdict = 不通过`（存在 blocker）；另有 CAP-003、SEC-001、SEC-002、SEC-003、SEC-004、INT-002、INT-003 七条进入 LLM 候选判断。这与历史上该类方案多为「建议整改」的分布有张力——正是专家复核（驳回 CAP-001 或降级）与记忆回流要解决的问题；S5 评测将报告该规则的驳回率并据此调参。
+合计 28 条：hard 10、hybrid 13、soft 5（S3a 实现时按规则包逐条核对纠正，原文误记为 11/12/5；T-RUL-12 以此为准）。对种子方案的预期自动登记：CAP-002、CAP-006、DOC-001（均 major）→ 预审 `ai_verdict = 建议整改`；CAP-001、CHN-001 为 `pending`（无候选，absence 不自动 fail）；另有 CAP-003、SEC-001、SEC-002、SEC-003、SEC-004、INT-002、INT-003 七条进入 LLM 候选判断。S5 评测将报告 CAP-001 的驳回率并据此调参。
