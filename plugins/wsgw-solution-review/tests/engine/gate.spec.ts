@@ -75,6 +75,13 @@ describe('gate (T-REQ-07, T-RUL-09)', () => {
     expect(r.reasons).toEqual(['NO_EVIDENCE'])
   })
 
+  it('ABSENCE_NOT_ALLOWED: LLM cannot submit an absence phrase as a quote', () => {
+    const r = gate(doc, hybrid, [{ quote: '未提及：ratelimit' }], [resourcesCandidate])
+    expect(r.passed).toBe(false)
+    expect(r.reasons).toEqual(['ABSENCE_NOT_ALLOWED'])
+    expect(r.resolved).toEqual([])
+  })
+
   it('QUOTE_TOO_SHORT: normalized quote under 8 chars', () => {
     const r = gate(doc, hybrid, [{ quote: '无需扩容' }], [resourcesCandidate])
     expect(r.passed).toBe(false)

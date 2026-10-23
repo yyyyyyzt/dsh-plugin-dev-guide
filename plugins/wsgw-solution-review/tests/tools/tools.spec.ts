@@ -18,6 +18,7 @@ interface Rig extends OpenedStore {
   failWrite: boolean
   call<T = any>(name: string, args: Record<string, unknown>): Promise<T>
   code(name: string, args: Record<string, unknown>): Promise<string>
+  render(name: string, args: Record<string, unknown>, value: unknown): string
 }
 
 const rigs: Rig[] = []
@@ -72,6 +73,15 @@ async function rig(overrides: Partial<ReviewConfig> = {}): Promise<Rig> {
         throw e
       }
       return 'OK'
+    },
+    render(name, args, value) {
+      const tool = tools.get(name)
+      if (!tool) throw new Error(`no tool ${name}`)
+      const blocks = (tool as any).output?.render?.(args, value) ?? []
+      return (blocks as { type: string; text?: string }[])
+        .filter((b) => b.type === 'text')
+        .map((b) => b.text ?? '')
+        .join('\n')
     },
   }
   rigs.push(r)
@@ -155,15 +165,30 @@ describe('review_parse (T-REQ-02, T-REQ-03)', () => {
 })
 
 describe('review_check (T-REQ-06)', () => {
-  it('persists hard/hybrid auto-fail issues with origin verifier and updates reviews.aiVerdict', async () => {
+  it('persists hard auto-fail issues with origin verifier and updates reviews.aiVerdict', async () => {
     const r = await rig()
     const { reviewId, check } = await checked(r)
     expect(check.hardIssues.length).toBeGreaterThan(0)
     const stored = r.store.issuesOf(reviewId)
     expect(stored.length).toBe(check.hardIssues.length)
     expect(stored.every((i) => i.origin === 'verifier' && i.status === 'confirmed')).toBe(true)
+    expect(stored.every((i) => i.tier === 'hard')).toBe(true)
     expect(r.store.domain.table('reviews').get(reviewId)?.aiVerdict).toBe(check.aiVerdict)
-    expect(check.aiVerdict).toBe('不通过')
+    expect(check.aiVerdict).toBe('建议整改')
+  })
+
+  it('renders per-issue details, candidate snippets, soft rules, checklist and absence labels', async () => {
+    const r = await rig()
+    const { reviewId, check } = await checked(r)
+    const rendered = r.render('review_check', { reviewId }, check)
+    expect(rendered).toContain('自动登记 3 条问题')
+    expect(rendered).toContain('CAP-002')
+    expect(rendered).toContain('absence·非引文')
+    expect(rendered).toContain('CAP-003')
+    expect(rendered).toContain('候选1')
+    expect(rendered).toContain('CAP-004')
+    expect(rendered).toContain('检查清单')
+    expect(rendered).toContain('未通过：CAP-002、CAP-006、DOC-001')
   })
 
   it('returns hybridCandidates with snippets and softRules with questions; neither is persisted as an issue', async () => {
@@ -223,6 +248,17 @@ describe('review_record_issue (T-REQ-07, T-RUL-09)', () => {
     })
     expect(out.status).toBe('pending')
     expect(out.gate.reasons).toEqual(['OUT_OF_CANDIDATES'])
+  })
+
+  it('absence phrase → status pending, gate.reasons [ABSENCE_NOT_ALLOWED]', async () => {
+    const r = await rig()
+    const { reviewId, cand } = await candidate(r)
+    const out = await r.call('review_record_issue', {
+      reviewId, ruleId: cand.ruleId, finding: 'f', suggestion: 's', evidence: [{ quote: '未提及：ratelimit' }],
+    })
+    expect(out.status).toBe('pending')
+    expect(out.gate.reasons).toEqual(['ABSENCE_NOT_ALLOWED'])
+    expect(out.resolvedEvidence).toEqual([])
   })
 
   it('no ruleId → tier soft, status pending, gate.reasons [NO_RULE]', async () => {
@@ -296,6 +332,13 @@ describe('review_status (T-REQ-08)', () => {
     expect(out.checklist.length).toBe(check.checklist.length)
     expect(out.counts).toMatchObject({ blocker: expect.any(Number), major: expect.any(Number), minor: expect.any(Number), pending: expect.any(Number) })
     expect(JSON.stringify([...r.store.domain.table('reviews').entries()])).toBe(snapshot)
+
+    const rendered = r.render('review_status', { reviewId }, out)
+    expect(rendered).toContain(out.issues[0].issueId)
+    expect(rendered).toContain('摘要：')
+    expect(rendered).toContain('检查清单')
+    expect(rendered).toContain('待人工')
+    expect(rendered).toContain('absence·非引文')
   })
 
   it('aiVerdict is recomputed from current issue statuses (rejected excluded)', async () => {
@@ -397,11 +440,11 @@ describe('review_decide (T-REQ-09, T-REQ-12, T-REQ-13, T-PRO-04, T-PRO-05, T-DES
     const r = await rig()
     const { reviewId, check } = await checked(r)
     await r.call('review_decide', { reviewId, action: 'set_reviewer', reviewer: '张三' })
-    const out = await r.call('review_decide', { reviewId, action: 'set_final_verdict', finalVerdict: '建议整改' })
-    expect(out.finalVerdict).toBe('建议整改')
+    const out = await r.call('review_decide', { reviewId, action: 'set_final_verdict', finalVerdict: '通过' })
+    expect(out.finalVerdict).toBe('通过')
     const rec = r.store.domain.table('reviews').get(reviewId)!
-    expect(rec.finalVerdict).toBe('建议整改')
-    expect(rec.verdictDelta).toEqual({ ai: check.aiVerdict, final: '建议整改' })
+    expect(rec.finalVerdict).toBe('通过')
+    expect(rec.verdictDelta).toEqual({ ai: check.aiVerdict, final: '通过' })
     await r.call('review_decide', { reviewId, action: 'set_final_verdict', finalVerdict: check.aiVerdict })
     expect(r.store.domain.table('reviews').get(reviewId)?.verdictDelta).toBeUndefined()
   })
@@ -554,6 +597,11 @@ describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () =
     const retired = await r.call('rules_list', { status: 'retired' })
     expect(retired.rules.map((x: any) => x.ruleId)).toEqual(['CAP-003'])
     expect(all.rules[0]).toMatchObject({ stats: { shown: 0, adopt: 0, reject: 0, rewrite: 0 } })
+
+    const rendered = r.render('rules_list', {}, all)
+    expect(rendered).toContain('共 28 条规则')
+    expect(rendered).toContain('CAP-001')
+    expect(rendered).toContain('展示 0 / 采纳 0 / 驳回 0 / 改写 0')
   })
 
   it('rules_propose(draft) validates the YAML with the rule schema and stores status draft', async () => {

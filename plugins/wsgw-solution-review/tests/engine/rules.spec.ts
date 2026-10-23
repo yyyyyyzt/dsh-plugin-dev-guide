@@ -37,6 +37,7 @@ describe('parseRulePack (T-RUL-01)', () => {
     ['invalid-hybrid-no-verifier.yaml', 'CAP-002', /verifier/],
     ['invalid-hard-non-decisive.yaml', 'CAP-002', /decisive/],
     ['invalid-hard-pending.yaml', 'CAP-002', /whenNoCandidate/],
+    ['invalid-hybrid-fail.yaml', 'CAP-002', /whenNoCandidate/],
     ['invalid-unknown-family.yaml', 'CAP-002', /families/],
   ])('%s is rejected naming rule %s and field %s', (fixture, ruleId, field) => {
     expectPackError(readRuleFixture(fixture), ruleId, field)
@@ -107,10 +108,21 @@ describe('shipped pack (T-RUL-12 schema half)', () => {
     }
   })
 
-  it('CAP-001 is the only blocker-severity hybrid auto-fail path on the seed (documented tension)', () => {
-    const cap001 = pack.rules.find((r) => r.id === 'CAP-001')!
-    expect(cap001.severity).toBe('blocker')
-    expect(cap001.tier).toBe('hybrid')
+  it('every hybrid statement keeps absence pending (no auto-fail from missing text)', () => {
+    const statements: { ruleId: string; params: Record<string, unknown> }[] = []
+    const walk = (ruleId: string, spec: { kind: string; of?: unknown[]; params?: Record<string, unknown> }): void => {
+      if (spec.kind === 'statement') statements.push({ ruleId, params: spec.params ?? {} })
+      for (const child of (spec.of ?? []) as typeof spec[]) walk(ruleId, child)
+    }
+    for (const r of pack.rules) {
+      if (r.tier !== 'hybrid' || !r.verifier) continue
+      walk(r.id, r.verifier as unknown as { kind: string; of?: unknown[]; params?: Record<string, unknown> })
+    }
+    expect(statements.length).toBeGreaterThan(0)
+    for (const { ruleId, params } of statements) {
+      expect(params.decisive, ruleId).not.toBe(true)
+      expect(params.whenNoCandidate ?? 'pending', ruleId).toBe('pending')
+    }
   })
 })
 
