@@ -2,8 +2,8 @@
 // File IO is injected so the host entry can route it through ctx.fs while specs use a fake.
 import { defineTool, type ToolDefinition, type ToolRunContext } from '@deepseek-ai/dsh-tools'
 import type { ContentBlock } from '@deepseek-ai/dsh-llm'
-import type { Dimension, Severity, Tier, Verdict } from '../engine/types.js'
-import type { DecideAction, ProposeAction, ReviewStore } from './store.js'
+import type { ChecklistEntry, Dimension, Evidence, Issue, Severity, Tier, Verdict } from '../engine/types.js'
+import type { CheckResult, DecideAction, ProposeAction, ReviewStore, RuleView, StatusResult } from './store.js'
 
 export interface ToolIo {
   /** Read a Markdown source by the path the expert gave (resolved against the session working directory). */
@@ -25,6 +25,112 @@ const PROPOSE_ACTIONS = ['disable', 'enable', 'set_severity', 'set_param', 'draf
 const json = (value: unknown): Json => JSON.parse(JSON.stringify(value)) as Json
 const text = (s: string): ContentBlock[] => [{ type: 'text', text: s }]
 const JSON_OUTPUT = { type: 'json' } as const
+
+const CHECK_LABEL: Record<ChecklistEntry['status'], string> = {
+  pass: '通过',
+  fail: '未通过',
+  candidate: '待判断',
+  pending: '待人工',
+  'not-applicable': '不适用',
+  soft: '软规则',
+  'reviewed-no-issue': '已审阅无问题',
+}
+const CHECK_ORDER: ChecklistEntry['status'][] = [
+  'fail',
+  'candidate',
+  'pending',
+  'soft',
+  'not-applicable',
+  'pass',
+  'reviewed-no-issue',
+]
+
+const clip = (value: string, max = 180): string => {
+  const one = value.replace(/\s+/g, ' ').trim()
+  return one.length > max ? `${one.slice(0, max - 1)}…` : one
+}
+
+const evidenceLine = (evidence: Evidence, index: number): string => {
+  const where = evidence.sectionPath ? `；${evidence.sectionPath}` : ''
+  if (evidence.kind === 'absence') return `  证据${index + 1}（absence·非引文${where}）${clip(evidence.quote, 100)}`
+  return `  证据${index + 1}（${evidence.kind}${where}）「${clip(evidence.quote)}」`
+}
+
+const renderIssue = (issue: Issue, withStatus: boolean): string => {
+  const status = withStatus ? ` [${issue.status}]` : ''
+  const lines = [
+    `- ${issue.issueId}${status} ${issue.severity}/${issue.tier}·${issue.origin} ${issue.ruleId ?? '无规则'}｜${clip(issue.finding)}`,
+    `  建议：${clip(issue.suggestion)}`,
+  ]
+  for (const [i, evidence] of issue.evidence.slice(0, 3).entries()) lines.push(evidenceLine(evidence, i))
+  if (issue.evidence.length > 3) lines.push(`  …另有 ${issue.evidence.length - 3} 条证据`)
+  if (!issue.gate.passed && issue.gate.reasons.length) lines.push(`  门禁：${issue.gate.reasons.join(', ')}`)
+  if (issue.status === 'pending') lines.push('  待人工：未计入预审结论。')
+  return lines.join('\n')
+}
+
+const renderChecklist = (checklist: ChecklistEntry[], withNotes: boolean): string => {
+  const groups = CHECK_ORDER.map((status) => {
+    const rows = checklist.filter((row) => row.status === status)
+    if (!rows.length) return ''
+    const items = rows.map((row) => (withNotes && row.note ? `${row.ruleId}（${clip(row.note, 50)}）` : row.ruleId)).join('、')
+    return `${CHECK_LABEL[status]}：${items}`
+  }).filter(Boolean)
+  const counts = CHECK_ORDER.map((status) => `${CHECK_LABEL[status]} ${checklist.filter((row) => row.status === status).length}`).join(' / ')
+  return [`检查清单：${counts}`, ...groups].join('\n')
+}
+
+const renderCheck = (value: CheckResult): string => {
+  const lines = [
+    `自动登记 ${value.hardIssues.length} 条问题；待判断候选 ${value.hybridCandidates.length} 条；软规则 ${value.softRules.length} 条。`,
+    `预审结论（建议）：${value.aiVerdict}（${value.basis}）。仅为建议，待专家确认。`,
+  ]
+  if (value.hardIssues.length) lines.push('', `【自动登记问题（${value.hardIssues.length}）】`, ...value.hardIssues.map((issue) => renderIssue(issue, false)))
+  if (value.hybridCandidates.length) {
+    lines.push('', `【待判断候选（${value.hybridCandidates.length}）】`)
+    for (const candidate of value.hybridCandidates) {
+      lines.push(`- ${candidate.ruleId} ${candidate.severity}/hybrid｜${candidate.title}：${clip(candidate.question)}`)
+      if (candidate.note) lines.push(`  说明：${clip(candidate.note, 120)}`)
+      for (const [i, snippet] of candidate.snippets.slice(0, 3).entries()) {
+        const flags = snippet.flags?.length ? `；标记 ${snippet.flags.join('/')}` : ''
+        lines.push(`  候选${i + 1}（${snippet.sectionPath}${flags}）「${clip(snippet.quote)}」`)
+      }
+      if (candidate.snippets.length > 3) lines.push(`  …另有 ${candidate.snippets.length - 3} 处候选`)
+    }
+  }
+  if (value.softRules.length) {
+    lines.push('', `【软规则（${value.softRules.length}，仅提示不计分）】`)
+    for (const soft of value.softRules) lines.push(`- ${soft.ruleId}｜${soft.title}：${clip(soft.question)}`)
+  }
+  lines.push('', renderChecklist(value.checklist, false))
+  lines.push('', '下一步：对候选逐条判断后用 review_record_issue 登记；absence 不是原文引文，不得作为引用。')
+  return lines.join('\n')
+}
+
+const renderStatus = (value: StatusResult): string => {
+  const lines = [
+    `${value.reviewId}｜${value.title}`,
+    `状态：${value.status}${value.reviewer ? `；审核人：${value.reviewer}` : ''}；预审：${value.aiVerdict}${value.finalVerdict ? `；最终：${value.finalVerdict}` : ''}`,
+    `摘要：${value.summary}`,
+    `计数：blocker ${value.counts.blocker} / major ${value.counts.major} / minor ${value.counts.minor}；confirmed ${value.counts.confirmed} / pending ${value.counts.pending} / adopted ${value.counts.adopted} / rejected ${value.counts.rejected} / rewritten ${value.counts.rewritten} / expert ${value.counts.expert}`,
+  ]
+  if (value.issues.length) lines.push('', `【问题明细（${value.issues.length}）】`, ...value.issues.map((issue) => renderIssue(issue, true)))
+  else lines.push('', '【问题明细】暂无。')
+  lines.push('', renderChecklist(value.checklist, true))
+  return lines.join('\n')
+}
+
+const renderRules = (value: { rules: RuleView[]; warnings: string[]; loadErrors: { file: string; message: string }[] }): string => {
+  const lines = [`共 ${value.rules.length} 条规则。`]
+  if (value.warnings.length) lines.push(`加载警告：${value.warnings.join('；')}`)
+  if (value.loadErrors.length) lines.push(`加载错误：${value.loadErrors.map((error) => `${error.file}: ${error.message}`).join('；')}`)
+  for (const rule of value.rules) {
+    lines.push(
+      `- ${rule.ruleId}｜${rule.severity}/${rule.tier}｜${rule.status}${rule.overridden ? '｜learned' : ''}｜${rule.title}｜展示 ${rule.stats.shown} / 采纳 ${rule.stats.adopt} / 驳回 ${rule.stats.reject} / 改写 ${rule.stats.rewrite}`,
+    )
+  }
+  return lines.join('\n')
+}
 
 export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinition[] {
   const reviewParse = defineTool({
@@ -70,19 +176,13 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
     name: 'review_check',
     description:
       `对审查记录运行规则集：hard 规则的未满足项自动登记为问题（origin=verifier），hybrid 规则返回候选片段供你判断，soft 规则返回问题清单。${SUGGEST_ONLY}` +
-      ' 重复调用会替换此前自动登记的问题，不会重复。',
+      ' 返回每条问题的 ruleId / 严重级别 / 证据（absence 会标注为非引文）、候选原文、检查清单与计数；重复调用会替换此前自动登记的问题，不会重复。',
     parameters: {
       reviewId: { type: 'string', required: true, description: 'review_parse 返回的 reviewId' },
     },
     output: {
       schema: JSON_OUTPUT,
-      render: (_args, value) => {
-        const v = value as { hardIssues: unknown[]; hybridCandidates: unknown[]; softRules: unknown[]; aiVerdict: string; basis: string }
-        return text(
-          `自动登记 ${v.hardIssues.length} 条问题；待判断候选 ${v.hybridCandidates.length} 条；软规则 ${v.softRules.length} 条。` +
-            `预审结论（建议）：${v.aiVerdict}（${v.basis}）。仅为建议，待专家确认。`,
-        )
-      },
+      render: (_args, value) => text(renderCheck(value as unknown as CheckResult)),
     },
     async execute(args) {
       return json(await store.check(args.reviewId))
@@ -93,7 +193,7 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
     name: 'review_record_issue',
     description:
       `登记一条你依据 hybrid 候选片段判断出的问题（或规则未覆盖的待人工意见）。引文必须逐字来自方案原文（8–300 字）并落在候选片段内，否则问题进入 pending 并返回 gate.reasons。${SUGGEST_ONLY}` +
-      ' hard 规则的问题由 review_check 自动登记，不接受人工登记。',
+      ' hard 规则的问题由 review_check 自动登记，不接受人工登记；不得提交 absence 或以「未提及 / 未见 / 缺失」开头的伪引文（返回 ABSENCE_NOT_ALLOWED）。',
     parameters: {
       reviewId: { type: 'string', required: true },
       ruleId: { type: 'string', description: '规则号（rules_list 可查）；缺省表示规则未覆盖，作为待人工项登记' },
@@ -140,13 +240,13 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
 
   const reviewStatus = defineTool({
     name: 'review_status',
-    description: `读取审查记录的当前状态：预审结论（建议）、一句话摘要、问题明细、检查清单与计数。不写库。${SUGGEST_ONLY}`,
+    description: `读取审查记录的当前状态：预审结论（建议）、一句话摘要、问题明细（含证据与门禁）、检查清单与计数。不写库。${SUGGEST_ONLY}`,
     parameters: {
       reviewId: { type: 'string', required: true },
     },
     output: {
       schema: JSON_OUTPUT,
-      render: (_args, value) => text((value as { summary: string }).summary),
+      render: (_args, value) => text(renderStatus(value as unknown as StatusResult)),
     },
     async execute(args) {
       return json(store.status(args.reviewId))
@@ -223,7 +323,7 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
 
   const rulesList = defineTool({
     name: 'rules_list',
-    description: `列出当前生效的审查规则（shipped 规则 + 专家调整），含级别、层级、状态与历史采纳统计。${SUGGEST_ONLY}`,
+    description: `列出当前生效的审查规则（shipped 规则 + 专家调整），含 id / 标题 / 级别 / 层级 / 状态 / 历史采纳统计。${SUGGEST_ONLY}`,
     parameters: {
       dimension: { type: 'string', enum: [...DIMENSION] },
       tier: { type: 'string', enum: [...TIER] },
@@ -231,7 +331,7 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
     },
     output: {
       schema: JSON_OUTPUT,
-      render: (_args, value) => text(`共 ${(value as { rules: unknown[] }).rules.length} 条规则。`),
+      render: (_args, value) => text(renderRules(value as unknown as { rules: RuleView[]; warnings: string[]; loadErrors: { file: string; message: string }[] })),
     },
     async execute(args) {
       return json(

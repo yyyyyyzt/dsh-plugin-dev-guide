@@ -118,6 +118,7 @@ export type GateReason =
   | 'QUOTE_TOO_LONG'
   | 'QUOTE_NOT_FOUND'
   | 'OUT_OF_CANDIDATES'
+  | 'ABSENCE_NOT_ALLOWED'
 
 export interface Issue {
   issueId: string

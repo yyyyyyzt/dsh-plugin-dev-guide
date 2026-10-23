@@ -192,7 +192,19 @@ function checkTier(rule: Rule): void {
     return
   }
   if (!rule.verifier) fail('verifier', `${rule.tier} rules require a verifier`)
-  if (rule.tier !== 'hard') return
+  if (rule.tier === 'hybrid') {
+    for (const { spec, path } of leaves(rule.verifier!)) {
+      if (spec.kind !== 'statement') continue
+      if (spec.params.decisive === true)
+        fail(`${path}.params.decisive`, 'hybrid rules must not use decisive statement verifiers')
+      if (spec.params.whenNoCandidate === 'fail')
+        fail(
+          `${path}.params.whenNoCandidate`,
+          'hybrid rules must keep whenNoCandidate pending; absence must not auto-fail',
+        )
+    }
+    return
+  }
   for (const { spec, path } of leaves(rule.verifier!)) {
     if (spec.kind !== 'statement') continue
     if (spec.params.decisive !== true) fail(`${path}.params.decisive`, 'hard rules require decisive statement verifiers')

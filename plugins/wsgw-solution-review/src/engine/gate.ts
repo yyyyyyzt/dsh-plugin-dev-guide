@@ -16,6 +16,7 @@ export interface GateResult {
 
 export const QUOTE_MIN_CHARS = 8
 export const QUOTE_MAX_CHARS = 300
+const ABSENCE_QUOTE = /^(未提及|未见|未发现|缺失|未找到|没有提及|未说明|未明确|未提供)/
 
 export class HardRuleVerifierOwnedError extends Error {
   readonly code = 'HARD_RULE_VERIFIER_OWNED'
@@ -40,6 +41,10 @@ export function gate(doc: Doc, rule: Rule | null, evidence: GateInput[], candida
   const resolved: Evidence[] = []
   for (const e of evidence) {
     const compact = normalize(e.quote).replace(/\s+/g, '')
+    if (ABSENCE_QUOTE.test(compact)) {
+      add('ABSENCE_NOT_ALLOWED')
+      continue
+    }
     if (compact.length < QUOTE_MIN_CHARS) {
       add('QUOTE_TOO_SHORT')
       continue

@@ -64,7 +64,7 @@ rules:
       params:
         sections: [approach, data-plan, resources, risk]
         families: [ratelimit]
-        whenNoCandidate: fail
+        whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:CAP-001
@@ -110,7 +110,7 @@ rules:
             sections: [resources, data-plan]
             families: [scale]
             assertionOnly: ['无需扩容', '不需要扩容', '无须扩容']
-            whenNoCandidate: fail
+            whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:CAP-003
@@ -184,7 +184,7 @@ rules:
       params:
         sections: [approach, interface, risk]
         families: [crypto]
-        whenNoCandidate: fail
+        whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:SEC-001
@@ -212,7 +212,7 @@ rules:
             sections: [access, approach]
             families: [authcode, openid, bind-check, login]
             requireAll: true
-            whenNoCandidate: fail
+            whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:SEC-002
@@ -256,7 +256,7 @@ rules:
             sections: [risk]
             families: [exposure]
             assertionOnly: ['无暴露风险', '无风险', '不存在风险']
-            whenNoCandidate: fail
+            whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:SEC-004
@@ -320,7 +320,7 @@ rules:
       params:
         sections: [interface, approach]
         families: [boundary]
-        whenNoCandidate: fail
+        whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:INT-002
@@ -340,7 +340,7 @@ rules:
       params:
         families: [change, existing]
         requireAll: true
-        whenNoCandidate: fail
+        whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:INT-003
@@ -401,7 +401,7 @@ rules:
       kind: statement
       params:
         families: [channel-ctl]
-        whenNoCandidate: fail
+        whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:CHN-001
@@ -454,7 +454,7 @@ rules:
       kind: statement
       params:
         families: [tracking-impl]
-        whenNoCandidate: fail
+        whenNoCandidate: pending
     status: active
     provenance:
       source: legacy:MON-001
