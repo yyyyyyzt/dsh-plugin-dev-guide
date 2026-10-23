@@ -102,7 +102,7 @@ agent: review_finalize ──▶ present
 agent: 汇报 + 候选规则提示
 ```
 
-`review_decide` 的 `set_reviewer` 是 §3 第 6 步需要的动作，补入 `design.md` §8 的 action 枚举。
+`review_decide` 的 `set_reviewer` 是 §3 第 6 步需要的动作，已列入 `design.md` §8 的 action 枚举。
 
 ## 5. 专家自然语言的归一化
 
@@ -169,37 +169,24 @@ agent: 汇报 + 候选规则提示
 | 模型给出的 ruleId 不存在 | 用 `rules_list` 纠正；仍不存在则不带 ruleId 登记（pending） | — |
 | finalize 文件写失败 | 报告错误，不重试写库；建议专家检查输出目录设置 | 无变化 |
 
-## 8. 对话样例（种子方案，节选）
+## 8. 协议回放摘要（种子方案，S3c）
 
-```
-专家: 预审这份方案（粘贴 seed-solution.md）
-agent: [review_parse → review_check → memory_recall/record_issue ×7 → review_status]
-【预审结论（建议）】不通过——依据：1 个 blocker / 5 个 major / 0 个 minor。仅为建议，待专家确认。
-【问题明细】
-1. [CAP-001 · 限流与并发控制策略 · blocker · 已确认] 发现：方案未提及限流或并发控制。证据：（二/2.5 资源评估 下未见 限流/流控/并发控制）建议：评估新增业务量数据，建议增加数据限流策略以控制业务量及并发量。
-2. [CAP-006 · 业务量估算量化 · major · 已确认] 发现：数据增长估算无量化数据。证据：「上线前期会带来大量新增用户」（二/2.2 · 第 102 行）建议：建议预估并明确业务量数据。
-3. [CAP-002 · 压测方案 · major · 已确认] 发现：实施方案未安排压测。证据：（二/2.3 实施方案 下未见 压测）建议：上线前建议开展压测，确保服务运行稳定。
-4. [DOC-001 · 时序图完整性 · major · 已确认] 发现：时序图为图片，无法校验。证据：「（用户中心授权时序图……均为图片，略）」（二/2.1.1 · 第 32 行）建议：请以 Mermaid 时序图或文字步骤补充鉴权与查询链路。
-5. [CHN-001 · 渠道管控策略 · major · 已确认] …
-6. [CAP-003 · 资源扩容评估 · major · 已确认] 发现：扩容结论无数据支撑。证据：「初步评估无需扩容资源」（二/2.5 · 第 114 行）建议：依据当前业务请求量数据，建议进一步评估服务资源扩容情况。
-待人工：
-7. [INT-002 · 边界逻辑覆盖 · major · 待人工] 发现：未说明手机号与户号不存在绑定关系时的余额查询逻辑。证据：「返回码 0101 手机号匹配失败需解绑」…
-【检查清单】通过 5 / 未通过 6 / 待人工 1 / 不适用 6 / 已审阅无问题 5 …
-agent: [ask_user_question 批 1/2 …]
-专家: 第 1 条驳回，H5 卡片是静态资源，限流在能力开放平台统一做；其余采纳
-agent: [review_decide reject CAP-001 reason=…; adopt_rest]
-agent: [ask_user_question 最终结论：建议整改（推荐）/ 通过 / 不通过]
-专家: 建议整改
-agent: [review_decide set_final_verdict; review_finalize; present]
-已生成《技术方案预审意见》reviews/rv_20261019_k3m7qa.md：意见：建议整改，共 6 条。CAP-001 已被驳回 1 次。
-```
+S3c 的确定性回放见 `tests/protocol/protocol.e2e.ts`。DSH 未随包提供 `dsh-llm-mock-server`，因此按 `progress.md` §7 使用脚本化 agent，而不是新增依赖。固定序列：
+
+1. `review_parse` → `review_check`：3 条 hard 自动登记，7 个 hybrid 候选，1 条无候选的待人工项（INT-005），合计 11 条。
+2. 对 7 个候选逐个 `memory_recall` → `review_record_issue`；INT-005 的引文在候选集外，门禁按设计保留 `pending`。
+3. `review_status` → 按 blocker → major → minor → 待人工排序，批次 5/5/1；已确认项选项为「采纳（推荐）/ 驳回 / 改写」，待人工项为「确认为问题 / 不是问题」。
+4. 专家驳回 1 条、改写 1 条、其余采纳；补充 1 条专家意见；`set_reviewer` 署名张三。
+5. 复核后 `aiVerdict=不通过`；专家确认后 `set_final_verdict` → `review_finalize`，写出 `reviews/<reviewId>.md`。
+
+正式意见快照见 `tests/fixtures/expected/opinion-seed.md`；精确工具参数与调用序列以测试断言为准，本文不复制运行输出。
 
 ## 9. 测试要点（供 S2）
 
 | ID | 要点 | 层 |
 |---|---|---|
 | T-PRO-01 | SKILL.md 可被 `ctx.skills` 发现，名称 `wsgw-solution-review`，渲染长度 < 8192 字 | protocol |
-| T-PRO-02 | mock LLM 脚本：规范路径（§4）全程工具序列与参数快照 | protocol/e2e |
+| T-PRO-02 | 脚本化 agent（或 mock LLM）：规范路径（§4）全程工具序列与参数快照 | protocol/e2e |
 | T-PRO-03 | 批次：11 条问题 → 3 批（5/5/1）；pending 项选项为「确认为问题 / 不是问题」 | protocol |
 | T-PRO-04 | 自由文本回答 → `rewrite`；「采纳（推荐）」→ `adopt` | tools |
 | T-PRO-05 | `adopt_rest` 只影响尚无决定的问题 | tools |
