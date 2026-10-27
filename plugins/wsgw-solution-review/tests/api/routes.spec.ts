@@ -3,7 +3,10 @@ import { Readable } from 'node:stream'
 import { afterEach, describe, expect, it } from 'vitest'
 import * as api from '../../src/host/api.js'
 import * as reviewApi from '../../src/host/api.js'
-import { readFixture } from '../helpers.js'
+import { readFileSync } from 'node:fs'
+import { parse as parseYaml } from 'yaml'
+import { defaultConfig } from '../../src/host/config.js'
+import { packageRoot, readFixture } from '../helpers.js'
 import { openStore, removeRoot, type OpenedStore } from '../store/harness.js'
 
 interface CallOptions {
@@ -25,7 +28,7 @@ afterEach(async () => {
   }
 })
 
-function install(store: OpenedStore['store']) {
+function install(store: OpenedStore['store'], rejection?: 401 | 403) {
   const routes: { kind: 'exact' | 'prefix'; path: string; handler: (req: any, res: any) => unknown }[] = []
   const ctx = {
     solutionReview: store,
@@ -35,7 +38,7 @@ function install(store: OpenedStore['store']) {
         return () => {}
       },
     },
-    connection: { requestRejection: () => undefined },
+    connection: { requestRejection: () => rejection },
     effect(fn: () => unknown) {
       return fn()
     },
@@ -202,6 +205,68 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
     expect(verdict.json.finalVerdict).toBe('通过')
   })
 
+  it('passes the connection fence verdict through untouched and writes nothing (T-DSH-10)', async () => {
+    const o = await openStore()
+    opened.push(o)
+    for (const status of [401, 403] as const) {
+      const http = install(o.store, status)
+      const read = await http.call('GET', `${reviewApi.API_PREFIX}/rules`)
+      expect(read.status).toBe(status)
+      const write = await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'disable' } })
+      expect(write.status).toBe(status)
+    }
+    expect(o.store.domain.table('rule_overrides').get('CAP-002')).toBeUndefined()
+  })
+
+  it('GET /rules/:id returns the full rule detail with shipped values, override, audit and memory', async () => {
+    const o = await openStore()
+    opened.push(o)
+    const http = install(o.store)
+    const plain = await http.call('GET', `${reviewApi.API_PREFIX}/rules/CAP-002`)
+    expect(plain.status).toBe(200)
+    expect(plain.json.rule).toMatchObject({ ruleId: 'CAP-002', overridden: false })
+    expect(plain.json.detail).toMatchObject({
+      question: expect.any(String), rationale: expect.any(String), suggestion: expect.any(String),
+      verifier: expect.any(Object), provenance: expect.any(Object), audit: [],
+      memory: { stats: { shown: 0 }, warn: false, exemplars: [], recentRejectReasons: [] },
+    })
+    expect(plain.json.detail.override).toBeUndefined()
+    const shippedSeverity = plain.json.rule.severity
+    await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'set_severity', severity: 'minor' } })
+    const after = await http.call('GET', `${reviewApi.API_PREFIX}/rules/CAP-002`)
+    expect(after.json.rule).toMatchObject({ severity: 'minor', overridden: true })
+    expect(after.json.detail.shipped).toEqual({ severity: shippedSeverity, status: 'active' })
+    expect(after.json.detail.override).toEqual({ severity: 'minor' })
+    expect(after.json.detail.audit).toMatchObject([{ who: 'dashboard', change: { field: 'severity', from: shippedSeverity, to: 'minor' } }])
+    expect((await http.call('GET', `${reviewApi.API_PREFIX}/rules/NOPE-001`)).status).toBe(404)
+  })
+
+  it('POST /candidates/:id accept_draft accepts the drafted rule; an undrafted candidate → 400', async () => {
+    const o = await openStore({ defaultReviewer: '张三' })
+    opened.push(o)
+    const reviewId = await parsed(o.store)
+    await o.store.check(reviewId)
+    await o.store.decide(reviewId, { action: 'add', text: '补充灰度策略' })
+    await o.store.decide(reviewId, { action: 'add', text: '补充回滚方案' })
+    await o.store.decide(reviewId, { action: 'set_final_verdict', finalVerdict: '建议整改' })
+    await o.store.finalize(reviewId, async (name) => `reviews/${name}`)
+    const http = install(o.store)
+    const undrafted = await http.call('POST', `${reviewApi.API_PREFIX}/candidates/rc_${reviewId}_2`, { body: { action: 'accept_draft' } })
+    expect(undrafted.status).toBe(400)
+    expect(undrafted.json.error).toBe('BAD_ACTION')
+    await o.store.rulesPropose({
+      action: 'draft',
+      candidateId: `rc_${reviewId}_1`,
+      draft: ['id: INT-903', 'title: 灰度策略', 'dimension: interface', 'severity: minor', 'tier: soft', 'question: 是否说明灰度？', 'rationale: r', 'suggestion: 建议补充灰度策略'].join('\n'),
+    })
+    const accepted = await http.call('POST', `${reviewApi.API_PREFIX}/candidates/rc_${reviewId}_1`, { body: { action: 'accept_draft' } })
+    expect(accepted.status).toBe(200)
+    expect(accepted.json.rule).toMatchObject({ ruleId: 'INT-903', status: 'active' })
+    expect(o.store.domain.table('rule_candidates').get(`rc_${reviewId}_1`)?.status).toBe('accepted')
+    const dismissed = await http.call('POST', `${reviewApi.API_PREFIX}/candidates/rc_${reviewId}_2`, { body: { action: 'dismiss' } })
+    expect(dismissed.json.candidate.status).toBe('dismissed')
+  })
+
   it('rejects a write whose body is not JSON object', async () => {
     const o = await openStore()
     opened.push(o)
@@ -213,5 +278,12 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
 
 describe('config assembly (T-DES-12)', () => {
   it.todo('dsh --dump-config with the plugin installed includes the cordis.patch.yml rows (plugin + preset) without name clashes')
-  it.todo('config defaults match design.md §11 (minorThreshold 3, askBatchSize 5, rejectWarnRatio 0.6, …)')
+
+  it('the cordis.patch.yml plugin row carries exactly the schema defaults (design.md §11)', () => {
+    const rows = parseYaml(readFileSync(`${packageRoot}/cordis.patch.yml`, 'utf8'), { logLevel: 'error' }) as { insert: { id: string; config: unknown }[] }[]
+    const row = rows[0]!.insert.find((r) => r.id === 'wsgw-solution-review')!
+    expect(row.config).toEqual(defaultConfig())
+    expect(defaultConfig()).toMatchObject({ minorThreshold: 3, askBatchSize: 5, rejectWarnRatio: 0.6, defaultReviewer: '' })
+    expect(defaultConfig()).not.toHaveProperty('dashboardPollSeconds')
+  })
 })

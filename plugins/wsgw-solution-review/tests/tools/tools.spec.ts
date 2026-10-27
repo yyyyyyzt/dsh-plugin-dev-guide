@@ -213,6 +213,16 @@ describe('review_check (T-REQ-06)', () => {
     expect(r.store.issuesOf(reviewId).length).toBe(check.hardIssues.length)
   })
 
+  it('re-running check after any expert decision → REVIEW_ALREADY_DECIDED and decided issues survive (T-PRO-12)', async () => {
+    const r = await rig()
+    const { reviewId } = await checked(r)
+    const issue = r.store.issuesOf(reviewId)[0]!
+    await r.call('review_decide', { reviewId, action: 'reject', issueId: issue.issueId, reason: '平台统一限流' })
+    expect(await r.code('review_check', { reviewId })).toBe('REVIEW_ALREADY_DECIDED')
+    expect(r.store.domain.table('issues').get(issue.issueId)?.status).toBe('rejected')
+    expect(r.store.feedbackOf(reviewId)).toHaveLength(1)
+  })
+
   it('unknown reviewId → REVIEW_NOT_FOUND', async () => {
     const r = await rig()
     expect(await r.code('review_check', { reviewId: 'rv_20261019_zzzzzz' })).toBe('REVIEW_NOT_FOUND')
@@ -395,16 +405,27 @@ describe('review_decide (T-REQ-09, T-REQ-12, T-REQ-13, T-PRO-04, T-PRO-05, T-DES
     expect(r.store.domain.table('issues').get(noRule.issue.issueId)?.ruleId).toBeUndefined()
   })
 
-  it('adopt_rest → only issues still confirmed/pending become adopted; decided ones untouched', async () => {
+  it('adopt_rest → only confirmed issues become adopted; pending stay pending and are returned (T-PRO-05)', async () => {
     const r = await rig()
     const { reviewId } = await checked(r)
     const [first, ...rest] = r.store.issuesOf(reviewId)
+    const pending = await r.call('review_record_issue', {
+      reviewId, finding: '未说明灰度策略', suggestion: '建议补充灰度策略', evidence: [{ quote: '通过支付宝小程序' }],
+    })
+    expect(pending.status).toBe('pending')
     await r.call('review_decide', { reviewId, action: 'reject', issueId: first!.issueId })
     const out = await r.call('review_decide', { reviewId, action: 'adopt_rest' })
     expect(out.ok).toBe(true)
     expect(r.store.domain.table('issues').get(first!.issueId)?.status).toBe('rejected')
     for (const i of rest) expect(r.store.domain.table('issues').get(i.issueId)?.status).toBe('adopted')
+    expect(out.affected).toEqual(rest.map((i) => i.issueId))
+    expect(r.store.domain.table('issues').get(pending.issueId)?.status).toBe('pending')
+    expect(out.remainingPending).toEqual([pending.issueId])
     expect(r.store.feedbackOf(reviewId).length).toBe(1 + rest.length)
+    const rendered = r.render('review_decide', { reviewId, action: 'adopt_rest' }, out)
+    expect(rendered).toContain(`其余 ${rest.length} 条已确认问题已采纳`)
+    expect(rendered).toContain('1 条待人工')
+    expect(rendered).toContain(pending.issueId)
   })
 
   it('a later decision on the same issue overrides the earlier one and keeps both feedback rows', async () => {
@@ -484,6 +505,28 @@ describe('review_decide (T-REQ-09, T-REQ-12, T-REQ-13, T-PRO-04, T-PRO-05, T-DES
     const issue = r.store.issuesOf(reviewId)[0]!
     await r.call('review_decide', { reviewId, issueId: issue.issueId, answer: '换个说法：建议明确限流阈值' })
     expect(r.store.domain.table('issues').get(issue.issueId)).toMatchObject({ status: 'rewritten', rewriteText: '建议明确限流阈值' })
+  })
+
+  it('answers that lead with a decision word plus punctuation keep the decision; the tail becomes the reason (T-PRO-11)', async () => {
+    expect(normalizeAnswer('驳回：已在 3.2 节说明')).toEqual({ action: 'reject', reason: '已在 3.2 节说明' })
+    expect(normalizeAnswer('不对，平台统一限流')).toEqual({ action: 'reject', reason: '平台统一限流' })
+    expect(normalizeAnswer('不是问题。方案附件里有压测报告')).toEqual({ action: 'reject', reason: '方案附件里有压测报告' })
+    expect(normalizeAnswer('驳回。')).toEqual({ action: 'reject' })
+    expect(normalizeAnswer('采纳。')).toEqual({ action: 'adopt' })
+    expect(normalizeAnswer('同意，按建议改')).toEqual({ action: 'adopt' })
+    expect(normalizeAnswer('确认为问题！')).toEqual({ action: 'adopt' })
+    expect(normalizeAnswer('采纳，但改成：上线前完成全链路压测')).toEqual({ action: 'rewrite', text: '上线前完成全链路压测' })
+    expect(normalizeAnswer('不对外开放的接口也要鉴权')).toEqual({ action: 'rewrite', text: '不对外开放的接口也要鉴权' })
+    expect(normalizeAnswer('对接口补充限流说明')).toEqual({ action: 'rewrite', text: '对接口补充限流说明' })
+
+    const r = await rig()
+    const { reviewId } = await checked(r)
+    const [a, b] = r.store.issuesOf(reviewId)
+    await r.call('review_decide', { reviewId, issueId: a!.issueId, answer: '驳回：已在 3.2 节说明' })
+    expect(r.store.domain.table('issues').get(a!.issueId)?.status).toBe('rejected')
+    expect(r.store.feedbackOf(reviewId)[0]).toMatchObject({ action: 'reject', reason: '已在 3.2 节说明' })
+    await r.call('review_decide', { reviewId, issueId: b!.issueId, answer: '驳回：随便', reason: '平台统一限流' })
+    expect(r.store.feedbackOf(reviewId)[1]).toMatchObject({ action: 'reject', reason: '平台统一限流' })
   })
 })
 
@@ -569,6 +612,35 @@ describe('review_finalize (T-DES-09, T-REQ-14, T-REQ-15)', () => {
     await r.call('review_finalize', { reviewId })
     expect(r.store.domain.table('rule_overrides').get(rejectedRule)?.stats).toMatchObject({ shown: 1, reject: 1 })
     expect(r.store.domain.table('rule_candidates').size).toBe(1)
+  })
+
+  it('a decision after finalize reopens the review; finalizing again yields v2 (T-PRO-12)', async () => {
+    const r = await rig()
+    const { reviewId, issues } = await decided(r)
+    await r.call('review_finalize', { reviewId })
+    expect(await r.code('review_check', { reviewId })).toBe('REVIEW_ALREADY_DECIDED')
+    await r.call('review_decide', { reviewId, action: 'adopt', issueId: issues[0]!.issueId })
+    const reopened = r.store.domain.table('reviews').get(reviewId)!
+    expect(reopened.status).toBe('open')
+    expect(reopened.versions).toHaveLength(1)
+    expect(r.render('review_decide', { reviewId, action: 'adopt' }, await r.call('review_decide', { reviewId, action: 'adopt', issueId: issues[0]!.issueId }))).toContain('需重新定稿')
+    const out = await r.call('review_finalize', { reviewId })
+    expect(out.version).toBe(2)
+    expect(r.store.domain.table('reviews').get(reviewId)?.status).toBe('finalized')
+  })
+
+  it('stats-only override rows do not count as overrides for the pack version or RuleView.overridden', async () => {
+    const r = await rig()
+    const base = r.store.effectiveRules().version
+    const { reviewId, issues } = await decided(r)
+    await r.call('review_finalize', { reviewId })
+    const ruleId = issues[0]!.ruleId!
+    expect(r.store.domain.table('rule_overrides').get(ruleId)?.stats.shown).toBe(1)
+    expect(r.store.effectiveRules().version).toBe(base)
+    expect((await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === ruleId).overridden).toBe(false)
+    await r.call('rules_propose', { action: 'set_severity', ruleId, severity: 'minor' })
+    expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
+    expect((await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === ruleId).overridden).toBe(true)
   })
 
   it('returns { opinionPath, version, counts, memory } and does not call present itself', async () => {

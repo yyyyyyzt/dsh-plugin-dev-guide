@@ -8,6 +8,7 @@ import type { Doc, Lexicon, Rule, RulePack } from '../src/engine/types.js'
 const here = dirname(fileURLToPath(import.meta.url))
 export const fixturesDir = join(here, 'fixtures')
 export const rulesDir = join(here, '..', 'rules')
+export const packageRoot = join(here, '..')
 
 export function readFixture(name: string): string {
   return readFileSync(join(fixturesDir, name), 'utf8')
