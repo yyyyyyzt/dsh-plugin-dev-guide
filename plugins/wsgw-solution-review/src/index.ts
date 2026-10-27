@@ -4,6 +4,7 @@
 import type { Context } from '@deepseek-ai/cordis'
 import type {} from '@deepseek-ai/dsh-storage-domain'
 import { Config, resolveConfig, type ReviewConfig } from './host/config.js'
+import * as apiPlugin from './host/api.js'
 import * as commandsPlugin from './host/commands.js'
 import { loadRulePacks, shippedRulesDir } from './host/rules-loader.js'
 import * as skillsPlugin from './host/skills.js'
@@ -39,4 +40,8 @@ export async function apply(ctx: Context, rawConfig: Partial<ReviewConfig> = {})
 
   ctx.plugin(commandsPlugin)
   ctx.plugin(skillsPlugin)
+  // Optional web plane: headless and unit tests still load the host without webServer/connection.
+  ctx.inject(['webServer', 'connection'], (apiCtx) => {
+    apiCtx.plugin(apiPlugin)
+  })
 }

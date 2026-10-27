@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-23　|　当前步骤：**S3c 协议回放已完成（299 passed）；真机种子审查受 provider 登录阻塞；下一步 S4 dashboard**
+> 更新：2026-10-27　|　当前步骤：**S4 进行中（host API + client bundle 已写，待设置卡片 / GUI 验证）；下一步 S4 收口**
 
 ## 1. 步骤总览
 
@@ -14,8 +14,8 @@
 | S2 | 测试用例：工程骨架 + fixtures + 全部用例（红灯 / todo） | `pnpm test` 能跑，用例数与 S1 测试要点一一对应 | ✅ 2026-10-19 `pnpm test`：184 条引擎用例红灯（全部 `NotImplementedError`）、107 条 todo；`pnpm typecheck` 通过 |
 | S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ✅ 2026-10-19 `pnpm test:engine` 214 passed；`pnpm bench` 200 KB 0.54 s；`pnpm typecheck` 通过 |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ✅ 2026-10-20 `pnpm test` 284 passed（store 12 / tools 45 / host 13 条由 todo 转为断言）；`--dump-config` 出现两行 |
-| S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | 🟡 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）。**未完成**：有模型的端到端种子审查——headless 无法使用 `deepseek-account`（`ACCOUNT_SIGN_IN_REQUIRED`），需在已登录的 web「方案审查」会话补做 |
-| S4 | Client dashboard（sidebar-right tab 四页）+ 设置卡片 + 可写 API（规则 / 候选 / 复核） | bundle 校验脚本通过；页面展示并可修改规则 / 记录 / 记忆 / 评测；录屏 | ⬜ |
+| S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ✅ 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）；同日真机 `rv_20261023_xnhfjz`：10 条问题、全部采纳、finalized、意见 `reviews/rv_20261023_xnhfjz.md` |
+| S4 | Client dashboard（sidebar-right tab 四页）+ 设置卡片 + 可写 API（规则 / 候选 / 复核） | bundle 校验脚本通过；页面展示并可修改规则 / 记录 / 记忆 / 评测；录屏 | 🟡 2026-10-27：`src/host/api.ts` + `store.dashboardMemory/dashboardEvalRuns` 完成，API 13 条测试 11 通过 / 2 todo；`src/client/index.ts` 四页 + 写操作，`tsdown.config.ts` / `tsconfig.client.json` / `package.json` 已接；`pnpm typecheck` / `build` / `check:bundle` 通过（27KB）。剩余：client 8 个渲染 todo、设置卡片、GUI 实机验证、提交 |
 | S5 | 数据迁移与评测：24 条规则重写入新 schema；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
 | S6 | 论文：大纲 → 实验 → 稿件（Applied Sciences 模板） | 稿件初稿 + 图表 + 可复现包 | ⬜ |
 
@@ -140,7 +140,7 @@
 | Q7 | 部署形态 | Web profile；未来局域网开放 ip:port；看板可写（规则 / 候选 / 复核）、鉴权沿用 DSH；细粒度权限后置 | ✅ 2026-10-23 修订 |
 | Q8 | 正式公文模板样例 | 若有正式红头/表单模板，提供样例后在 `review-protocol.md` §6 增加模板变体；默认沿用历史意见格式 | ⬜ 不阻塞 |
 | Q9 | 专家身份 | 局域网多人使用时如何区分专家：默认每个会话首次复核前用 `ask_user_question` 问一次姓名/工号并写入 `reviews.reviewer`；不自建账号体系 | ⬜ 不阻塞，按默认 |
-| Q10 | S3c 真机种子审查 | 需在已登录 DeepSeek 账号的 web「方案审查」会话补做一次，记录首个 `rv_*` 与意见文件；headless 受 `ACCOUNT_SIGN_IN_REQUIRED` 阻塞 | ⬜ 阻塞 S3c 收口，不阻塞 S4 |
+| Q10 | S3c 真机种子审查 | 2026-10-23 已跑通：`rv_20261023_xnhfjz`，10 条、全部采纳、`finalVerdict=不通过`、意见文件已生成；使用 `DEEPSEEK_API_KEY` 走 headless，无需 web 登录 | ✅ |
 
 ## 5. 推迟 / 拒绝
 
@@ -162,16 +162,17 @@
 | S3a | `pnpm test` → `Tests 214 passed | 107 todo (321)`；`pnpm bench` → 200 KB `check()` 0.54 s（首版 19.6 s，`offsetAt` 每句重扫源文件为 O(n²)，改为行号索引 + 按 Doc 缓存句子/全文后修复）；`pnpm typecheck` 通过；五次提交 `feat(review)` ×4 / `perf(review)` ×1 |
 | S3b / S3c | `pnpm typecheck` 通过；`pnpm test` → `Tests 284 passed | 53 todo (337)`；`pnpm build` 生成 `lib/`。真机（Node v22.23.3，隔离 `DSH_HOME`）：`npx @deepseek-ai/dsh@0.2.1-rc.2 plugin --profile web add .` → `+ wsgw-solution-review link:…`，`dsh.profile.bundles` 追加；`--profile web --dump-config` 第 1230–1308 行为 `wsgw-solution-review` 与 `preset-wsgw-solution-review` 两行；`dsh web --no-open` 启动无告警，浏览器中：模式下拉出现「方案审查」、Plugins 页列出插件（启用）、`/` 面板列出 memory / review / rules，`/rules hard` 返回 10 行（CAP-002 CAP-006 INT-001 INT-004 DOC-001 DOC-002 DOC-005 DOC-010 DOC-011 DOC-012），`/review` 返回「暂无审查记录…」，`/memory CAP-001` 返回统计 0/0/0/0。已知 UI 现象：在「新会话」页直接回车命令不会切到会话视图，结果在会话创建后一并显示；带参数提示的命令需回车两次（第一次只是接受补全） |
 | P0（2026-10-23） | `pnpm typecheck` 通过；`pnpm test` → `Tests 288 passed | 53 todo (341)`；`pnpm build` 通过。工具输出已含自动登记问题/候选原文/soft 规则/检查清单与计数（`review_check`、`review_status`、`rules_list`）；hybrid 无候选一律 `pending`，`whenNoCandidate: fail` 仅允许 hard；LLM 的 absence 伪引文被 `ABSENCE_NOT_ALLOWED` 拒绝，校验器 absence 统一标注「非引文」。新增 `invalid-hybrid-fail.yaml`、renderer / gate / hybrid 断言；`review_check` 种子期望改为 `建议整改`（3 条 hard 自动登记，CAP-001 / CHN-001 转 pending）。 |
-| S3c 协议回放（2026-10-23） | `pnpm test` → `Tests 299 passed | 37 todo (336)`（较 P0 +11）；`pnpm typecheck` / `pnpm build` 通过。`tests/protocol/protocol.e2e.ts` 用脚本化 agent 跑通 parse → check（3 hard / 7 candidates / 1 pending）→ memory_recall ×7 → record_issue ×8 → status（11 条）→ 批次 5/5/1 → decide ×14 → set_reviewer → set_final_verdict → finalize；正式意见与 `tests/fixtures/expected/opinion-seed.md` 归一化后逐字相等。真机尝试：headless + 插件 patch 可组装并加载 tools，但 `deepseek-account` 拒绝无浏览器登录（`ACCOUNT_SIGN_IN_REQUIRED`）；已在 headless profile 安装插件做验证后移除，未改 web profile。 |
+| S3c 协议回放（2026-10-23） | `pnpm test` → `Tests 299 passed | 37 todo (336)`（较 P0 +11）；`pnpm typecheck` / `pnpm build` 通过。`tests/protocol/protocol.e2e.ts` 用脚本化 agent 跑通 parse → check（3 hard / 7 candidates / 1 pending）→ memory_recall ×7 → record_issue ×8 → status（11 条）→ 批次 5/5/1 → decide ×14 → set_reviewer → set_final_verdict → finalize；正式意见与 `tests/fixtures/expected/opinion-seed.md` 归一化后逐字相等。真机：`DEEPSEEK_API_KEY` + headless + 插件 tools，真实模型完成 `rv_20261023_xnhfjz`（10 条、全部采纳、finalized、`reviews/rv_20261023_xnhfjz.md`）；headless 临时安装已移除。 |
+| S4（2026-10-27） | `pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（`lib/client.js` 27,259 bytes，externals: react）。`tests/api/routes.spec.ts` 11 passed / 2 todo：rules 列表与停用/启用/改级、候选接受/忽略、review 分页、详情（issues + 28 行 checklist）、issue 采纳/驳回/改写、reviewer、final verdict、405/403/404、eval 2–7 对比。`src/client/index.ts` 400 行四页 + 写操作；`tests/client/dashboard.spec.ts` 5 passed / 8 todo（tab 定义、filterRules、markFrequentlyRejected、slidingAdoptRate、validateSettings）。真机 GUI 未验证。 |
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
 
-S1 三处细节仍可由用户调整（不阻塞）：附录 A 中 CAP-001 对种子方案判 blocker；`review-protocol.md` §2–§3 persona / SOP 文案；论文是否脱敏产品名。
+S3c 已于 2026-10-23 收口：脚本化协议回放 11 条全绿；真机 `rv_20261023_xnhfjz` 用 `DEEPSEEK_API_KEY` 走通（10 条、全部采纳、finalized、意见文件已生成），headless 临时安装已移除。
 
-S3c 的脚本化协议回放已于 2026-10-23 完成（299 passed）。剩 1 项真机审查：需在**已登录模型账号**的 web「方案审查」会话里走通 `tests/fixtures/seed.md`，记录首个 `rv_*`、`present` 交付与 `ask_user_question` 批次文案。headless 无法替代——`deepseek-account` 要求浏览器登录，`deepseek-official` 需要 `DEEPSEEK_API_KEY`。
+S4 当前 🟡：host 写 API 与四页 client 已实现，`pnpm typecheck` / `build` / `check:bundle` 通过，API 11 条测试通过。剩余：`tests/client/dashboard.spec.ts` 的 8 个渲染 todo、设置卡片写回、`http://127.0.0.1:3080` 实机验证（右侧栏 guide、四页读写、错误条、无 localStorage）、更新证据并提交。完成后进入 P1：按文档类型 / 变更类型决定规则适用范围（用户最初的核心痛点）。
 
-下一步 S4：Client dashboard 改为**可写**（`docs/dashboard.md`，`tests/client/` 与 `tests/api/` 的 todo）；先做只读四页 + 规则/候选/复核写 API，鉴权沿用 DSH，细粒度权限后置。S5 的 npm 发布仍只支持本地目录安装。
+S5 的 npm 发布仍只支持本地目录安装。
 
 论文侧（暂停中）：`paper/innovation-notes.md` v0.2；S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。
 

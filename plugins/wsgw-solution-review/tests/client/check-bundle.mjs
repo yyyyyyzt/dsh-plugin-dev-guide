@@ -9,7 +9,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const bundlePath = join(root, 'lib', 'client.js')
 const PLUGIN_ID = 'wsgw-solution-review'
 const EXTERNAL_WHITELIST = [/^react$/, /^react-dom(\/.*)?$/, /^@deepseek-ai\/dsh-client-/]
-const BANNER_PREFIX = `window.__ModuleLoader__.load({ id: "${PLUGIN_ID}"`
+const BANNER_PREFIX = new RegExp(`^window\\.__ModuleLoader__\\.load\\(\\{\\s*id:\\s*"${PLUGIN_ID}"`)
 
 const failures = []
 const assert = (ok, message) => {
@@ -24,8 +24,9 @@ if (!existsSync(bundlePath)) {
 const code = readFileSync(bundlePath, 'utf8')
 const trimmed = code.trimStart()
 
-assert(trimmed.startsWith(BANNER_PREFIX), `banner must start with ${BANNER_PREFIX}`)
-assert(/\}\)\s*;?\s*$/.test(code.trimEnd()), 'footer must close the ModuleLoader.load(...) call')
+assert(BANNER_PREFIX.test(trimmed), `banner must start with window.__ModuleLoader__.load({ id: "${PLUGIN_ID}"`)
+const withoutMap = code.replace(/\n\/\/# sourceMappingURL=.*\s*$/, '').trimEnd()
+assert(/return module\.exports;\s*\}\s*\}\)\s*;?\s*$/.test(withoutMap), 'footer must return module.exports and close the ModuleLoader.load(...) call')
 
 const required = new Set()
 for (const m of code.matchAll(/\brequire\(\s*["']([^"']+)["']\s*\)/g)) required.add(m[1])

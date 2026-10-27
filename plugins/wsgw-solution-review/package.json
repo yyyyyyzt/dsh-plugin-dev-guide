@@ -30,7 +30,11 @@
       "default": "./lib/persona.js"
     },
     "./cordis.patch.yml": "./cordis.patch.yml",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./client": {
+      "types": "./lib/types/client/index.d.ts",
+      "default": "./lib/client.js"
+    }
   },
   "files": [
     "lib/**/*.js",
@@ -51,7 +55,7 @@
     "test:engine": "vitest run tests/engine",
     "bench": "BENCH=1 vitest run tests/bench",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "build": "node -e \"fs.rmSync('lib',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
+    "build": "node -e \"fs.rmSync('lib',{recursive:true,force:true})\" && tsc -p tsconfig.build.json && tsc -p tsconfig.client.json && tsdown",
     "prepare": "pnpm run build",
     "dsh:install": "pnpm install && pnpm run build && npx -y @deepseek-ai/dsh plugin --profile web add .",
     "dsh:verify": "npx -y @deepseek-ai/dsh --profile web --dump-config",
@@ -89,12 +93,18 @@
     "@deepseek-ai/dsh-working-directory": "0.2.1-rc.2",
     "@types/mdast": "^4.0.4",
     "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "react": "^19.3.1",
+    "tsdown": "^0.22.14",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
     }
   }
 }

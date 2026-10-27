@@ -43,6 +43,7 @@ import {
   type ExemplarRecord,
   type IssueRecord,
   type ReviewDomain,
+  type EvalRunRecord,
   type ReviewRecord,
   type RuleCandidateRecord,
   type RuleOverrideRecord,
@@ -172,6 +173,38 @@ export interface RulesListFilter {
   dimension?: Dimension | undefined
   tier?: Tier | undefined
   status?: Rule['status'] | undefined
+}
+
+export interface SlidingAdoptPoint {
+  reviewId: string
+  at: string
+  adopted: number
+  rejected: number
+  rewritten: number
+  /** adopted / (adopted + rejected + rewritten), or null when nothing was decided. */
+  rate: number | null
+}
+
+export interface DashboardMemoryRule {
+  ruleId: string
+  title: string
+  dimension: Dimension
+  stats: RuleStats & { rejectRatio: number }
+  warn: boolean
+  exemplars: MemoryRecall['exemplars']
+  recentRejectReasons: string[]
+  /** Up to the last five finalized reviews containing this rule, oldest first. */
+  series: SlidingAdoptPoint[]
+}
+
+export interface DashboardMemory {
+  rules: DashboardMemoryRule[]
+  candidates: (RuleCandidateRecord & { candidateId: string })[]
+  totals: { exemplars: number; candidates: number; feedback: number }
+}
+
+export interface DashboardEvalRun extends EvalRunRecord {
+  runId: string
 }
 
 export type ProposeAction = 'disable' | 'enable' | 'set_severity' | 'set_param' | 'draft' | 'accept_draft' | 'dismiss'
@@ -449,10 +482,66 @@ export class ReviewStore {
     return { dimension, rules: rules.map((r) => this.memoryRecall(r.id)) }
   }
 
+  /** Read model for the dashboard memory page: per-rule recall + last-five adopt series + candidates. */
+  dashboardMemory(): DashboardMemory {
+    const finalized = this.listReviews()
+      .filter((r) => r.status === 'finalized')
+      .sort((a, b) => ((a.metrics.finalizedAt ?? a.createdAt) < (b.metrics.finalizedAt ?? b.createdAt) ? -1 : 1))
+    const rules = this.effectiveRules().rules.map((rule) => {
+      const recall = this.memoryRecall(rule.id)
+      const series: SlidingAdoptPoint[] = []
+      for (const review of finalized) {
+        const issues = this.issuesOf(review.reviewId).filter((i) => i.ruleId === rule.id)
+        if (issues.length === 0) continue
+        const adopted = issues.filter((i) => i.status === 'adopted').length
+        const rejected = issues.filter((i) => i.status === 'rejected').length
+        const rewritten = issues.filter((i) => i.status === 'rewritten').length
+        const decided = adopted + rejected + rewritten
+        series.push({
+          reviewId: review.reviewId,
+          at: review.metrics.finalizedAt ?? review.createdAt,
+          adopted,
+          rejected,
+          rewritten,
+          rate: decided === 0 ? null : adopted / decided,
+        })
+      }
+      return {
+        ruleId: rule.id,
+        title: rule.title,
+        dimension: rule.dimension,
+        stats: recall.stats,
+        warn: recall.warn,
+        exemplars: recall.exemplars,
+        recentRejectReasons: recall.recentRejectReasons,
+        series: series.slice(-5),
+      }
+    })
+    const candidates = [...this.domain.table('rule_candidates').entries()]
+      .map(([candidateId, record]) => ({ ...record, candidateId }))
+      .sort((a, b) => (a.at < b.at ? 1 : -1))
+    return {
+      rules,
+      candidates,
+      totals: {
+        exemplars: this.domain.table('exemplars').size,
+        candidates: candidates.length,
+        feedback: this.domain.table('feedback').size,
+      },
+    }
+  }
+
   // ---------- reviews ----------
 
   listReviews(): ReviewRecord[] {
     return [...this.domain.table('reviews').entries()].map(([, r]) => r).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+  }
+
+  /** Read model for the dashboard evaluation page; the service filters the optional id set. */
+  dashboardEvalRuns(): DashboardEvalRun[] {
+    return [...this.domain.table('eval_runs').entries()]
+      .map(([runId, record]) => ({ ...record, runId }))
+      .sort((a, b) => (a.at < b.at ? 1 : -1))
   }
 
   requireReview(reviewId: string): ReviewRecord {
