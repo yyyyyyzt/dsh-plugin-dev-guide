@@ -1,0 +1,42 @@
+// Dashboard API payload shapes (design.md §10), shared by the host routes and the client views.
+import type { ChecklistEntry, Feedback } from '../engine/types.js'
+import type { IssueRecord, ReviewRecord } from '../store/domain.js'
+import type { RulePackLoadError } from './rules-loader.js'
+import type { RuleView, StatusResult } from './store.js'
+
+/** The review record as the dashboard sees it: no source text, no internal bookkeeping. */
+export type ReviewView = Pick<ReviewRecord, 'reviewId' | 'title' | 'status' | 'aiVerdict' | 'versions' | 'metrics' | 'createdAt' | 'rulePackVersion'>
+  & Partial<Pick<ReviewRecord, 'reviewer' | 'aiVerdictAtFinalize' | 'finalVerdict' | 'verdictDelta' | 'opinionPath' | 'warnings'>>
+
+export interface ReviewCounts {
+  total: number
+  confirmed: number
+  pending: number
+  adopted: number
+  rejected: number
+  rewritten: number
+}
+
+export interface RulesPayload {
+  rules: RuleView[]
+  warnings: string[]
+  loadErrors: RulePackLoadError[]
+  version: string
+}
+
+export interface ReviewListPayload {
+  items: (ReviewView & { counts: ReviewCounts })[]
+  page: number
+  total: number
+}
+
+export interface ReviewDetailPayload {
+  review: ReviewView
+  issues: IssueRecord[]
+  checklist: ChecklistEntry[]
+  checklistCounts: StatusResult['checklistCounts']
+  counts: StatusResult['counts']
+  basis: string
+  summary: string
+  feedback: Feedback[]
+}

@@ -2,11 +2,13 @@
 // Auth is the composition's connection fence; this module adds no credential store of its own.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
-import type { ChecklistEntry, Feedback, Verdict } from '../engine/types.js'
-import type { IssueRecord, ReviewRecord } from '../store/domain.js'
-import type { RulePackLoadError } from './rules-loader.js'
+import type { Verdict } from '../engine/types.js'
+import type { ReviewRecord } from '../store/domain.js'
+import type { ReviewCounts, ReviewDetailPayload, ReviewListPayload, ReviewView, RulesPayload } from './api-types.js'
 import { ReviewToolError } from './errors.js'
-import type { ReviewStore, RuleView, StatusResult } from './store.js'
+import type { ReviewStore } from './store.js'
+
+export type { ReviewCounts, ReviewDetailPayload, ReviewListPayload, ReviewView, RulesPayload } from './api-types.js'
 
 export const name = 'wsgw-solution-review-api'
 export const inject = ['webServer', 'connection', 'solutionReview']
@@ -104,43 +106,6 @@ async function readJson(req: IncomingMessage, res: ServerResponse): Promise<Json
     sendError(res, 400, 'BAD_JSON', '请求体不是合法 JSON')
     return undefined
   }
-}
-
-/** The review record as the dashboard sees it: no source text, no internal bookkeeping. */
-export type ReviewView = Pick<ReviewRecord, 'reviewId' | 'title' | 'status' | 'aiVerdict' | 'versions' | 'metrics' | 'createdAt' | 'rulePackVersion'>
-  & Partial<Pick<ReviewRecord, 'reviewer' | 'aiVerdictAtFinalize' | 'finalVerdict' | 'verdictDelta' | 'opinionPath' | 'warnings'>>
-
-export interface ReviewCounts {
-  total: number
-  confirmed: number
-  pending: number
-  adopted: number
-  rejected: number
-  rewritten: number
-}
-
-export interface RulesPayload {
-  rules: RuleView[]
-  warnings: string[]
-  loadErrors: RulePackLoadError[]
-  version: string
-}
-
-export interface ReviewListPayload {
-  items: (ReviewView & { counts: ReviewCounts })[]
-  page: number
-  total: number
-}
-
-export interface ReviewDetailPayload {
-  review: ReviewView
-  issues: IssueRecord[]
-  checklist: ChecklistEntry[]
-  checklistCounts: StatusResult['checklistCounts']
-  counts: StatusResult['counts']
-  basis: string
-  summary: string
-  feedback: Feedback[]
 }
 
 function reviewView(review: ReviewRecord): ReviewView {
