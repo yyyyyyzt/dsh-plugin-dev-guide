@@ -16,7 +16,6 @@
         maxSourceBytes: 204800
         presentOnFinalize: true
         defaultReviewer: ''
-        dashboardPollSeconds: 0
 
     - id: preset-wsgw-solution-review
       name: '@deepseek-ai/dsh-agent-preset'

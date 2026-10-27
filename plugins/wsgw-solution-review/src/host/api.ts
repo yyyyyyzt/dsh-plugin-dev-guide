@@ -2,8 +2,11 @@
 // Auth is the composition's connection fence; this module adds no credential store of its own.
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
+import type { ChecklistEntry, Feedback, Verdict } from '../engine/types.js'
+import type { IssueRecord, ReviewRecord } from '../store/domain.js'
+import type { RulePackLoadError } from './rules-loader.js'
 import { ReviewToolError } from './errors.js'
-import type { ReviewStore } from './store.js'
+import type { ReviewStore, RuleView, StatusResult } from './store.js'
 
 export const name = 'wsgw-solution-review-api'
 export const inject = ['webServer', 'connection', 'solutionReview']
@@ -103,7 +106,44 @@ async function readJson(req: IncomingMessage, res: ServerResponse): Promise<Json
   }
 }
 
-function reviewView(review: ReturnType<ReviewStore['requireReview']>): Json {
+/** The review record as the dashboard sees it: no source text, no internal bookkeeping. */
+export type ReviewView = Pick<ReviewRecord, 'reviewId' | 'title' | 'status' | 'aiVerdict' | 'versions' | 'metrics' | 'createdAt' | 'rulePackVersion'>
+  & Partial<Pick<ReviewRecord, 'reviewer' | 'aiVerdictAtFinalize' | 'finalVerdict' | 'verdictDelta' | 'opinionPath' | 'warnings'>>
+
+export interface ReviewCounts {
+  total: number
+  confirmed: number
+  pending: number
+  adopted: number
+  rejected: number
+  rewritten: number
+}
+
+export interface RulesPayload {
+  rules: RuleView[]
+  warnings: string[]
+  loadErrors: RulePackLoadError[]
+  version: string
+}
+
+export interface ReviewListPayload {
+  items: (ReviewView & { counts: ReviewCounts })[]
+  page: number
+  total: number
+}
+
+export interface ReviewDetailPayload {
+  review: ReviewView
+  issues: IssueRecord[]
+  checklist: ChecklistEntry[]
+  checklistCounts: StatusResult['checklistCounts']
+  counts: StatusResult['counts']
+  basis: string
+  summary: string
+  feedback: Feedback[]
+}
+
+function reviewView(review: ReviewRecord): ReviewView {
   return {
     reviewId: review.reviewId,
     title: review.title,
@@ -122,7 +162,7 @@ function reviewView(review: ReturnType<ReviewStore['requireReview']>): Json {
   }
 }
 
-function reviewCounts(store: ReviewStore, reviewId: string): Json {
+function reviewCounts(store: ReviewStore, reviewId: string): ReviewCounts {
   const issues = store.issuesOf(reviewId)
   const count = (status: string): number => issues.filter((i) => i.status === status).length
   return {
@@ -132,6 +172,32 @@ function reviewCounts(store: ReviewStore, reviewId: string): Json {
     adopted: count('adopted'),
     rejected: count('rejected'),
     rewritten: count('rewritten'),
+  }
+}
+
+export function rulesPayload(store: ReviewStore): RulesPayload {
+  const listed = store.rulesList({})
+  return { rules: listed.rules, warnings: listed.warnings, loadErrors: listed.loadErrors, version: store.effectiveRules().version }
+}
+
+export function reviewListPayload(store: ReviewStore, page: number): ReviewListPayload {
+  const all = store.listReviews()
+  const start = (page - 1) * PAGE_SIZE
+  const items = all.slice(start, start + PAGE_SIZE).map((review) => ({ ...reviewView(review), counts: reviewCounts(store, review.reviewId) }))
+  return { items, page, total: all.length }
+}
+
+export function reviewDetailPayload(store: ReviewStore, reviewId: string): ReviewDetailPayload {
+  const status = store.status(reviewId)
+  return {
+    review: reviewView(store.requireReview(reviewId)),
+    issues: status.issues,
+    checklist: status.checklist,
+    checklistCounts: status.checklistCounts,
+    counts: status.counts,
+    basis: status.basis,
+    summary: status.summary,
+    feedback: store.feedbackOf(reviewId),
   }
 }
 
@@ -165,23 +231,13 @@ export function apply(ctx: Context): void {
   // Rules: list + enable/disable/severity/whitelisted parameter writes.
   route(ctx, 'exact', `${API_PREFIX}/rules`, wrap(async (req, res) => {
     if (req.method !== 'GET') return methodNotAllowed(res, 'GET')
-    const listed = store.rulesList({})
-    sendJson(res, 200, {
-      rules: listed.rules,
-      warnings: listed.warnings,
-      loadErrors: listed.loadErrors,
-      version: store.effectiveRules().version,
-    })
+    sendJson(res, 200, rulesPayload(store))
   }))
 
   route(ctx, 'prefix', `${API_PREFIX}/rules/`, wrap(async (req, res) => {
     const ruleId = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname.slice(`${API_PREFIX}/rules/`.length))
     if (!ruleId || ruleId.includes('/')) return sendError(res, 404, 'NOT_FOUND', '规则不存在')
-    if (req.method === 'GET') {
-      const rule = store.rulesList({}).rules.find((r) => r.ruleId === ruleId)
-      if (!rule) return sendError(res, 404, 'RULE_NOT_FOUND', `规则 ${ruleId} 不存在`)
-      return sendJson(res, 200, { rule })
-    }
+    if (req.method === 'GET') return sendJson(res, 200, store.ruleDetail(ruleId))
     if (req.method !== 'PATCH') return methodNotAllowed(res, 'GET, PATCH')
     const body = await readJson(req, res)
     if (!body) return
@@ -206,7 +262,7 @@ export function apply(ctx: Context): void {
     sendJson(res, 200, result)
   }))
 
-  // Candidate rules: accept a draft or dismiss.
+  // Candidate rules: accept the drafted rule or dismiss; drafting itself stays in the conversation.
   route(ctx, 'prefix', `${API_PREFIX}/candidates/`, wrap(async (req, res) => {
     if (req.method !== 'POST') return methodNotAllowed(res, 'POST')
     const candidateId = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname.slice(`${API_PREFIX}/candidates/`.length))
@@ -218,9 +274,17 @@ export function apply(ctx: Context): void {
       return sendError(res, 400, 'BAD_ACTION', 'action 必须是 accept_draft / dismiss / draft')
     }
     if (action === 'draft' && typeof body.draft !== 'string') return sendError(res, 400, 'BAD_DRAFT', 'draft 需要 YAML 文本')
+    let ruleId: string | undefined
+    if (action === 'accept_draft') {
+      const candidate = store.domain.table('rule_candidates').get(candidateId)
+      if (!candidate) return sendError(res, 404, 'CANDIDATE_NOT_FOUND', `候选规则 ${candidateId} 不存在`)
+      if (!candidate.draftRuleId) return sendError(res, 400, 'BAD_ACTION', '该候选尚未起草：请回到对话让 agent 起草规则（rules_propose draft）后再接受')
+      ruleId = candidate.draftRuleId
+    }
     const result = await store.rulesPropose({
       action,
       candidateId,
+      ...(ruleId ? { ruleId } : {}),
       ...(typeof body.draft === 'string' ? { draft: body.draft } : {}),
       who: 'dashboard',
     })
@@ -231,13 +295,7 @@ export function apply(ctx: Context): void {
     if (req.method !== 'GET') return methodNotAllowed(res, 'GET')
     const url = new URL(req.url ?? '/', 'http://localhost')
     const page = Math.max(1, Math.floor(Number(url.searchParams.get('page') ?? '1')) || 1)
-    const all = store.listReviews()
-    const start = (page - 1) * PAGE_SIZE
-    const items = all.slice(start, start + PAGE_SIZE).map((review) => ({
-      ...reviewView(review),
-      counts: reviewCounts(store, review.reviewId),
-    }))
-    sendJson(res, 200, { items, page, total: all.length })
+    sendJson(res, 200, reviewListPayload(store, page))
   }))
 
   route(ctx, 'prefix', `${API_PREFIX}/reviews/`, wrap(async (req, res) => {
@@ -246,20 +304,7 @@ export function apply(ctx: Context): void {
     const reviewId = parts[0]
     if (!reviewId) return sendError(res, 404, 'NOT_FOUND', '审查记录不存在')
 
-    if (req.method === 'GET' && parts.length === 1) {
-      const status = store.status(reviewId)
-      const review = reviewView(store.requireReview(reviewId))
-      return sendJson(res, 200, {
-        review,
-        issues: status.issues,
-        checklist: status.checklist,
-        checklistCounts: status.checklistCounts,
-        counts: status.counts,
-        basis: status.basis,
-        summary: status.summary,
-        feedback: store.feedbackOf(reviewId),
-      })
-    }
+    if (req.method === 'GET' && parts.length === 1) return sendJson(res, 200, reviewDetailPayload(store, reviewId))
 
     if (req.method !== 'POST') return methodNotAllowed(res, 'GET, POST')
 
@@ -297,7 +342,7 @@ export function apply(ctx: Context): void {
       if (typeof body.finalVerdict !== 'string' || !VERDICTS.has(body.finalVerdict)) {
         return sendError(res, 400, 'BAD_VERDICT', 'finalVerdict 必须是 通过 / 建议整改 / 不通过')
       }
-      const result = await store.decide(reviewId, { action: 'set_final_verdict', finalVerdict: body.finalVerdict as '通过' | '建议整改' | '不通过' })
+      const result = await store.decide(reviewId, { action: 'set_final_verdict', finalVerdict: body.finalVerdict as Verdict })
       return sendJson(res, 200, result)
     }
 

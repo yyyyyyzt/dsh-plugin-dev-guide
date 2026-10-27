@@ -1,4 +1,4 @@
-// Plugin Config (design.md §3.2 / §11): schemastery, every field described for the settings surface.
+// Plugin Config (design.md §3.2 / §11): schemastery; edited in the profile's plugin row.
 import z from '@deepseek-ai/schemastery'
 
 export interface ReviewConfig {
@@ -22,8 +22,6 @@ export interface ReviewConfig {
   presentOnFinalize: boolean
   /** Reviewer name used when the session never set one (empty = ask). */
   defaultReviewer: string
-  /** Dashboard refresh interval in seconds; 0 disables polling (S4). */
-  dashboardPollSeconds: number
 }
 
 export const Config: z<ReviewConfig> = z.object({
@@ -37,7 +35,6 @@ export const Config: z<ReviewConfig> = z.object({
   maxSourceBytes: z.natural().min(1024).default(204800).description('review_parse 接受的方案最大字节数'),
   presentOnFinalize: z.boolean().default(true).description('定稿后是否由 agent 调用 present 展示意见文件'),
   defaultReviewer: z.string().default('').description('默认审核人署名；为空时复核前询问一次'),
-  dashboardPollSeconds: z.natural().default(0).description('看板刷新间隔（秒）；0 = 不轮询'),
 }).description('wsgw-solution-review：网上国网技术方案 AI 预审（只建议，不裁决）')
 
 /** Schemastery drops a `null` default from the output; restore it so callers can rely on the key. */

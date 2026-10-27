@@ -256,9 +256,9 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
   const reviewDecide = defineTool({
     name: 'review_decide',
     description:
-      '记录专家在复核中的决定：adopt / reject / rewrite 针对单条问题；add 登记专家新增意见；adopt_rest 采纳其余未决问题；' +
+      '记录专家在复核中的决定：adopt / reject / rewrite 针对单条问题；add 登记专家新增意见；adopt_rest 只采纳其余「已确认」问题，待人工项会在 remainingPending 返回、须逐条请专家确认；' +
       'set_reviewer 记录审核人；set_final_verdict 是写入最终结论的唯一入口（需先有审核人）。' +
-      '也可只传 answer（专家原话），由工具按「采纳 / 驳回 / 其他文本=改写」归一化。' + SUGGEST_ONLY,
+      '也可只传 answer（专家原话），由工具按「采纳 / 驳回[：原因] / 改成：… / 其他文本=改写」归一化。定稿后再做任何决定，记录回到进行中，需重新 review_finalize。' + SUGGEST_ONLY,
     parameters: {
       reviewId: { type: 'string', required: true },
       action: { type: 'string', enum: [...DECIDE_ACTIONS] },
@@ -274,11 +274,24 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
     output: {
       schema: JSON_OUTPUT,
       render: (_args, value) => {
-        const v = value as { action: string; issue?: { issueId: string; status: string }; affected?: string[]; aiVerdict: string; finalVerdict?: string }
-        if (v.action === 'set_final_verdict') return text(`最终结论已记录：${v.finalVerdict}（复核后建议结论 ${v.aiVerdict}）。`)
-        if (v.action === 'adopt_rest') return text(`其余 ${v.affected?.length ?? 0} 条已采纳；复核后建议结论 ${v.aiVerdict}。`)
-        if (v.issue) return text(`${v.issue.issueId} → ${v.issue.status}；复核后建议结论 ${v.aiVerdict}。`)
-        return text(`已记录（${v.action}）。`)
+        const v = value as {
+          action: string
+          issue?: { issueId: string; status: string }
+          affected?: string[]
+          remainingPending?: string[]
+          aiVerdict: string
+          finalVerdict?: string
+          needsRefinalize?: boolean
+        }
+        const reopen = v.needsRefinalize ? '\n记录已回到进行中：旧意见文件已过期，需重新定稿（review_finalize）。' : ''
+        if (v.action === 'set_final_verdict') return text(`最终结论已记录：${v.finalVerdict}（复核后建议结论 ${v.aiVerdict}）。${reopen}`)
+        if (v.action === 'adopt_rest') {
+          const pending = v.remainingPending ?? []
+          const tail = pending.length ? `；还有 ${pending.length} 条待人工需逐条请专家确认：${pending.join('、')}` : ''
+          return text(`其余 ${v.affected?.length ?? 0} 条已确认问题已采纳${tail}；复核后建议结论 ${v.aiVerdict}。${reopen}`)
+        }
+        if (v.issue) return text(`${v.issue.issueId} → ${v.issue.status}；复核后建议结论 ${v.aiVerdict}。${reopen}`)
+        return text(`已记录（${v.action}）。${reopen}`)
       },
     },
     async execute(args) {

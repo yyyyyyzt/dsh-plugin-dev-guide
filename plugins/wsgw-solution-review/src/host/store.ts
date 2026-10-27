@@ -28,6 +28,7 @@ import type {
   Lexicon,
   MemoryRecall,
   Rule,
+  RuleAudit,
   RulePack,
   RuleStats,
   Severity,
@@ -144,9 +145,14 @@ export interface DecideResult {
   action: DecideAction
   issue?: IssueRecord
   affected?: string[]
+  /** adopt_rest only: pending issues left for one-by-one confirmation. */
+  remainingPending?: string[]
   aiVerdict: Verdict
   finalVerdict?: Verdict
   reviewer?: string
+  status: ReviewRecord['status']
+  /** True when an earlier opinion file exists but decisions changed since (status went back to open). */
+  needsRefinalize: boolean
 }
 
 export interface FinalizeResult {
@@ -167,6 +173,24 @@ export interface RuleView {
   suggestion: string
   stats: RuleStats
   overridden: boolean
+}
+
+export interface RuleDetail {
+  question: string
+  rationale: string
+  suggestion: string
+  applicability: Rule['applicability']
+  verifier: Rule['verifier']
+  provenance: Rule['provenance']
+  shipped?: { severity: Severity; status: Rule['status'] }
+  override?: Partial<Pick<RuleOverrideRecord, 'status' | 'severity' | 'suggestion' | 'params'>>
+  audit: RuleAudit[]
+  memory: MemoryRecall
+}
+
+export interface RuleDetailPayload {
+  rule: RuleView
+  detail: RuleDetail
 }
 
 export interface RulesListFilter {
@@ -246,17 +270,50 @@ const defaultRandomId = (): string => {
   return out
 }
 
+const ADOPT_EXACT = ['是', '是的', '对', '通过']
+const ADOPT_LEADS = ['确认为问题', '采纳', '同意']
+const REJECT_EXACT = ['否']
+const REJECT_LEADS = ['不是问题', '不成立', '不需要', '驳回', '不对']
+const LEAD_PUNCT = /^[，,。.；;：:！!、\s]+/u
+const REWRITE_PREFIX = /^(?:改成|改为|换成|写成|建议写成|措辞换成|建议改为|换个说法)\s*[:：]\s*(.+)$/su
+
+/** Text after a lead word that is followed by punctuation (or nothing); undefined when no lead matches. */
+function afterLead(text: string, leads: readonly string[]): string | undefined {
+  for (const lead of leads) {
+    if (text === lead) return ''
+    if (text.startsWith(lead) && LEAD_PUNCT.test(text.slice(lead.length))) return text.slice(lead.length).replace(LEAD_PUNCT, '').trim()
+  }
+  return undefined
+}
+
 /**
- * Expert free text → decision (review-protocol.md §5). Option labels used by the skill map exactly;
- * anything else is a rewrite whose text drops a leading 「改成：/建议写成：」 style prefix.
+ * Expert free text → decision (review-protocol.md §5, design.md §8). A decision word only counts when it
+ * stands alone or is followed by punctuation, so 「不对外开放…」 stays a rewrite.
  */
-export function normalizeAnswer(answer: string): { action: 'adopt' | 'reject' | 'rewrite'; text?: string } {
-  const t = answer.trim()
-  const bare = t.replace(/[（(]推荐[)）]$/u, '').trim()
-  if (['采纳', '确认为问题', '同意', '是', '是的', '对', '通过'].includes(bare)) return { action: 'adopt' }
-  if (['驳回', '不是问题', '不对', '不成立', '不需要', '否'].includes(bare)) return { action: 'reject' }
-  const m = /^(?:改成|改为|换成|写成|建议写成|措辞换成|建议改为|换个说法)\s*[:：]\s*(.+)$/su.exec(t)
-  return { action: 'rewrite', text: (m?.[1] ?? t).trim() }
+export function normalizeAnswer(answer: string): { action: 'adopt' | 'reject' | 'rewrite'; text?: string; reason?: string } {
+  const t = answer.trim().replace(/[（(]推荐[)）]$/u, '').trim()
+  const rewriteOf = (s: string): string | undefined => REWRITE_PREFIX.exec(s)?.[1]?.trim() || undefined
+  const direct = rewriteOf(t)
+  if (direct) return { action: 'rewrite', text: direct }
+  if (ADOPT_EXACT.includes(t)) return { action: 'adopt' }
+  if (REJECT_EXACT.includes(t)) return { action: 'reject' }
+  const adoptTail = afterLead(t, ADOPT_LEADS)
+  if (adoptTail !== undefined) {
+    const amended = rewriteOf(adoptTail.replace(/^(?:但是|但|不过)\s*/u, ''))
+    return amended ? { action: 'rewrite', text: amended } : { action: 'adopt' }
+  }
+  const rejectTail = afterLead(t, REJECT_LEADS)
+  if (rejectTail !== undefined) return rejectTail ? { action: 'reject', reason: rejectTail } : { action: 'reject' }
+  return { action: 'rewrite', text: t }
+}
+
+/** A row that changes the rule (as opposed to one finalize created only to hold stats). */
+function isRealOverride(rec: RuleOverrideRecord): boolean {
+  return rec.status !== undefined
+    || rec.severity !== undefined
+    || rec.suggestion !== undefined
+    || rec.draft !== undefined
+    || (rec.params !== undefined && Object.keys(rec.params).length > 0)
 }
 
 export class ReviewStore {
@@ -283,7 +340,8 @@ export class ReviewStore {
     const { rules, warnings } = mergeRules(shipped, overrides)
     const lexicon = this.lexicon()
     const base = this.packs.map((p) => `${p.pack.id}@${p.pack.version}`).join('+') || 'none'
-    const version = overrides.length ? `${base}+ov${overrides.length}` : base
+    const real = overrides.filter(isRealOverride).length
+    const version = real ? `${base}+ov${real}` : base
     return { rules, lexicon, warnings, version }
   }
 
@@ -320,8 +378,33 @@ export class ReviewStore {
       question: rule.question,
       suggestion: rule.suggestion,
       stats: override?.stats ?? emptyStats(),
-      overridden: override !== undefined,
+      overridden: override !== undefined && isRealOverride(override),
     }
+  }
+
+  ruleDetail(ruleId: string): RuleDetailPayload {
+    const rule = this.requireRule(ruleId)
+    const record = this.domain.table('rule_overrides').get(ruleId)
+    const shipped = this.packs.flatMap((p) => p.rules).find((r) => r.id === ruleId)
+    const override: NonNullable<RuleDetail['override']> = {}
+    if (record?.status !== undefined) override.status = record.status
+    if (record?.severity !== undefined) override.severity = record.severity
+    if (record?.suggestion !== undefined) override.suggestion = record.suggestion
+    if (record?.params !== undefined && Object.keys(record.params).length > 0) override.params = record.params
+    const { ruleId: _id, title: _title, ...memory } = this.memoryRecall(ruleId)
+    const detail: RuleDetail = {
+      question: rule.question,
+      rationale: rule.rationale,
+      suggestion: rule.suggestion,
+      applicability: rule.applicability,
+      verifier: rule.verifier,
+      provenance: rule.provenance,
+      ...(shipped ? { shipped: { severity: shipped.severity, status: shipped.status } } : {}),
+      ...(Object.keys(override).length > 0 ? { override } : {}),
+      audit: (record?.audit ?? []).slice(-10),
+      memory,
+    }
+    return { rule: this.ruleView(rule, record), detail }
   }
 
   private findRule(ruleId: string): Rule | undefined {
@@ -655,6 +738,17 @@ export class ReviewStore {
 
   async check(reviewId: string): Promise<CheckResult> {
     const review = this.requireReview(reviewId)
+    const decided = review.status === 'finalized'
+      || review.versions.length > 0
+      || review.finalVerdict !== undefined
+      || this.feedbackOf(reviewId).length > 0
+      || this.issuesOf(reviewId).some((i) => i.origin === 'expert')
+    if (decided) {
+      throw new ReviewToolError(
+        'REVIEW_ALREADY_DECIDED',
+        `审查 ${reviewId} 已有专家决定或已定稿，重跑预审会抹掉已复核的问题；方案未改请继续复核，方案已改请 review_parse(reuse: false) 开新记录`,
+      )
+    }
     const doc = this.docOf(review)
     const { rules, lexicon, version } = this.effectiveRules()
     const report = runCheck(doc, rules, lexicon)
@@ -814,24 +908,30 @@ export class ReviewStore {
     const review = this.requireReview(reviewId)
     let action = input.action
     let text = input.text
+    let reason = input.reason
     if (!action && input.answer !== undefined) {
       const normalized = normalizeAnswer(input.answer)
       action = normalized.action
       if (normalized.text !== undefined) text = normalized.text
+      if (!reason?.trim() && normalized.reason) reason = normalized.reason
     }
     if (!action) throw new ReviewToolError('BAD_ACTION', 'review_decide 需要 action 或 answer')
     if (input.finalVerdict !== undefined && action !== 'set_final_verdict') {
       throw new ReviewToolError('FINAL_VERDICT_FORBIDDEN', '只有 review_decide(action: set_final_verdict) 可以写入最终结论')
     }
 
-    const done = async (partial: Omit<DecideResult, 'ok' | 'action' | 'aiVerdict'>): Promise<DecideResult> => {
-      const updated = await this.touch(reviewId)
+    const done = async (partial: Omit<DecideResult, 'ok' | 'action' | 'aiVerdict' | 'status' | 'needsRefinalize'>): Promise<DecideResult> => {
+      const updated = await this.touch(reviewId, (r) => {
+        if (r.status === 'finalized') r.status = 'open'
+      })
       return {
         ok: true,
         action: action!,
         aiVerdict: updated.aiVerdict,
         ...(updated.finalVerdict ? { finalVerdict: updated.finalVerdict } : {}),
         ...(updated.reviewer ? { reviewer: updated.reviewer } : {}),
+        status: updated.status,
+        needsRefinalize: updated.status === 'open' && updated.versions.length > 0,
         ...partial,
       }
     }
@@ -846,7 +946,7 @@ export class ReviewStore {
       case 'reject': {
         const issue = this.requireIssue(reviewId, input.issueId)
         const next = await this.setIssueStatus(issue, 'rejected')
-        await this.writeFeedback(review, issue, 'reject', { reason: input.reason })
+        await this.writeFeedback(review, issue, 'reject', { reason })
         return done({ issue: next })
       }
       case 'rewrite': {
@@ -883,13 +983,15 @@ export class ReviewStore {
       }
       case 'adopt_rest': {
         const affected: string[] = []
+        const remainingPending: string[] = []
         for (const issue of this.issuesOf(reviewId)) {
-          if (issue.status !== 'confirmed' && issue.status !== 'pending') continue
+          if (issue.status === 'pending') remainingPending.push(issue.issueId)
+          if (issue.status !== 'confirmed') continue
           await this.setIssueStatus(issue, 'adopted')
           await this.writeFeedback(review, issue, 'adopt', {})
           affected.push(issue.issueId)
         }
-        return done({ affected })
+        return done({ affected, remainingPending })
       }
       case 'set_reviewer': {
         const reviewer = input.reviewer?.trim()

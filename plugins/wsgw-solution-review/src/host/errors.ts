@@ -3,6 +3,7 @@ import { HarnessError } from '@deepseek-ai/dsh-llm'
 
 export type ReviewToolErrorCode =
   | 'REVIEW_NOT_FOUND'
+  | 'REVIEW_ALREADY_DECIDED'
   | 'SOURCE_TOO_LARGE'
   | 'RULE_NOT_FOUND'
   | 'HARD_RULE_VERIFIER_OWNED'
