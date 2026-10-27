@@ -199,7 +199,7 @@ export function apply(ctx: Context): void {
     sendJson(res, 200, rulesPayload(store))
   }))
 
-  route(ctx, 'prefix', `${API_PREFIX}/rules/`, wrap(async (req, res) => {
+  route(ctx, 'prefix', `${API_PREFIX}/rules`, wrap(async (req, res) => {
     const ruleId = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname.slice(`${API_PREFIX}/rules/`.length))
     if (!ruleId || ruleId.includes('/')) return sendError(res, 404, 'NOT_FOUND', '规则不存在')
     if (req.method === 'GET') return sendJson(res, 200, store.ruleDetail(ruleId))
@@ -228,7 +228,7 @@ export function apply(ctx: Context): void {
   }))
 
   // Candidate rules: accept the drafted rule or dismiss; drafting itself stays in the conversation.
-  route(ctx, 'prefix', `${API_PREFIX}/candidates/`, wrap(async (req, res) => {
+  route(ctx, 'prefix', `${API_PREFIX}/candidates`, wrap(async (req, res) => {
     if (req.method !== 'POST') return methodNotAllowed(res, 'POST')
     const candidateId = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname.slice(`${API_PREFIX}/candidates/`.length))
     if (!candidateId || candidateId.includes('/')) return sendError(res, 404, 'NOT_FOUND', '候选规则不存在')
@@ -263,7 +263,7 @@ export function apply(ctx: Context): void {
     sendJson(res, 200, reviewListPayload(store, page))
   }))
 
-  route(ctx, 'prefix', `${API_PREFIX}/reviews/`, wrap(async (req, res) => {
+  route(ctx, 'prefix', `${API_PREFIX}/reviews`, wrap(async (req, res) => {
     const rest = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname.slice(`${API_PREFIX}/reviews/`.length))
     const parts = rest.split('/').filter(Boolean)
     const reviewId = parts[0]

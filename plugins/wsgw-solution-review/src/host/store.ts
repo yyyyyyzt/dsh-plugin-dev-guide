@@ -385,7 +385,7 @@ export class ReviewStore {
   ruleDetail(ruleId: string): RuleDetailPayload {
     const rule = this.requireRule(ruleId)
     const record = this.domain.table('rule_overrides').get(ruleId)
-    const shipped = this.packs.flatMap((p) => p.rules).find((r) => r.id === ruleId)
+    const shipped = this.shippedRule(ruleId)
     const override: NonNullable<RuleDetail['override']> = {}
     if (record?.status !== undefined) override.status = record.status
     if (record?.severity !== undefined) override.severity = record.severity
@@ -405,6 +405,10 @@ export class ReviewStore {
       memory,
     }
     return { rule: this.ruleView(rule, record), detail }
+  }
+
+  private shippedRule(ruleId: string): Rule | undefined {
+    return this.packs.flatMap((p) => p.rules).find((r) => r.id === ruleId)
   }
 
   private findRule(ruleId: string): Rule | undefined {
@@ -454,9 +458,11 @@ export class ReviewStore {
         const ruleId = requireId()
         const rule = this.requireRule(ruleId)
         const to = input.action === 'disable' ? 'retired' : 'active'
+        const shipped = this.shippedRule(ruleId)
         await upsert(ruleId, (rec) => {
           rec.audit.push(audit('status', rule.status, to))
-          rec.status = to
+          if (shipped?.status === to) delete rec.status
+          else rec.status = to
           if (rec.draft) rec.draft.status = to
         })
         return { ok: true, action: input.action, rule: view(ruleId), warnings }
@@ -468,9 +474,11 @@ export class ReviewStore {
           throw new ReviewToolError('BAD_ACTION', 'set_severity 需要 severity ∈ blocker|major|minor')
         }
         const severity = input.severity
+        const shipped = this.shippedRule(ruleId)
         await upsert(ruleId, (rec) => {
           rec.audit.push(audit('severity', rule.severity, severity))
-          rec.severity = severity
+          if (shipped?.severity === severity) delete rec.severity
+          else rec.severity = severity
           if (rec.draft) rec.draft.severity = severity
         })
         return { ok: true, action: input.action, rule: view(ruleId), warnings }
