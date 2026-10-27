@@ -28,8 +28,23 @@ afterEach(async () => {
   }
 })
 
+type StubRoute = { kind: 'exact' | 'prefix'; path: string; handler: (req: any, res: any) => unknown }
+
+// Mirrors dsh-webserver 0.2.1 `match`: exact first, then longest prefix p matching `p` or `p/<rest>`.
+function matchRoute(routes: StubRoute[], pathname: string): StubRoute | undefined {
+  const exact = routes.find((r) => r.kind === 'exact' && r.path === pathname)
+  if (exact) return exact
+  let best: StubRoute | undefined
+  for (const r of routes) {
+    if (r.kind !== 'prefix') continue
+    if (pathname !== r.path && !pathname.startsWith(`${r.path}/`)) continue
+    if (!best || r.path.length > best.path.length) best = r
+  }
+  return best
+}
+
 function install(store: OpenedStore['store'], rejection?: 401 | 403) {
-  const routes: { kind: 'exact' | 'prefix'; path: string; handler: (req: any, res: any) => unknown }[] = []
+  const routes: StubRoute[] = []
   const ctx = {
     solutionReview: store,
     webServer: {
@@ -45,9 +60,10 @@ function install(store: OpenedStore['store'], rejection?: 401 | 403) {
   }
   api.apply(ctx as any)
   return {
+    routes,
     async call(method: string, path: string, options: CallOptions = {}): Promise<Reply> {
       const pathname = path.split('?')[0]!
-      const route = routes.find((r) => (r.kind === 'exact' ? r.path === pathname : pathname.startsWith(r.path)))
+      const route = matchRoute(routes, pathname)
       if (!route) return { status: 404, headers: {}, json: { error: 'NO_ROUTE', message: path } }
       const payload = options.body === undefined ? '' : JSON.stringify(options.body)
       const req = Readable.from(payload ? [Buffer.from(payload)] : []) as any
@@ -86,6 +102,23 @@ async function parsed(store: OpenedStore['store'], fixture = 'seed.md'): Promise
 }
 
 describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
+  it('registers paths the dsh webserver can match: no trailing slash, no duplicates per kind', async () => {
+    const o = await openStore()
+    opened.push(o)
+    const { routes } = install(o.store)
+    for (const r of routes) {
+      expect(r.path.startsWith(reviewApi.API_PREFIX)).toBe(true)
+      expect(r.path.endsWith('/')).toBe(false)
+    }
+    const keys = routes.map((r) => `${r.kind} ${r.path}`)
+    expect(new Set(keys).size).toBe(keys.length)
+    expect(keys).toEqual(expect.arrayContaining([
+      `prefix ${reviewApi.API_PREFIX}/rules`,
+      `prefix ${reviewApi.API_PREFIX}/reviews`,
+      `prefix ${reviewApi.API_PREFIX}/candidates`,
+    ]))
+  })
+
   it('unlisted methods return 405 with an Allow header', async () => {
     const o = await openStore()
     opened.push(o)

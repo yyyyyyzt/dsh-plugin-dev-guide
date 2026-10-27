@@ -654,6 +654,25 @@ describe('review_finalize (T-DES-09, T-REQ-14, T-REQ-15)', () => {
 })
 
 describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () => {
+  it('setting a shipped rule back to its shipped value clears the override but keeps the audit', async () => {
+    const r = await rig()
+    const base = r.store.effectiveRules().version
+    const shipped = (await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === 'CAP-001')
+    await r.call('rules_propose', { action: 'set_severity', ruleId: 'CAP-001', severity: 'minor' })
+    await r.call('rules_propose', { action: 'disable', ruleId: 'CAP-001' })
+    expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
+    await r.call('rules_propose', { action: 'set_severity', ruleId: 'CAP-001', severity: shipped.severity })
+    await r.call('rules_propose', { action: 'enable', ruleId: 'CAP-001' })
+    const rec = r.store.domain.table('rule_overrides').get('CAP-001')!
+    expect(rec.severity).toBeUndefined()
+    expect(rec.status).toBeUndefined()
+    expect(rec.audit.map((a) => a.change.field)).toEqual(['severity', 'status', 'severity', 'status'])
+    expect(r.store.effectiveRules().version).toBe(base)
+    const after = (await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === 'CAP-001')
+    expect(after).toMatchObject({ severity: shipped.severity, status: 'active', overridden: false })
+    expect(r.store.ruleDetail('CAP-001').detail.override).toBeUndefined()
+  })
+
   it('rules_list merges shipped + overrides and filters by dimension / tier / status', async () => {
     const r = await rig()
     const all = await r.call('rules_list', {})
