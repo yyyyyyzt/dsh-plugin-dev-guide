@@ -1,6 +1,6 @@
 # 对话协议 V1.0：预审 → 复核 → 定稿与回流
 
-> 状态：S1 定稿候选（2026-10-19）。本文规定审查 agent 在一个 DSH 会话内的行为：触发方式、persona、skill SOP 原文、工具调用顺序、`ask_user_question` 批次与文案、专家自然语言的归一化、正式意见模板、异常路径。S3c 的 `skills/wsgw-solution-review/SKILL.md` 与 persona 文本直接取自 §2、§3。
+> 状态：S1 定稿候选（2026-10-19）；2026-10-27 修订 `adopt_rest` 范围、归一化前缀、重跑预审与定稿后修改两条异常路径。本文规定审查 agent 在一个 DSH 会话内的行为：触发方式、persona、skill SOP 原文、工具调用顺序、`ask_user_question` 批次与文案、专家自然语言的归一化、正式意见模板、异常路径。S3c 的 `skills/wsgw-solution-review/SKILL.md` 与 persona 文本直接取自 §2、§3。
 > 原则：AI 只预审、不裁决；每一步都有工具落库；专家说的每句话都能被归一化为一个决定。
 
 ## 1. 触发与前置
@@ -8,7 +8,7 @@
 | 情形 | 行为 |
 |---|---|
 | 专家在「方案审查」preset 会话里粘贴 Markdown / 给出路径并要求预审 | 进入阶段一 |
-| 专家给出 `.docx` | agent 先用 `skill` 工具加载 `office` 技能把文档转为 Markdown（保存到工作目录），再进入阶段一；插件不做转换 |
+| 专家给出 `.docx` | 若 profile 装了 office 类技能，agent 先用 `skill` 工具加载它把文档转为 Markdown（保存到工作目录），再进入阶段一；没装则请专家另存为 Markdown 或在 Web 端文档预览中复制正文。插件不做转换 |
 | 专家只打招呼或问规则 | 不启动审查；可用 `rules_list` / `memory_recall` 回答 |
 | 专家在 `preset-standard` 会话里要求预审 | 该会话没有审查工具；agent（标准 preset）无从调用。README 说明需切换 preset；不做自动切换 |
 | 会话内已有未定稿的审查 | `review_parse` 返回 `existingReviewId`；agent 问专家「继续上次的审查还是重新开始」 |
@@ -64,7 +64,7 @@
    采纳 → adopt；驳回 → reject（若专家给了原因写 reason）；改写/自由文本 → rewrite(text)；
    确认为问题 → adopt；不是问题 → reject。
 9. 专家在对话中补充的新意见（如「还要补充幂等说明」）：先用 rules_list 找最接近的规则；能对应 → review_decide(action: add, ruleId)；不能对应 → review_decide(action: add)（不带 ruleId，进入候选规则）。向专家复述一遍登记结果。
-10. 专家说「其余全部采纳」「剩下的都同意」→ review_decide(action: adopt_rest)。
+10. 专家说「其余全部采纳」「剩下的都同意」→ review_decide(action: adopt_rest)。它只采纳「已确认」的问题；返回的 remainingPending 非空时，把这些待人工项逐条用 ask_user_question 请专家确认（确认为问题 / 不是问题），不要替专家批量确认。
 11. 全部问题处理完后，用 ask_user_question 确认结论：
    question: 「请确认最终结论」
    detail: 「复核后：采纳 n / 驳回 m / 改写 k / 新增 j。按规则策略重新计算的建议结论为 <aiVerdict>。」
@@ -111,10 +111,10 @@ agent: 汇报 + 候选规则提示
 | 专家表达（示例） | 归一化 |
 |---|---|
 | 「同意」「采纳」「对」「是的」「这条没问题」（针对某条） | `adopt` |
-| 「不对」「驳回」「这条不成立」「方案里有写」「不需要」 | `reject`（原因 = 原话） |
-| 「改成：……」「措辞换成……」「建议写成……」 | `rewrite(text)` |
+| 「不对」「驳回」「这条不成立」「方案里有写」「不需要」「驳回：已在 3.2 说明」 | `reject`（原因 = 原话；「驳回：……」冒号后的文字即原因） |
+| 「改成：……」「措辞换成：……」「建议写成：……」 | `rewrite(text)`（冒号后的文字为改写文） |
 | 「还要加一条……」「补充一个问题……」「漏了……」 | `add`（先匹配规则） |
-| 「其余都同意」「剩下的采纳」「后面的都通过」 | `adopt_rest` |
+| 「其余都同意」「剩下的采纳」「后面的都通过」 | `adopt_rest`（只作用于已确认问题；待人工项仍逐条问） |
 | 「结论定为建议整改」「这个方案不通过」「可以通过」 | `set_final_verdict`（仅在复核阶段；若问题尚未逐条处理，先提醒还有 n 条未复核，专家坚持则照办并记录 `verdictDelta`） |
 | 「把 CAP-001 停了」「这条规则以后不要查了」 | `rules_propose(disable)` |
 | 「CAP-002 降为 minor」 | `rules_propose(set_severity)` |
@@ -168,6 +168,8 @@ agent: 汇报 + 候选规则提示
 | 方案超过 200 KB | 提示拆分；不登记 | — |
 | 模型给出的 ruleId 不存在 | 用 `rules_list` 纠正；仍不存在则不带 ruleId 登记（pending） | — |
 | finalize 文件写失败 | 报告错误，不重试写库；建议专家检查输出目录设置 | 无变化 |
+| 复核开始后要求「重新预审」 | `review_check` 返回 `REVIEW_ALREADY_DECIDED`；方案未改就继续复核；方案改过则 `review_parse(reuse:false)` 开新记录 | 旧记录保留 |
+| 定稿后专家又改某条决定或结论（对话或看板） | 照常 `review_decide`；记录回到 `open`；提示需重新定稿，再次 `review_finalize` 生成 `-v2` 文件 | `reviews.status = open`，旧文件保留 |
 
 ## 8. 协议回放摘要（种子方案，S3c）
 
@@ -189,7 +191,9 @@ S3c 的确定性回放见 `tests/protocol/protocol.e2e.ts`。DSH 未随包提供
 | T-PRO-02 | 脚本化 agent（或 mock LLM）：规范路径（§4）全程工具序列与参数快照 | protocol/e2e |
 | T-PRO-03 | 批次：11 条问题 → 3 批（5/5/1）；pending 项选项为「确认为问题 / 不是问题」 | protocol |
 | T-PRO-04 | 自由文本回答 → `rewrite`；「采纳（推荐）」→ `adopt` | tools |
-| T-PRO-05 | `adopt_rest` 只影响尚无决定的问题 | tools |
+| T-PRO-05 | `adopt_rest` 只采纳 `confirmed` 问题；`pending` 保持并在 `remainingPending` 返回 | tools |
+| T-PRO-11 | 归一化：「驳回：原因」→ reject + reason；「采纳。」→ adopt；「改成：…」→ rewrite | tools |
+| T-PRO-12 | 已有决定时重跑 `review_check` → `REVIEW_ALREADY_DECIDED`；定稿后 `decide` → 记录回 `open`，再定稿得 v2 | tools |
 | T-PRO-06 | 署名：无默认署名时先问一次；有默认署名时不问 | protocol |
 | T-PRO-07 | 最终结论确认的推荐项 = 复核后重算的 aiVerdict | engine/verdict + protocol |
 | T-PRO-08 | 正式意见渲染：合并同规则、改写优先、通过空问题句、句末标点、v2 文件名 | engine/render |

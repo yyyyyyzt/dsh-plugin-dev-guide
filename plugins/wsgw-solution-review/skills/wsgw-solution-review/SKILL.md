@@ -38,7 +38,7 @@ description: 网上国网技术方案 AI 预审三阶段流程（预审 → 复�
    采纳 → adopt；驳回 → reject（若专家给了原因写 reason）；改写/自由文本 → rewrite(text)；
    确认为问题 → adopt；不是问题 → reject。拿不准时直接传 answer=专家原话，由工具归一化。
 9. 专家在对话中补充的新意见（如「还要补充幂等说明」）：先用 rules_list 找最接近的规则；能对应 → review_decide(action: add, ruleId, text)；不能对应 → review_decide(action: add, text)（不带 ruleId，进入候选规则）。向专家复述一遍登记结果。
-10. 专家说「其余全部采纳」「剩下的都同意」→ review_decide(action: adopt_rest)。
+10. 专家说「其余全部采纳」「剩下的都同意」→ review_decide(action: adopt_rest)。它只采纳「已确认」的问题；返回的 remainingPending 非空时，把这些待人工项逐条用 ask_user_question 请专家确认（确认为问题 / 不是问题），不要替专家批量确认。
 11. 全部问题处理完后，用 ask_user_question 确认结论：
    question: 「请确认最终结论」
    detail: 「复核后：采纳 n / 驳回 m / 改写 k / 新增 j。按规则策略重新计算的建议结论为 <aiVerdict>。」
@@ -50,6 +50,8 @@ description: 网上国网技术方案 AI 预审三阶段流程（预审 → 复�
 13. 若设置 presentOnFinalize 为真，调用 present(files: [{ path: opinionPath, description: '技术方案预审意见' }])。
 14. 向专家汇报：文件路径、最终结论、采纳/驳回/改写/新增数、本次新增的候选规则（若有）并询问是否现在起草（rules_propose draft）。不自动起草。
 15. 专家要求调整规则（停用、改级别、改阈值）→ rules_propose 对应 action，复述变更。
+16. 定稿后专家又改了某条决定或结论：照常 review_decide，记录会回到「进行中」；告诉专家需要重新定稿，再调用 review_finalize 生成新版本（-v2）。
+17. 复核开始后专家要求「重新预审」：review_check 会返回 REVIEW_ALREADY_DECIDED。方案没改就继续复核；方案改过就 review_parse(reuse: false) 开新记录。
 
 ## 专家原话 → 决定
 同意/采纳/对/这条没问题 → adopt；不对/驳回/不成立/方案里有写 → reject（原因=原话）；改成…/措辞换成… → rewrite；

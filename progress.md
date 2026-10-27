@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-27　|　当前步骤：**S4 进行中（host API + client bundle 已写，待设置卡片 / GUI 验证）；下一步 S4 收口**
+> 更新：2026-10-27　|　当前步骤：**S4 收口（2026-10-27 复核：文档对齐 0.2.1、修 6 处复核逻辑缺陷、client 改 TSX；待用户本机 GUI 冒烟）**
 
 ## 1. 步骤总览
 
@@ -15,9 +15,9 @@
 | S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ✅ 2026-10-19 `pnpm test:engine` 214 passed；`pnpm bench` 200 KB 0.54 s；`pnpm typecheck` 通过 |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ✅ 2026-10-20 `pnpm test` 284 passed（store 12 / tools 45 / host 13 条由 todo 转为断言）；`--dump-config` 出现两行 |
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ✅ 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）；同日真机 `rv_20261023_xnhfjz`：10 条问题、全部采纳、finalized、意见 `reviews/rv_20261023_xnhfjz.md` |
-| S4 | Client dashboard（sidebar-right tab 四页）+ 设置卡片 + 可写 API（规则 / 候选 / 复核） | bundle 校验脚本通过；页面展示并可修改规则 / 记录 / 记忆 / 评测；录屏 | 🟡 2026-10-27：`src/host/api.ts` + `store.dashboardMemory/dashboardEvalRuns` 完成，API 13 条测试 11 通过 / 2 todo；`src/client/index.ts` 四页 + 写操作，`tsdown.config.ts` / `tsconfig.client.json` / `package.json` 已接；`pnpm typecheck` / `build` / `check:bundle` 通过（27KB）。剩余：client 8 个渲染 todo、设置卡片、GUI 实机验证、提交 |
+| S4 | Client dashboard（sidebar-right tab 四页）+ 可写 API（规则 / 候选 / 复核）；设置卡片推迟 | bundle 校验脚本通过；页面展示并可修改规则 / 记录 / 记忆 / 评测；录屏 | 🟡 2026-10-27：`src/host/api.ts` + `store.dashboardMemory/dashboardEvalRuns` 完成，API 13 条测试 11 通过 / 2 todo；`src/client/index.ts` 四页 + 写操作，`tsdown.config.ts` / `tsconfig.client.json` / `package.json` 已接；`pnpm typecheck` / `build` / `check:bundle` 通过（27KB）。剩余：client 8 个渲染 todo、设置卡片、GUI 实机验证、提交 |
 | S5 | 数据迁移与评测：24 条规则重写入新 schema；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
-| S6 | 论文：大纲 → 实验 → 稿件（Applied Sciences 模板） | 稿件初稿 + 图表 + 可复现包 | ⬜ |
+| S6 | 论文：大纲 → 实验 → 稿件（MDPI *Computers* 模板） | 稿件初稿 + 图表 + 可复现包 | ⬜ |
 
 ## 2. 各步骤交付清单
 
@@ -126,6 +126,13 @@
 | 2026-10-23 | 文档基线字符串直接改 `dsh-v0.2.1-rc.2` / `pnpm@11.28.5`；行为章节标「待逐章复核」 | 用户决策「直接改」；只改字符串不等于已验证 0.2.1 行为 |
 | 2026-10-23 | P0：hybrid 无候选一律 `pending`；`whenNoCandidate: fail` 仅 hard；absence 只由校验器产生并显式标注「非引文」；工具输出返回明细而非摘要 | 2026-10-23 审查复盘：hybrid 自动 fail、证据伪装、工具只回计数 |
 | 2026-10-23 | S3c 协议回放用**脚本化 agent**，不引入 `dsh-llm-mock-server` | DSH 未随 profile 提供该包；`progress.md` §7 允许脚本化 agent；脚本仍走真实 store/tools，断言落库与文件 |
+| 2026-10-27 | 设置卡片推迟；删除 `dashboardPollSeconds`，看板只在打开 / 切页 / 手动 / 写后刷新 | 0.2.1 无第三方插件自动设置表单入口（`installSettingsSection` / `settings.plugin.item` 是 0.1.x 指南写法）；阈值改动低频，YAML 足够（铁律 6） |
+| 2026-10-27 | `adopt_rest` 只采纳 `confirmed`；`pending` 必须逐条确认 | 原实现把门禁未过 / soft 的「待人工」项也批量采纳，违背「待人工 = 要人看过」与铁律 3 |
+| 2026-10-27 | 已有专家决定或已定稿的审查拒绝重跑 `review_check`（`REVIEW_ALREADY_DECIDED`） | 重跑会删除已复核的 verifier 问题及其决定状态，反馈记录变成孤儿 |
+| 2026-10-27 | 定稿后再 `decide` → 记录回 `open`，需重新 finalize（v2） | 否则看板 / 记录显示「已定稿」但意见文件已过期 |
+| 2026-10-27 | 仅含 `stats` 的 override 行不算覆盖：不计入 `+ovN`、不标「已覆盖」 | 原实现每次定稿都改变规则包版本号，`rulePackVersion` 失去复现意义 |
+| 2026-10-27 | 看板候选「接受草案」按候选的 `draftRuleId` 接受；未起草的候选只能忽略或回对话起草 | 原路由只传 candidateId，`accept_draft` 必然 400 |
+| 2026-10-27 | Client 改为 TSX（`index.tsx` + `views.tsx` + `model.ts`），类型直接引用引擎类型；样式只用 DSH 主题变量；改写在行内输入 | 原 client 自造维度枚举（与引擎不一致导致筛选全空）、候选字段错位、`window.prompt`、硬编码颜色 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -152,6 +159,10 @@
 | 台账 / 运营视图 | 拒绝 | 决策 5 |
 | Word 公文生成器 | 拒绝 | 用 office skill 转换 Markdown |
 | 软著说明书 | 推迟 | 与研究无关 |
+| 看板设置卡片 | 推迟 | 见决策日志 2026-10-27；需要时按 `plugins.item` + `configForms` 接入 |
+| 看板起草规则 YAML / 看板定稿 | 拒绝 | 起草需要模型理解上下文，定稿要写文件并 `present`，都留在对话；看板只审批与复核 |
+| 看板「回到对话」链接 | 推迟 | 工具上下文取不到稳定 sessionId |
+| 看板细粒度权限 / CSRF token | 推迟 | 同源 + DSH 连接围栏已覆盖单人 / 小范围局域网 |
 
 ## 6. 证据
 

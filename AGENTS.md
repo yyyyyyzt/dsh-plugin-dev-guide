@@ -1,14 +1,14 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-23（文档基线对齐 `dsh-v0.2.1-rc.2`；P0 修复；`archive/` 已删除）。
+> 最后更新：2026-10-27（按 0.2.1-rc.2 源码复核 §3 能力表与 §4.1；设置卡片推迟；协议测试改为脚本化 agent；目标期刊同步为 *Computers*）。
 
 ## 0. 这个仓库现在是什么
 
 两个并存、互不耦合的部分：
 
 1. **DSH 插件开发指南**（原有）：`README.md`、`docs/`、`examples/hello-plugin`、`scripts/discover-plugins.mjs`、`plugins.md`。基线 `dsh-v0.2.1-rc.2`，按 `docs/maintenance.md` 维护。
-2. **wsgw-solution-review**（新，本指引的主体；wsgw = 网上国网）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 *Applied Sciences* 或同类）。代码位于 `plugins/wsgw-solution-review/`，论文位于 `paper/`。
+2. **wsgw-solution-review**（新，本指引的主体；wsgw = 网上国网）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 MDPI *Computers*，见 §5.4）。代码位于 `plugins/wsgw-solution-review/`，论文位于 `paper/`。
 
 旧版 Python 原型已于 2026-10-23 按用户决策从工作区删除；历史结论保留在 §7 与 `paper/`，原始数据不再随仓库分发，**不得 import 或重建**。
 
@@ -41,7 +41,7 @@
    | 交付文件 | `present`（`dsh-tool-present`）+ Markdown 文件 | 不写 Word 生成器；需要 .docx 时让 office skill 转 |
    | 专用 agent | `dsh-agent-preset` + `dsh-persona` 组成「方案审查」preset | 不改系统提示词全局行 |
    | 审查流程指令 | DSH skill（`SKILL.md`）+ 工具描述 | 不把流程写死在代码里 |
-   | 页面 | 右侧 Sidebar tab（`ctx.sidebarRightTabs`）+ 设置卡片 | 不建独立前端工程、不自建 Router |
+   | 页面 | 右侧 Sidebar tab（`ctx.sidebarRightTabs` + `sidebar.right.pane.tab` slot）；数据走 `ctx.webServer` 同源路由，鉴权用 `ctx.connection` | 不建独立前端工程、不自建 Router / 鉴权；设置卡片推迟（配置改 YAML） |
 2. **先文档，再测试用例，最后开发。** 每个步骤的顺序不可倒置：`docs/` 里的对应章节定稿 → `tests/` 里写出用例（允许先 `.todo` / 红灯）→ 实现让其变绿。没有对应文档条目的代码不合并。
 3. **AI 只做初筛，不自动驳回。** 存储与输出中必须区分 `ai_verdict`（建议）与 `final_verdict`（仅专家可写）。任何未经专家确认的 LLM 判断不得进入正式意见。
 4. **证据必须可验证。** 文本证据的 `quote` 必须能在方案原文中按子串命中（归一化空白后）；`kind: absence` 只能由校验器产生，必须记录缺失项与定位章节，展示时标注「absence / 非引文」，不得伪装成原文引用。LLM 提交的 absence 一律拒绝。未通过门禁的问题降级为 `待人工`，不参与结论计算。这条由工具侧强制。
@@ -90,8 +90,9 @@
 | 会话查询 | `dsh-session-query-sqlite` | 评测时回放会话、统计耗时 |
 | Web 路由 | `ctx.webServer.register` | dashboard 的 `/plugins/wsgw-solution-review/api/*` |
 | 右侧栏 | `ctx.sidebarRightTabs` + `sidebar.right.pane.tab` | dashboard tab |
-| 设置卡片 | `installSettingsSection` + `settings.plugin.item` | 阈值、规则包路径等即时配置 |
-| 测试支撑 | `@deepseek-ai/dsh-llm-mock-server`、`dsh-llm-replay`、`agent-loop-testkit` | 对话协议的可重放测试 |
+| 连接围栏 | `ctx.connection.requestRejection(req)` | 看板路由的 401 / 403（与 DSH Web 同一访问控制） |
+| 配置 | 插件行 `config`（schemastery） | 阈值、规则包目录、默认署名。0.2.1 没有给第三方插件自动生成设置表单的入口（`installSettingsSection` / `settings.plugin.item` 是 0.1.x 指南写法），设置卡片推迟 |
+| 测试支撑 | 真实 `dsh-storage-json` + 脚本化 agent | `dsh-llm-mock-server` 未随 npm 发布，协议回放用脚本化工具调用序列；真实对话靠人工冒烟 |
 
 ## 4. 架构概要（细节在 `plugins/wsgw-solution-review/docs/design.md`）
 
@@ -100,19 +101,18 @@
 ```
 wsgw-solution-review (bundle, cordis.patch.yml)
 ├─ host 平面
-│  ├─ review-store      storage domain `solution_review`（规则层 / 审查 / 反馈 / 记忆 / 评测）
+│  ├─ review-store      storage domain `wsgw_solution_review`（规则层 / 审查 / 反馈 / 记忆 / 评测）
 │  ├─ review-engine     Markdown AST + Mermaid 解析 → 规则校验器 → 证据锚定 → 结论策略（纯函数，可单测）
 │  ├─ review-tools      review_parse / review_check / review_record_issue / review_status / review_decide / review_finalize / rules_list / rules_propose / memory_recall（挂在 preset 内，只有审查 agent 可见）
 │  ├─ review-commands   /review, /rules, /memory —— 只做 host 侧即时查询（DSH 命令不经过模型，不能用来发起审查）
 │  ├─ review-api        dashboard HTTP 路由（读 + 受限写）`/plugins/wsgw-solution-review/api/*`
-│  └─ settings          阈值、规则包目录、公文模板
-├─ agent preset `solution-review`
+│  └─ config            阈值、规则包目录、默认署名（插件行 YAML）
+├─ agent preset `wsgw-solution-review`（方案审查）
 │  ├─ persona           审核专家口吻；只建议，不裁决
-│  ├─ skill `solution-review`   审查三阶段 SOP + 输出格式
+│  ├─ skill `wsgw-solution-review`   审查三阶段 SOP + 输出格式
 │  └─ 工具白名单        tool-fs(只读为主)、tool-skill、tool-ask-user、present、review-tools
 └─ client 平面
-   ├─ sidebar-right tab `review-dashboard`   规则 / 审查记录 / 记忆 / 评测 四页
-   └─ settings card
+   └─ sidebar-right tab `wsgw-review`   审查记录 / 规则 / 记忆 / 评测 四页（可复核、可调规则）
 ```
 
 ### 4.2 对话协议（三阶段，一个会话内完成）
@@ -186,13 +186,13 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 ### 5.4 目标期刊与稿件约束
 
-*Applied Sciences*（MDPI，Q2 Engineering Multidisciplinary，偏工程实践，开放获取）。稿件结构按其 Article 模板：Introduction / Related Work / System Design / Implementation / Evaluation / Discussion / Conclusions；强调可复现（开源插件 + 匿名化数据 + 评测脚本）。备选：*Electronics*、*Information*、*IEEE Access*。
+MDPI *Computers*（2026-10-19 用户决定，按 ReqPlan-Eval 先例：组件级评测 + 诚实限制陈述；详见 `paper/innovation-notes.md`）。稿件结构按其 Article 模板：Introduction / Related Work / System Design / Implementation / Evaluation / Discussion / Conclusions；强调可复现（开源插件 + 匿名化数据 + 评测脚本）。备选：*Applied Sciences*、*Electronics*、*Information*。
 
 ## 6. 质量门禁
 
 - **单元测试**（vitest）：解析器、每种校验器、结论策略、记忆聚合、证据门禁——全部纯函数，fixture 以种子方案及其变体（删章节、改否定句、去时序图）构成。
 - **契约测试**：storage domain spec（zod schema、版本）；工具 `output.schema`；`cordis.patch.yml` 行与 preset 组合能被 `--dump-config` 组装。
-- **协议测试**：用 `dsh-llm-mock-server` / `llm-replay` 回放一次完整「预审 → 复核 → 定稿」会话，断言落库内容与交付文件。
+- **协议测试**：脚本化 agent 按固定工具调用序列与专家回答跑完一次「预审 → 复核 → 定稿」，断言落库内容与交付文件；真实模型对话由人工冒烟覆盖（清单见 `progress.md`）。
 - **离线校验脚本**：client bundle 结构（banner / footer / 外部化白名单）、规则 YAML schema。
 - 命令（S3 搭好工程后固定写入此处）：`pnpm test`、`pnpm typecheck`、`pnpm build`、`pnpm run check:bundle`。
 - 每步完成的证据写入 `progress.md`：测试名、通过数、commit。

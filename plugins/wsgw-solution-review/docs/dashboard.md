@@ -1,76 +1,80 @@
-# 看板规格 V1.0（右侧 Sidebar tab「方案审查」）
+# 看板规格 V1.1（右侧 Sidebar tab「方案审查」）
 
-> 状态：S1 定稿候选（2026-10-19）；2026-10-23 用户决定改为**可写**。看板是复核面：看规则 / 记录 / 记忆 / 评测，并可调整规则、审批候选、做复核决定；写操作统一走 `ReviewStore` 写入口，沿用 DSH 鉴权，细粒度权限后置。实现为 DSH Web 右侧 Sidebar 的一个扩展 tab（`ctx.sidebarRightTabs` + `sidebar.right.pane.tab`），数据来自 `design.md` §10 的读写路由。
-> 不建独立前端工程、不自建路由、不引入 UI 框架之外的组件库；复用 DSH client 的主题变量与设置卡片。
+> 状态：S1 定稿（2026-10-19）；2026-10-23 用户决定改为**可写**；2026-10-27 按 `dsh-v0.2.1-rc.2` 源码复核注册方式、去掉设置卡片与轮询。
+> 看板是对话之外的**复核面**：看规则 / 审查记录 / 记忆 / 评测，并可调整规则、审批候选、对问题做采纳 / 驳回 / 改写、署名与确认最终结论。起草规则 YAML 与定稿（写文件 + `present`）留在对话里。
+> 实现为 DSH Web 右侧 Sidebar 的一个扩展 tab，数据来自 `design.md` §10 的同源路由。不建独立前端工程、不自建路由、不引入组件库；样式只用 DSH 主题 CSS 变量。
 
 ## 1. 注册
 
-```ts
-// src/client/index.ts
-export const name = 'wsgw-solution-review/client'
-export const inject = ['slots', 'sidebarRightTabs', 'locale']
+```tsx
+// src/client/index.tsx（Client 插件：package.json `dsh.client` + exports["./client"]）
+export const name = 'wsgw-solution-review'
+export const inject = ['slots', 'sidebarRightTabs']
 
 export function apply(ctx) {
   ctx.effect(() => ctx.sidebarRightTabs.register({
     id: 'wsgw-solution-review',
     kind: 'wsgw-review',
     priority: 'extension',
-    title: () => '方案审查',
     keepMounted: true,
-    guide: { order: 50, title: () => '方案审查看板', description: () => '规则 · 审查记录 · 记忆 · 评测' },
-  }), 'review tab type')
+    title: () => '方案审查',
+    guide: [{ id: 'dashboard', order: 50, title: () => '方案审查看板', description: () => '规则 · 审查记录 · 记忆 · 评测' }],
+  }), 'wsgw-solution-review: tab type')
   ctx.effect(() => ctx.slots.inject('sidebar.right.pane.tab', () => ctx.slots.register(
-    { name: 'sidebar.right.pane.tab', key: 'wsgw-solution-review' }, ReviewDashboard,
-  )), 'review tab body')
-  // settings.plugin.item 卡片：见 §6
+    { name: 'sidebar.right.pane.tab', key: 'wsgw-solution-review' }, Dashboard,
+  )), 'wsgw-solution-review: dashboard body')
 }
 ```
 
-- 页面类 tab（无 `patterns`），通过引导页入口框或 `openTab('wsgw-review')` 打开；chip 标题固定「方案审查」。
-- `keepMounted: true`：切会话不丢筛选状态。
-- 四页为 tab 内部的分段切换（本地 state），不是四个 Sidebar tab。
+- 页面类 tab（无 `patterns`）：在右侧栏引导页点「方案审查看板」打开；chip 标题固定「方案审查」。
+- `guide` 在 0.2.1 源码中是**数组**（`SidebarRightGuideEntry[]`），子系统文档里的对象写法已过时。
+- `keepMounted: true`：切换会话、隐藏右栏时不丢当前页与筛选状态。
+- `package.json` 的 `dsh.client.inject: ["@deepseek-ai/dsh-client-ui-sidebar-right"]` 只保证脚本在 sidebar-right 之后到达；`sidebarRightTabs` / `slots` 依赖由 `inject` 数组表达。
+- 四页是 tab 内部的分段切换（组件 state），不是四个 Sidebar tab。
 
 ## 2. 信息架构
 
 ```
 方案审查
-├─ 规则        生效规则表 + 规则详情抽屉
-├─ 审查记录    列表 → 详情（三层 + 复核轨迹 + 正式意见预览）
-├─ 记忆        规则级采纳率 / 范例 / 候选规则 / 学习曲线
-└─ 评测        eval_runs 列表 → 一轮详情（消融对比表）
+├─ 审查记录    列表（分页）→ 详情：结论 / 问题明细（可复核）/ 检查清单 / 署名与最终结论
+├─ 规则        生效规则列表（筛选）→ 行内展开详情：问题、依据、校验器、覆盖、审计、记忆；启停 / 级别
+├─ 记忆        有记录的规则：采纳统计、近 5 次定稿采纳率、范例、驳回原因；候选规则审批
+└─ 评测        eval_runs 列表 → 勾选 2–7 个对比指标
 ```
 
-顶部常驻：数据刷新按钮（`tab.actions.bindCommands({ refresh })`）、最近刷新时间、后端不可达提示。
+顶部常驻：页签、刷新按钮、错误条（带重试）。默认页为「审查记录」——专家最常用的入口。
 
 ## 3. 各页规格
 
-### 3.1 规则
+### 3.1 审查记录
 
-数据：`GET /plugins/wsgw-solution-review/api/rules`。
-
-| 区域 | 内容 |
-|---|---|
-| 筛选 | 维度（8）、tier（3）、状态（active / draft / retired）、文本搜索（id / 标题） |
-| 表格列 | id、标题、维度、severity、tier、状态、shown、采纳率（adopt+rewrite / shown）、驳回率、来源（shipped / learned）、最后变更 |
-| 行标记 | 驳回率 ≥ `rejectWarnRatio` 且 shown ≥ `rejectWarnMinSamples` → 行尾「常被驳回」标记；override 覆盖过的字段加下划线并 hover 显示 shipped 原值 |
-| 详情抽屉 | question / rationale / suggestion / applicability / verifier（YAML 高亮只读）/ 近 5 条审计 / 近 5 条范例 / 操作：启用 / 停用、严重级别下拉、可白名单参数编辑（families / minChars / whenNoCandidate 等） |
-| 空状态 | 「规则包未加载」+ 加载错误列表（`design.md` §12） |
-
-### 3.2 审查记录
-
-数据：`GET /reviews?limit&offset&status`、`GET /reviews/:id`。
+数据：`GET /reviews?page=N`、`GET /reviews/:id`。
 
 | 区域 | 内容 |
 |---|---|
-| 列表列 | reviewId、标题、aiVerdict（预审）、finalVerdict、状态（open / finalized）、审核人、开始时间、时长、问题数（确认 / 待人工 / 新增） |
-| 筛选 | 状态、结论、审核人、时间范围 |
-| 详情：结论层 | aiVerdictAtFinalize vs finalVerdict 并排；差异高亮；`verdictDelta` 说明 |
-| 详情：明细层 | 问题表：规则号、级别、来源（verifier / llm / expert）、状态、门禁结果（reason）、证据引文（可展开看章节与行号）、建议、专家决定（adopt / reject / rewrite + 原因 / 改写文） |
-| 详情：清单层 | 28 条规则逐条状态 |
-| 详情：正式意见 | 渲染 opinion Markdown（只读）；版本切换；文件路径复制 |
-| 详情：指标 | 工具调用数、门禁拒绝数、时长 |
-| 操作 | 每条问题：采纳 / 驳回 / 改写（改写填文本与原因）；审核人；最终结论确认；另有「回到对话」链接（有 `sessionId` 时） |
+| 列表行 | 标题、预审结论（三色）、最终结论（若有）、状态（进行中 / 已定稿 / 需重新定稿）、reviewId、问题计数（采纳 / 驳回 / 改写 / 待人工） |
+| 分页 | 每页 50 条，上一页 / 下一页 |
+| 详情：结论 | 预审结论 vs 最终结论并排；定稿时的预审结论 ≠ 最终结论时高亮并显示差异；`basis` 一句话依据 |
+| 详情：问题 | 每条：规则号（专家新增显示「专家」）、级别、来源（校验器 / 模型 / 专家）、状态、门禁未过原因、证据引文（`absence` 类显示「未提及」而非引号）、建议；已改写的显示改写文 |
+| 详情：复核操作 | 未决定的问题（`confirmed` / `pending`）：采纳（`pending` 显示为「确认为问题」）/ 驳回（可选原因，行内输入）/ 改写（行内文本框，非 `window.prompt`） |
+| 详情：清单 | 检查清单逐行（规则号、状态、备注）+ 各状态计数；种子规则包为 28 行 |
+| 详情：署名与结论 | 审核人输入框 + 保存；最终结论下拉（通过 / 建议整改 / 不通过）。无审核人时提示先署名（后端 `REVIEWER_REQUIRED`） |
+| 详情：正式意见 | 只显示 `opinionPath` 与版本列表（正文在文件中，用右栏文件预览或编辑器打开）；记录 `status=open` 且 `versions` 非空时提示「决定已变更，需回到对话重新定稿」 |
 | 空状态 | 「还没有审查记录。在「方案审查」agent 会话里粘贴一份方案开始。」 |
+
+### 3.2 规则
+
+数据：`GET /rules`；展开时 `GET /rules/:id`。
+
+| 区域 | 内容 |
+|---|---|
+| 筛选 | 维度（8：容量 / 安全 / 接口 / 渠道 / 数据同步 / 配置 / 监控 / 文档，与引擎 `Dimension` 一致）、tier、状态 |
+| 列表行 | 规则号 · 标题、级别、tier、状态、维度、展示 / 采纳 / 驳回 / 改写；「已覆盖」标记（只认真实覆盖，见 `design.md` §7）；常被驳回提示 |
+| 行内详情 | 检查问题、依据、整改建议、适用范围、校验器配置（JSON 只读）、shipped 原值 vs 覆盖值、最近审计、记忆（范例与驳回原因） |
+| 操作 | 启用 / 停用、级别下拉。参数调整与草案起草在对话里用 `rules_propose` 完成（需要模型理解上下文） |
+| 加载错误 | `loadErrors` / `warnings` 以提示条显示（`design.md` §12） |
+
+「常被驳回」= `reject / shown ≥ 0.6` 且 `shown ≥ 5`（与 `memory_recall.warn` 默认阈值一致；看板不读 Host 配置，故用默认值）。
 
 ### 3.3 记忆
 
@@ -78,68 +82,66 @@ export function apply(ctx) {
 
 | 区域 | 内容 |
 |---|---|
-| 学习曲线 | 折线：按 finalize 序号的滑动采纳率（窗 5）；叠加驳回率；样本 < 5 时显示「样本不足」 |
-| 规则级精确率 | 条形：每条 shown ≥ 1 的规则的采纳率，按 tier 分色；点击跳规则详情 |
-| 范例 | 按规则分组的措辞范例列表（kind: adopt / rewrite、来源 reviewId、时间）；搜索 |
-| 候选规则 | 列表：文本、来源 reviewId、状态（new / drafted / accepted / dismissed）、草案预览（有则显示 YAML）；操作：accept / dismiss；起草仍由对话里的 agent 产生 YAML |
-| 升级提示 | soft 规则 shown ≥ 10 且采纳率 ≥ 0.8 → 「可考虑升级为 hybrid」提示（只读） |
+| 汇总 | 范例数 · 候选规则数 · 反馈数 |
+| 规则记忆 | 只列 `shown > 0` 或有范例的规则（28 条全列只会是噪音）；每条：统计、驳回率、近 5 次定稿的采纳率（决定数 < 5 显示「样本不足」）、范例、最近驳回原因 |
+| 候选规则 | 文本、来源 reviewId、状态（新 / 已起草 / 已接受 / 已忽略）、建议维度；已起草的显示规则号。操作：`drafted` → 「接受草案」；`new` / `drafted` → 「忽略」；`new` 提示「回到对话请 agent 起草」 |
 | 空状态 | 「记忆为空：完成第一次定稿后出现。」 |
 
 ### 3.4 评测
 
-数据：`GET /eval`。
+数据：`GET /eval-runs`、`GET /eval-runs?ids=…`。
 
 | 区域 | 内容 |
 |---|---|
-| 运行列表 | runId、配置代号（B0 / B1 / S-full / S−…）、数据集、模型、重复序号、时间、P / R / F1 / kappa |
-| 一轮详情 | 指标卡（`evaluation.md` §4 全部）、3×3 混淆矩阵、规则级 P/R 表、按方案明细（可按 F1 排序） |
-| 对比视图 | 选 2–7 个 run 并排：F1 / 加权召回 / kappa 条形 + CI 误差线 |
-| 空状态 | 「尚无评测结果。运行 `pnpm run eval:ablation`（见 evaluation.md §5）。」 |
+| 运行列表 | runId、时间、数据集、主要指标（P / R / F1 / kappa，存在才显示） |
+| 对比 | 勾选 2–7 个 → 指标对比表（行 = 指标，列 = run）；少于 2 或多于 7 给出提示，不发请求 |
+| 空状态 | 「尚无评测结果。运行离线评测脚本后在此查看（evaluation.md §5）。」 |
 
 ## 4. 数据与刷新
 
-- 所有数据经 `fetch` 同源路由；写操作成功后重新拉取当前页聚合（不依赖跨浏览器推送）；失败显示错误条与重试；不缓存到 localStorage（数据可能含方案片段）。
-- 刷新：手动 + 打开 tab 时 + 可选 60 s 轮询（设置项 `dashboardPollSeconds`，0 关闭）。`domain/changed` 是 Host 进程内事件，不跨到浏览器，因此不依赖推送。
-- 分页：记录列表 50 条 / 页。
+- 所有数据经 `fetch` 同源路由（`credentials: 'same-origin'`）；写成功后重新拉取当前页数据。
+- 刷新时机：打开页面 / 切换页签时、手动点刷新、写操作之后。**不轮询**；`domain/changed` 是 Host 进程内事件，不跨到浏览器。专家在对话里做了决定后，回到看板点刷新即可。
+- 失败：显示错误条与重试；响应非 JSON（如被代理改写成 HTML）不崩溃，提示 HTTP 状态。
+- 不写 localStorage / sessionStorage（数据可能含方案片段）。
 
-## 5. 交互边界（可写）
+## 5. 交互边界
 
-看板提供：规则启停 / 严重级别 / 白名单参数、候选规则 accept / dismiss、问题采纳 / 驳回 / 改写、审核人与最终结论。所有写操作复用 `ReviewStore` 的同一方法（与 `rules_propose` / `review_decide` 等价），不另写一套业务逻辑；每次写操作记录 `who`（DSH 用户）/ `when` / `reviewId` 审计。
+看板提供：规则启停 / 严重级别、候选规则接受草案 / 忽略、问题采纳 / 驳回 / 改写、审核人、最终结论。所有写操作复用 `ReviewStore` 的同一方法（与 `rules_propose` / `review_decide` 等价），审计 `who:'dashboard'`。
 
-看板**不**提供：删除审查记录、直接编辑正式意见正文。需要重新出意见时回到对话调用 `review_finalize` 重新渲染。
+看板**不**提供：删除审查记录、编辑正式意见正文、起草规则 YAML、定稿。
 
-鉴权：写路由必须同源（`Origin`/`Host`）+ DSH Web 鉴权；当前 profile 用户即可写。细粒度权限（只读账号 / 审批人 / 规则管理员）与 CSRF token 后置，等局域网多人使用时再加。
+鉴权：DSH 连接围栏（`ctx.connection.requestRejection`）+ 同源校验。细粒度权限与 CSRF token 后置。
 
-## 6. 设置卡片（`settings.plugin.item`）
+## 6. 设置
 
-字段（与 `design.md` §11 一致）：`minorThreshold`（数字 1–10）、`askBatchSize`（1–10）、`rejectWarnRatio`（0–1）、`presentOnFinalize`（开关）、`defaultReviewer`（文本）、`outputDir`（文本，相对工作目录）、`dashboardPollSeconds`（0 / 30 / 60）。用 `ctx.settingsScope.bind('wsgw-solution-review')` 读写；保存即生效。
+不做设置卡片（`design.md` §11）：阈值改 profile 中本插件行的 `config`。
 
-## 7. 视觉与可用性
+## 7. 视觉
 
-- 使用 DSH client 主题 CSS 变量（颜色、字号、间距），无自定义主题。
-- 结论三色：通过 = success、建议整改 = warning、不通过 = danger（取主题语义色）。
-- 表格支持键盘导航与 `aria-sort`；证据引文使用 `<blockquote>` 并标注章节与行。
-- 宽度 < 480px 时表格切为卡片列表。
-- 中文为主，`locale` 预留英文词条（S4 只填中文）。
+- 颜色、边框、背景只用 DSH 主题变量：`--dsw-alias-label-primary/secondary/tertiary`、`--dsw-alias-border-l2/l3`、`--dsw-alias-bg-layer-1/2`、`--dsw-alias-interactive-bg-hover`、`--dsw-alias-state-success/warn/error-primary`；圆角 `--dsw-radius-sm`。无硬编码色值（深色主题可用）。
+- 结论三色：通过 = success、建议整改 = warn、不通过 = error。
+- 证据引文用 `<blockquote>`；按钮有可读文字；窄栏下自动换行。
+- 文案只有中文。
 
 ## 8. 构建与校验
 
-- `tsdown.config.ts` 按 `docs/plugin-frontend.md` §9.3 模板：entry `src/client/index.ts` → `lib/client.js`，banner / footer 封装，外部化 `react`、`react-dom`、`@deepseek-ai/dsh-client-*`。
-- `tests/client/check-bundle.mjs`：存在性、banner 以 `window.__ModuleLoader__.load({ id: "wsgw-solution-review"` 开头、footer、`require(` 的外部包都在白名单、未内联 React。
-- 页面在 `pnpm dsh web` 中手测并录屏（S4 证据）。
+- `tsdown.config.ts`：entry `src/client/index.tsx` → `lib/client.js`，CJS 工厂，banner `window.__ModuleLoader__.load({ id: "wsgw-solution-review", factory: (require) => {`、footer `return module.exports; } });`，外部化 `react`、`react-dom`、`@deepseek-ai/cordis` 等平台模块。
+- `tests/client/check-bundle.mjs`：存在性、banner / footer、`require(` 的外部包都在白名单、未内联 React。
+- 页面在用户本机 `dsh web` 中手工冒烟（清单见 `progress.md`）。
 
-## 9. 测试要点（供 S2 / S4）
+## 9. 测试要点
 
 | ID | 要点 |
 |---|---|
-| T-DSH-01 | tab 注册：`id`、`kind`、`guide` 字段快照；重复注册抛错由框架保证（不测） |
-| T-DSH-02 | 四页在空数据下渲染各自空状态文案 |
-| T-DSH-03 | 规则页筛选与「常被驳回」标记逻辑（纯函数：`markFrequentlyRejected(stats, cfg)`） |
-| T-DSH-04 | 记录详情：aiVerdictAtFinalize ≠ finalVerdict 时高亮；清单 28 行 |
-| T-DSH-05 | 记忆页滑动采纳率计算（纯函数，窗 5，样本不足判定） |
-| T-DSH-06 | 评测对比视图选择 2–7 个 run 的约束 |
-| T-DSH-07 | 路由失败 → 错误条 + 重试；非 JSON 响应不崩溃 |
+| T-DSH-01 | tab 注册：`id`、`kind`、`keepMounted`、`guide` 数组快照；`apply` 注册 tab 类型与 slot 主体 |
+| T-DSH-02 | 四页在空数据下渲染各自空状态文案（`react-dom/server`） |
+| T-DSH-03 | 规则筛选按引擎维度；「常被驳回」判定 |
+| T-DSH-04 | 记录详情：定稿预审结论 ≠ 最终结论时高亮；清单 28 行；`absence` 证据不加引号；需重新定稿提示 |
+| T-DSH-05 | 记忆页：近 5 次采纳率与样本不足判定；只列有记录的规则；候选按状态给出操作 |
+| T-DSH-06 | 评测对比选择 2–7 个 run 的约束 |
+| T-DSH-07 | 请求封装：非 JSON 响应、错误体 `message`、HTTP 状态回退 |
 | T-DSH-08 | check-bundle 脚本全部断言 |
-| T-DSH-09 | 设置卡片字段范围校验（minorThreshold 1–10 等） |
-| T-DSH-10 | 写路由：同源 + 鉴权通过才写；跨源 / 未授权返回 403 / 401；写后审计字段与聚合刷新 |
-| T-DSH-11 | 规则停用 / 级别 / 参数写后下一次 `review_check` 生效（与 `rules_propose` 同断言） |
+| T-DSH-09 | ~~设置卡片字段范围~~（设置卡片推迟，删除） |
+| T-DSH-10 | 写路由：同源 + 连接围栏通过才写；跨源 / 未授权返回 403 / 401；写后审计 |
+| T-DSH-11 | 规则停用 / 级别写后下一次 `review_check` 生效 |
+| T-DSH-12 | 不使用 localStorage / sessionStorage（源码断言） |

@@ -52,7 +52,7 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 - 记忆：规则运行态、审查记录、问题、反馈、措辞范例、候选规则、评测结果（全部走 DSH storage domain）。
 - 命令：`/review`、`/rules`、`/memory`（host 侧即时查询）。
 - 右侧看板四页：规则 / 审查记录 / 记忆 / 评测。
-- 设置卡片：结论阈值、输出目录、专家默认署名。
+- 配置：结论阈值、输出目录、专家默认署名（profile 中插件行的 `config`；设置卡片推迟，见 `design.md` §11）。
 - 批量评测路径与消融实验脚本（S5）。
 
 ### 4.2 不包含（见 §12）
@@ -90,7 +90,7 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 
 - **FR-10** 专家在「方案审查」preset 的会话里提交方案并要求预审；agent 按 skill SOP 依次调用 `review_parse` → `review_check` → 若干次 `review_record_issue` → `review_status`。
 - **FR-11** `review_parse` 产出结构化大纲（标题树、表格、Mermaid 块、段落定位）与统计；重复提交同一文本（哈希相同）时提示已有记录并允许复用或新建。
-- **FR-12** `review_check` 对全部 `active` 规则执行校验器：`hard` 规则的 `fail` 直接登记为问题（证据由校验器给出）；`hybrid` 规则产出候选片段交给 agent 判断，或在完全未提及（带 `absence` 证据）时直接登记为问题；`soft` 规则只返回规则清单；校验器判定 `not-applicable` 的规则不列为问题。
+- **FR-12** `review_check` 对全部 `active` 规则执行校验器：`hard` 规则的 `fail` 直接登记为问题（证据由校验器给出）；`hybrid` 规则只产出候选片段交给 agent 判断，从不直接登记；无候选片段时清单状态为「待人工」（规则加载时拒绝能返回 `fail` 的 hybrid 校验器）；`soft` 规则只返回规则清单；校验器判定 `not-applicable` 的规则不列为问题。
 - **FR-13** agent 对每个 hybrid 候选与 soft 规则作语义判断后，通过 `review_record_issue` 登记问题；工具执行证据门禁（`rule-schema.md` §5）：
   - 引文归一化后必须在方案原文中子串命中，否则问题状态为 `pending`（待人工）；
   - `soft` 规则登记的问题一律 `pending`；
@@ -104,9 +104,9 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
 - **FR-20** agent 用 `ask_user_question` 分批呈现问题，每批 ≤ 5 条（可配置），每条一个问题项：`question` = 「规则号 · 标题 · 严重级别」，`detail` = 发现 + 证据引文 + 建议，`options` = `采纳（推荐）` / `驳回` / `改写`；`改写` 与自由文本（`custom`）均视为改写。`pending` 问题同样呈现，但选项为 `确认为问题` / `不是问题`。
 - **FR-21** 每个回答经 `review_decide` 落库为 `feedback`：`adopt` / `reject` / `rewrite`，可带原因；`rewrite` 必须带文本。
 - **FR-22** 专家可用自然语言新增问题（如「还要补充幂等说明」）；agent 调用 `review_decide(action: 'add')`，新增问题来源标为 `expert`，可选关联规则号；无法关联时进入候选规则。
-- **FR-23** 专家可在任意时刻调整：撤回之前的决定（再次 `review_decide` 覆盖，保留历史）、批量「其余全部采纳」。
+- **FR-23** 专家可在任意时刻调整：撤回之前的决定（再次 `review_decide` 覆盖，保留历史）、批量「其余全部采纳」（只作用于已确认问题；待人工项必须逐条确认）。
 - **FR-24** 复核结束时 agent 用一个 `ask_user_question` 让专家确认最终结论，选项为三分类，默认推荐 = 基于复核后的 confirmed 集合重新计算的 `ai_verdict`；专家选择即写入 `final_verdict`。
-- **FR-25** 首次复核前若会话内未记录专家身份，agent 问一次姓名 / 工号（Q9 默认），写入 `reviews.reviewer`；设置卡片可配置默认署名以跳过。
+- **FR-25** 首次复核前若会话内未记录专家身份，agent 问一次姓名 / 工号（Q9 默认），写入 `reviews.reviewer`；配置 `defaultReviewer` 可跳过。
 
 ## 8. 输出规范（三层）
 
@@ -134,7 +134,7 @@ V1.0 目标：在 DeepSeek Harness（DSH）里提供一个**对话式预审 agen
   - `exemplars`：按规则号追加 `adopt`（原文案）与 `rewrite`（改写文案）范例，每规则保留最近 N 条（默认 20）；
   - `rule_candidates`：专家新增且未关联规则的问题 → 一条候选，附来源 reviewId；
   - `rules`（learned 层）统计字段：adopt / reject / rewrite 计数，用于召回与看板。
-- **FR-42** 同一 reviewId 重复 finalize 产生新版本文件（`-v2`），记录保留全部版本。
+- **FR-42** 同一 reviewId 重复 finalize 产生新版本文件（`-v2`），记录保留全部版本。定稿后再改任何决定 / 署名 / 结论，记录回到 `open`，需重新 finalize；已有决定的审查不得重跑 `review_check`（`REVIEW_ALREADY_DECIDED`）。
 
 ## 10. 功能需求：规则管理
 

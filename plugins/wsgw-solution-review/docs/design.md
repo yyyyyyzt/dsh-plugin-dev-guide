@@ -1,7 +1,7 @@
 # wsgw-solution-review 设计说明 V1.0
 
-> 状态：S1 定稿候选（2026-10-19）。实现以本文为准；需求编号引用 `requirements.md`，规则细节见 `rule-schema.md`，对话细节见 `review-protocol.md`。
-> DSH 基线 `dsh-v0.2.1-rc.2`；API 名称以其 `docs/subsystems/*.zh.md` 与包 README 为准。
+> 状态：S1 定稿候选（2026-10-19）；2026-10-27 按 `dsh-v0.2.1-rc.2` 源码逐项复核 §2、§3、§8、§10、§11、§14（client 注册、设置面、路由清单与 S4 实现对齐）。实现以本文为准；需求编号引用 `requirements.md`，规则细节见 `rule-schema.md`，对话细节见 `review-protocol.md`。
+> DSH 基线 `dsh-v0.2.1-rc.2`；API 名称以其源码与 `docs/subsystems/*.zh.md` 为准（两者冲突时以源码为准，例如 sidebar tab 的 `guide` 在源码中是数组）。
 
 ## 1. 设计原则
 
@@ -37,16 +37,18 @@ plugins/wsgw-solution-review/
 │  │  ├─ memory.ts              反馈聚合、范例裁剪、候选规则生成
 │  │  ├─ rules.ts               shipped + learned 合并、YAML schema 校验
 │  │  └─ render/opinion.ts      正式意见 Markdown 渲染
+│  ├─ store/domain.ts           defineDomain spec（表、键、zod 记录）
 │  ├─ host/
-│  │  ├─ store.ts               defineDomain spec + ReviewStore 服务（ctx.solutionReview）
+│  │  ├─ store.ts               ReviewStore 服务（ctx.solutionReview）：唯一写入口
 │  │  ├─ config.ts              schemastery Config
 │  │  ├─ commands.ts            /review /rules /memory
-│  │  ├─ api.ts                 HTTP 路由（读 + 受限写）
+│  │  ├─ api.ts                 看板 HTTP 路由（读 + 受限写；只在 webServer + connection 存在时挂载）
 │  │  ├─ skills.ts              SkillProvider（随包 SKILL.md）
-│  │  └─ settings.ts            installSettingsSection
+│  │  └─ rules-loader.ts / errors.ts / service.ts
 │  └─ client/
-│     ├─ index.ts               sidebar-right tab + settings card 注册
-│     └─ pages/{rules,reviews,memory,eval}.tsx
+│     ├─ index.tsx              sidebar-right tab 注册 + 四页容器（取数、写操作）
+│     ├─ views.tsx              纯展示组件（props 进、元素出；测试用 react-dom/server 渲染）
+│     └─ model.ts               看板数据类型（引用引擎类型）、纯函数、请求封装
 ├─ tests/                       S2（见 §14）
 └─ docs/                        本目录
 ```
@@ -57,100 +59,42 @@ plugins/wsgw-solution-review/
 
 | 入口 | 导出 | `inject` | 注册 |
 |---|---|---|---|
-| `wsgw-solution-review`（`src/index.ts`） | `name`, `Config`, `apply` | `storageDomain`, `commands`, `webServer`, `skills`, `settings`（可选 `sessionQuery`） | 服务 `ctx.solutionReview`（`ReviewStore`）、命令 ×3、路由 ×5、SkillProvider、设置分区 |
+| `wsgw-solution-review`（`src/index.ts`） | `name`, `Config`, `apply` | `storageDomain`, `commands`, `skills`；可选 `webServer` + `connection`（`ctx.inject` 子作用域挂 `api.ts`，headless 与单测不需要） | 服务 `ctx.solutionReview`（`ReviewStore`）、命令 ×3、SkillProvider、看板路由（§10） |
 | `wsgw-solution-review/tools`（`src/tools.ts`） | `name`, `apply` | `tools`, `solutionReview`, `workingDirectory`, `fs` | 9 个工具（§8）；挂在 preset 内，因此只有审查 agent 可见 |
-| `wsgw-solution-review/client`（`src/client/index.ts`） | `name`, `inject = ['slots','sidebarRightTabs','locale']` | — | tab 定义 + `sidebar.right.pane.tab` 正文 + `settings.plugin.item` 卡片 |
+| client（`exports["./client"]` → `lib/client.js`，源 `src/client/index.tsx`） | `name`, `inject = ['slots','sidebarRightTabs']` | — | tab 定义（`ctx.sidebarRightTabs.register`）+ `sidebar.right.pane.tab` keyed 正文 |
 
 `ReviewStore` 用 `ctx.provide('solutionReview', …)`（Cordis 服务注册）暴露给 tools 子插件、命令与路由；它是唯一持有 domain 句柄的对象。
 
 ### 3.2 `cordis.patch.yml`
 
-```yaml
-- insert:
-    - id: wsgw-solution-review
-      name: wsgw-solution-review
-      config:
-        rulesDir: null              # null = 包内 rules/
-        outputDir: reviews          # 相对会话工作目录
-        minorThreshold: 3
-        askBatchSize: 5
-        rejectWarnRatio: 0.6
-        rejectWarnMinSamples: 5
-        exemplarsPerRule: 20
-        maxSourceBytes: 204800
-        presentOnFinalize: true
-        defaultReviewer: ''
-        dashboardPollSeconds: 0
-    - id: preset-wsgw-solution-review
-      name: '@deepseek-ai/dsh-agent-preset'
-      config:
-        id: wsgw-solution-review
-        name: 方案审查
-        description: 网上国网技术方案 AI 预审（只建议，不裁决）
-        order: 20
-        plugins:
-          - id: persona
-            name: '@deepseek-ai/dsh-persona'
-            config:
-              prefix: !!js require('wsgw-solution-review/persona').prefix
-          - id: time-context
-            name: '@deepseek-ai/dsh-time-context'
-          - id: tool-bash
-            name: '@deepseek-ai/dsh-tool-bash'
-          - id: tool-fs
-            name: '@deepseek-ai/dsh-tool-fs'
-          - id: tool-fs-search
-            name: '@deepseek-ai/dsh-tool-fs-search'
-          - id: skill-filesystem
-            name: '@deepseek-ai/dsh-skill-filesystem'
-          - id: skill-office
-            name: '@deepseek-ai/dsh-skill-office'
-          - id: tool-skill
-            name: '@deepseek-ai/dsh-tool-skill'
-          - id: tool-ask-user
-            name: '@deepseek-ai/dsh-tool-ask-user'
-          - id: tool-todo
-            name: '@deepseek-ai/dsh-tool-todo'
-          - id: present
-            name: '@deepseek-ai/dsh-tool-present'
-          - id: compaction
-            name: cordis:group
-            group: true
-            isolate: { compaction: true, toolResultPruner: true }
-            config:
-              - id: compaction-basic
-                name: '@deepseek-ai/dsh-compaction-basic'
-              - id: tool-result-pruner
-                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
-                config: { thresholdChars: 8192, headChars: 4096, tailChars: 1024 }
-          - id: review-tools
-            name: wsgw-solution-review/tools
-```
+bundle 层只有两行，原文以仓库内 `cordis.patch.yml` 为准（本节不复制 YAML，避免两份事实来源）：
+
+| 行 | 内容 |
+|---|---|
+| `wsgw-solution-review` | host 插件，`config` 为 §11 的全部字段默认值 |
+| `preset-wsgw-solution-review` | `@deepseek-ai/dsh-agent-preset`，id `wsgw-solution-review`、名称「方案审查」；子行：persona（文本内联）、time-context、tool-bash / tool-pwsh（按平台二选一）、tool-fs、tool-fs-search、skill-filesystem、tool-skill、tool-ask-user、tool-todo（`allowParallelInProgress: false`）、present、压缩组（compaction-basic、command-compact、tool-result-pruner）、`wsgw-solution-review/tools`（置末） |
 
 说明：
 
 - preset 行与 Web profile 自带的 `preset-standard` 并列；`agent-preset-registry` 的 `default` 不改，用户在会话里选择「方案审查」。
-- `persona.prefix` 若 `!!js require` 在 0.2.1 的 YAML 表达式环境不可用，则退化为把 persona 文本直接写入 YAML（S3c 验证后二选一，文本来源仍是 `review-protocol.md` §2）。
-- 不挂 `agent-instructions`：审查会话不应读取工作目录的 AGENTS.md；不挂 `tool-web`、subagent、plan-mode。
+- persona 文本内联在 YAML 块标量里：0.2.1 的 `!!js` 表达式环境只暴露 `process` / `ctx`，不能 `require`；`src/persona.ts` 保留同一份文本，`tests/host/bundle.spec.ts` 断言两处逐字一致。
+- 不挂 `agent-instructions`（审查会话不应读取工作目录的 AGENTS.md）、`tool-web`、subagent、plan-mode；不挂 `dsh-skill-office`（不是 base / web-app 的依赖，需要 Word 转换时由用户另装，见 `review-protocol.md` §1）。
 - `tool-bash` 保留是为了 office skill 的转换命令；审查工具本身不需要 shell。
 
 ### 3.3 客户端声明（`package.json`）
 
 ```jsonc
+"exports": { "./client": { "types": "./lib/types/client/index.d.ts", "default": "./lib/client.js" } },
 "dsh": {
   "bundle": { "patch": "./cordis.patch.yml" },
-  "client": {
-    "platform": "web",
-    "inject": [
-      "@deepseek-ai/dsh-client-runtime",
-      "@deepseek-ai/dsh-client-locale",
-      "@deepseek-ai/dsh-client-ui-sidebar-right",
-      "@deepseek-ai/dsh-client-ui-settings-plugins"
-    ]
-  }
+  "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-sidebar-right"] }
 },
 "engines": { "dsh": ">=0.2.1-rc.2 <0.3.0" }
 ```
+
+- `dsh-client-modules` 扫描 host Loader 已加载的包，凡声明 `dsh.client` 且 `exports["./client"]` 指向已构建 bundle 的，成为一条 client entry（entry id = 包名），由 `/plugins/??wsgw-solution-review/client.js&rev=…` 提供。
+- `dsh.client.inject` 只决定**脚本到达顺序**（列出的包若不在启动图中会被跳过）；服务等待由 client 插件自身的 Cordis `inject = ['slots','sidebarRightTabs']` 负责。
+- bundle 形态：CJS 闭包工厂，banner `window.__ModuleLoader__.load({ id: "wsgw-solution-review", factory: (require) => {`，footer `return module.exports; } });`，与 DSH `packages/client/tsdown.client.ts` 预设一致；`react` 外部化（平台种子表提供），其余依赖内联。
 
 ## 4. 引擎数据模型（`src/engine/types.ts`）
 
@@ -255,23 +199,34 @@ export const reviewDomain = defineDomain({
 
 - 无二级索引：按 `reviewId` 过滤用 `entries()` 快照内存筛选；数据量（百级审查、千级问题）下足够。
 - 版本策略：schema 变更 → `version+1` + `scripts/migrate-domain.mjs`（S3b 起随包）；DSH 拒绝打开不匹配版本，迁移脚本在启动前由用户手动执行。
-- `sessionId` 来自工具执行时的 agent 上下文（若可取），用于看板「回到对话」链接；取不到留空。
+- `rule_overrides` 一行可以只有 `stats`（finalize 刷新统计时自动建行）。只有含 `status / severity / suggestion / params / draft` 之一的行才算**覆盖**：规则包版本号后缀 `+ovN` 的 N、`RuleView.overridden` 都只按这些行计算，避免「定稿一次规则包版本就变」。
+- `sessionId` 字段保留但当前不写（工具执行上下文取不到稳定的会话 id）；看板「回到对话」链接推迟。
 
 ## 8. 工具契约
 
-公共约定：参数用 `defineTool` schema 校验；`output.schema` 声明；错误用带 `code` 的 `HarnessError` 子类 `ReviewToolError`（`REVIEW_NOT_FOUND`, `SOURCE_TOO_LARGE`, `RULE_NOT_FOUND`, `HARD_RULE_VERIFIER_OWNED`, `VERDICT_NOT_SET`, `FINAL_VERDICT_FORBIDDEN`, `REVIEWER_REQUIRED`, `ISSUE_NOT_FOUND`, `BAD_ACTION`）。所有工具描述里写明「本工具只记录建议；最终结论由专家在复核中确认」。
+公共约定：参数用 `defineTool` schema 校验；`output.schema` 声明；错误用带 `code` 的 `HarnessError` 子类 `ReviewToolError`（`REVIEW_NOT_FOUND`, `REVIEW_ALREADY_DECIDED`, `SOURCE_TOO_LARGE`, `RULE_NOT_FOUND`, `HARD_RULE_VERIFIER_OWNED`, `VERDICT_NOT_SET`, `FINAL_VERDICT_FORBIDDEN`, `REVIEWER_REQUIRED`, `ISSUE_NOT_FOUND`, `CANDIDATE_NOT_FOUND`, `BAD_DRAFT`, `BAD_ACTION`）。所有工具描述里写明「本工具只记录建议；最终结论由专家在复核中确认」。
 
 | 工具 | 参数 | 返回 | 关键行为 |
 |---|---|---|---|
 | `review_parse` | `source: { kind:'inline'|'path', value }`, `title?`, `reuse?: boolean` | `{ reviewId, title, outline[], stats, warnings[], existingReviewId? }` | 读文件经 `ctx.fs`；超限 `SOURCE_TOO_LARGE`；同哈希且 `reuse` 未指定 → 返回 `existingReviewId` 并提示 |
-| `review_check` | `reviewId` | `{ hardIssues[], hybridCandidates[{ruleId, title, severity, snippets[{quote, sectionPath}]}], softRules[{ruleId, title, question}], checklist[], aiVerdict }` | hard 问题落 `issues`；更新 `reviews.aiVerdict` |
+| `review_check` | `reviewId` | `{ hardIssues[], hybridCandidates[{ruleId, title, severity, snippets[{quote, sectionPath}]}], softRules[{ruleId, title, question}], checklist[], aiVerdict }` | hard 问题落 `issues`（重跑时先删旧的 verifier 问题再登记）；更新 `reviews.aiVerdict`；若该审查已有任何专家决定或已定稿 → `REVIEW_ALREADY_DECIDED`（重跑会抹掉已复核的 hard 问题），提示用 `review_parse(reuse:false)` 开新记录 |
 | `review_record_issue` | `reviewId, ruleId?, severity?, finding, suggestion, evidence[{quote, sectionPath?}]` | `{ issueId, status, gate:{passed, reason}, resolvedEvidence[] }` | `ruleId` 缺省 → `tier:'soft'`（pending）；severity 缺省取规则值；门禁 §5 |
 | `review_status` | `reviewId` | `{ aiVerdict, summary, issues[], checklist[], counts }` | 三层输出的结构化来源；不写库 |
-| `review_decide` | `reviewId, action('adopt'|'reject'|'rewrite'|'add'|'adopt_rest'|'set_reviewer'|'set_final_verdict'), issueId?, text?, reason?, ruleId?, severity?, finalVerdict?, reviewer?` | `{ ok, issue?, aiVerdict, finalVerdict? }` | 写 `feedback` 与 `issues.status`；`add` 新建 `origin:'expert'`；`set_reviewer` 写 `reviews.reviewer`；`set_final_verdict` 唯一写 `finalVerdict` 的入口，要求 `reviewer` 已知（或配置了 `defaultReviewer`） |
+| `review_decide` | `reviewId, action?('adopt'|'reject'|'rewrite'|'add'|'adopt_rest'|'set_reviewer'|'set_final_verdict'), answer?, issueId?, text?, reason?, ruleId?, severity?, finalVerdict?, reviewer?` | `{ ok, issue?, affected?, remainingPending?, aiVerdict, finalVerdict? }` | 写 `feedback` 与 `issues.status`；`add` 新建 `origin:'expert'`；`set_reviewer` 写 `reviews.reviewer`；`set_final_verdict` 唯一写 `finalVerdict` 的入口，要求 `reviewer` 已知（或配置了 `defaultReviewer`）。细则见下 |
 | `review_finalize` | `reviewId, present?: boolean` | `{ opinionPath, version, counts, memory:{exemplars, candidates} }` | 无 `finalVerdict` → `VERDICT_NOT_SET`；渲染 → 写文件（`ctx.fs`）→ 更新 reviews → 刷新记忆；`present` 由 agent 随后调用 `present` 工具完成（本工具只返回路径） |
 | `rules_list` | `dimension?, tier?, status?` | `{ rules[{ruleId, title, dimension, tier, severity, status, stats}] }` | 合并 shipped + overrides |
 | `rules_propose` | `action('disable'|'enable'|'set_severity'|'set_param'|'draft'|'accept_draft'|'dismiss')`, `ruleId?`, `severity?`, `param?`, `candidateId?`, `draft?(RuleYaml)` | `{ ok, rule?, candidate? }` | 写 `rule_overrides` / `rule_candidates`；`draft` 由 agent 填 YAML，工具用 schema 校验 |
 | `memory_recall` | `ruleId` 或 `dimension` | `{ stats{adopt,reject,rewrite,shown,rejectRatio}, warn: boolean, exemplars[], recentRejectReasons[] }` | `warn = rejectRatio ≥ cfg.rejectWarnRatio && shown ≥ cfg.rejectWarnMinSamples` |
+
+`review_decide` 细则：
+
+- **answer 归一化**（只传 `answer` 不传 `action` 时，`normalizeAnswer`）：去掉末尾「（推荐）」后——
+ - 等于或以「采纳 / 同意 / 确认为问题 / 是 / 对」开头并紧跟标点或结束 → `adopt`；
+ - 等于或以「驳回 / 不是问题 / 不对 / 不成立 / 不需要 / 否」开头并紧跟标点或结束 → `reject`，标点后的文字作为 `reason`（显式 `reason` 优先）；
+ - 以「改成 / 改为 / 换成 / 写成 / 建议写成 / 建议改为 / 措辞换成 / 换个说法」加冒号开头 → `rewrite`，冒号后为改写文；
+ - 其余整段文字 → `rewrite`。
+- **`adopt_rest`** 只把状态为 `confirmed` 的问题批量采纳；`pending`（门禁未过或 soft）不批量处理，返回 `remainingPending[]` 让 agent 逐条请专家确认——「待人工」的含义就是要人看过。
+- **定稿后再修改**：已 `finalized` 的审查上任何改动问题、审核人或最终结论的 `decide` 都会把 `reviews.status` 改回 `open`；正式意见文件不动，需再次 `review_finalize` 生成 v2。看板据此显示「需重新定稿」。
 
 ## 9. 命令（host 侧，不经模型）
 
@@ -283,33 +238,38 @@ export const reviewDomain = defineDomain({
 
 ## 10. HTTP 路由（看板读 + 受限写）
 
-前缀 `/plugins/wsgw-solution-review/api`，`Content-Type: application/json`。`GET` 读；`POST` / `PATCH` 写。所有路由校验 `Origin`/`Host` 同源（跨源 403），写路由沿用 DSH Web 鉴权（未授权 401），并记录审计（who / when / reviewId）。
+前缀 `/plugins/wsgw-solution-review/api`，由 `ctx.webServer.register` 注册（`exact` / `prefix` 两种），`Content-Type: application/json`。每个请求先过 `ctx.connection.requestRejection(req)`（DSH Web 自身的访问令牌 / 局域网围栏，返回 401 / 403 时原样回绝），再校验 `Origin` 与 `Host` 同源（跨源 403）。本包不新增凭证、会话或路由框架。写请求体上限 64 KiB，必须 `application/json`（否则 415）。`ReviewToolError` 映射为 404（`*_NOT_FOUND`）或 400，其余 500。
+
+读路由：
 
 | 路由 | 返回 |
 |---|---|
-| `/rules` | `rules_list` 同构 + 每条规则的 `stats` |
-| `/reviews?limit&offset&status` | 列表 |
-| `/reviews/:id`（prefix 路由） | 记录 + issues + feedback + 正式意见文本 |
-| `/memory` | 按规则号聚合：stats、范例数、候选规则、趋势序列（按审查序号的 adopt 率） |
-| `/eval` | `eval_runs` 列表与最新一轮明细 |
+| `GET /rules` | `{ rules: RuleView[], warnings, loadErrors, version }` |
+| `GET /rules/:id` | `{ rule: RuleView, detail: { question, rationale, suggestion, applicability, verifier, provenance, shipped?:{severity,status}, override?:{status?,severity?,params?}, audit[最近 10 条], memory: memory_recall 结果 } }` |
+| `GET /reviews?page=N` | `{ items[review + counts], page, total }`，每页 50 条，按创建时间倒序 |
+| `GET /reviews/:id` | `{ review, issues, checklist, checklistCounts, counts, basis, summary, feedback }`；不含正式意见正文（只给 `opinionPath` 与 `versions[]`，正文在文件里） |
+| `GET /memory` | `{ rules[有记录的规则：stats, warn, exemplars, recentRejectReasons, series(最近 5 次定稿)], candidates[], totals }` |
+| `GET /eval-runs[?ids=a,b]` | `{ runs[] }`；带 `ids` 时要求 2–7 个且全部存在（400 / 404） |
 
-写路由：
+写路由（全部调用 `ReviewStore` 与工具相同的方法，审计 `who:'dashboard'`）：
 
-| 路由 | 请求 | 行为 |
+| 路由 | 请求 | 等价 |
 |---|---|---|
-| `PATCH /rules/:id` | `{status?, severity?, params?}` | 写 `rule_overrides`；`params` 仅白名单；审计 |
-| `POST /rule-candidates/:id` | `{action:'accept'|'dismiss'}` | 审批候选；等价 `rules_propose` |
-| `POST /reviews/:id/issues/:issueId` | `{action:'adopt'|'reject'|'rewrite', text?, reason?}` | 写 `feedback` 与 `issues.status`；等价 `review_decide` |
-| `POST /reviews/:id/reviewer` | `{reviewer}` | 写 `reviews.reviewer` |
-| `POST /reviews/:id/final-verdict` | `{finalVerdict, reviewer?}` | 唯一看板写最终结论入口；要求 reviewer 已知 |
+| `PATCH /rules/:id` | `{action:'disable'|'enable'|'set_severity'|'set_param', severity?, param?:{key,value}}` | `rules_propose`；`param.key` 仅白名单（§4.3 参数），越界返回 warnings |
+| `POST /candidates/:id` | `{action:'accept_draft'|'dismiss'|'draft', draft?}` | `rules_propose`；`accept_draft` 取候选的 `draftRuleId`，候选尚未起草 → 400 `BAD_ACTION` |
+| `POST /reviews/:id/issues/:issueId` | `{action:'adopt'|'reject'|'rewrite', text?, reason?}` | `review_decide` |
+| `POST /reviews/:id/reviewer` | `{reviewer}` | `review_decide(set_reviewer)` |
+| `POST /reviews/:id/final-verdict` | `{finalVerdict}` | `review_decide(set_final_verdict)`，要求审核人已知 |
 
-所有写操作走 `ReviewStore` 的同一方法，不复制业务逻辑；写后返回最新聚合。删除记录、直接编辑正式意见正文不开放。
+不开放：删除记录、编辑正式意见正文、看板内起草规则 YAML（起草留在对话里由 agent 完成，看板只审批）、看板内定稿（定稿要写文件并 `present`，留在对话）。定稿后在看板改动任何决定 → 记录回到 `open`（§8），看板提示回对话重新 `review_finalize`。
 
-鉴权沿用 DSH Web 本身（路由在同一 `node:http` 载体后面，受同一访问控制）；本包不新增凭证。局域网开放时建议在 DSH 层配置 TLS 与访问令牌（S3c 验证并写入 README）。细粒度权限（只读 / 审批人 / 规则管理员）后置。
+细粒度权限（只读 / 审批人 / 规则管理员）与 CSRF token 后置：同源 + DSH 连接围栏已挡住跨站与未授权来源；局域网多人使用时再加。
 
-## 11. 配置与设置
+## 11. 配置
 
-`Config`（schemastery）字段即 §3.2 的 `config`；每个字段有 `.description()`。`installSettingsSection('wsgw-solution-review', …)` 暴露 `minorThreshold / askBatchSize / rejectWarnRatio / presentOnFinalize / defaultReviewer / outputDir`，Client 设置卡片用 `ctx.settingsScope.bind` 读写，改动即时生效（下一次工具调用读取）。`rulesDir`、`maxSourceBytes` 只在 YAML 配置。
+`Config`（schemastery）字段即 §3.2 的 `config` 行，每个字段有 `.description()`。改配置 = 改 profile 中本插件那一行的 `config`（`cordis.patch.yml` 或用户补丁），由 DSH 重新加载插件后生效。
+
+0.2.1 的设置面板没有为第三方插件自动生成表单的通用入口（官方页面各自注册 `plugins.item` 卡片），而 §2.3 / AGENTS 铁律 6 要求「能配置解决就不新做」，所以**设置卡片推迟**：阈值类参数调整频率低，YAML 足够；需要时再按 `plugins.item` + `configForms` 接入。原 `dashboardPollSeconds` 删除——看板只在打开与手动刷新时拉取。
 
 ## 12. 错误与降级
 
@@ -320,6 +280,8 @@ export const reviewDomain = defineDomain({
 | 证据门禁失败 | 问题 `pending`，返回 `reason` 让 agent 可修正引文后重试（最多由 skill 约定重试 1 次） |
 | 模型给出非法 ruleId | `RULE_NOT_FOUND`，提示用 `rules_list` |
 | 复核中途退出 | `reviews.status` 保持 `open`；再次进入会话 `/review <id>` 可见；`review_decide` 可继续 |
+| 复核开始后又要重跑 `review_check` | `REVIEW_ALREADY_DECIDED`；方案修改过就 `review_parse(reuse:false)` 开新记录 |
+| 定稿后又改决定 | 记录回 `open`，旧意见文件保留；重新 `review_finalize` 产出新版本 |
 | `ask_user_question` 被取消 | agent 停止推进复核，提示专家稍后继续；不写任何决定 |
 | finalize 文件写失败 | 不更新 `reviews`、不刷新记忆（先写文件后落库） |
 
@@ -334,13 +296,16 @@ export const reviewDomain = defineDomain({
 
 | 目录 | 类型 | 覆盖 |
 |---|---|---|
-| `tests/fixtures/` | 数据 | 种子方案 `seed.md`；变体 `seed-no-impl.md`（删 2.3）、`seed-no-scale.md`（资源评估「无需扩容」）、`seed-img-seq.md`（时序图图片）、`seed-mermaid-ok.md`（含合规 Mermaid）、`seed-placeholder-table.md`、`seed-missing-attachment.md`；规则样例 `rules.sample.yaml`；预期 `expected/*.json` |
-| `tests/engine/*.spec.ts` | 单元 | parse、normalize、6 校验器、check、gate、verdict、memory、render |
-| `tests/store/*.spec.ts` | 契约 | domain spec zod 校验、键方案、版本常量 |
-| `tests/tools/*.spec.ts` | 契约 | 每个工具的参数 schema、错误码、对 store 的写入（用内存版 `ReviewStore` 替身） |
-| `tests/protocol/*.e2e.ts` | 回放 | `dsh-llm-mock-server` 脚本化模型输出，跑完「预审 → 复核 → 定稿」，断言落库与文件 |
-| `tests/client/check-bundle.mjs` | 离线 | `lib/client.js` banner/footer/externals |
-| `tests/bench/check.bench.ts` | 性能 | 200 KB 文档 `check` ≤ 2 s |
+| `tests/fixtures/` | 数据 | 种子方案 `seed.md` 及变体（`seed-compliant` / `seed-no-impl` / `seed-negated` / `seed-placeholder` / `seed-mermaid-ok` / `seed-mermaid-incomplete` / `seed-missing-attachment`）；规则样例 `rules/*.yaml`（1 合法 + 8 非法）；预期 `expected/*.json`、`expected/opinion-seed.md` |
+| `tests/engine/**` | 单元 | parse、normalize、mermaid、6 种校验器与组合子、rules 加载、check、gate、verdict、memory、render |
+| `tests/store/*` | 契约 | domain spec zod 校验、键方案、版本常量；`harness.ts` 为基于真实 `dsh-storage-json` 的临时目录存储 |
+| `tests/tools/*` | 契约 | 9 个工具的参数、错误码与落库（真实 `ReviewStore` + 临时存储） |
+| `tests/host/*` | 契约 | 插件装配：tools 插件、`/review` `/rules` `/memory` 命令、skill 注册、bundle 补丁与 persona 同源 |
+| `tests/api/*` | 契约 | 路由：fake `webServer` / `connection` 注入后直接调 handler；鉴权、同源、405 / 404 / 415、写路由等价于工具 |
+| `tests/protocol/*.e2e.ts` | 回放 | 脚本化 agent（固定工具调用序列 + 固定专家回答）跑完「预审 → 复核 → 定稿」，断言落库与正式意见快照。0.2.1 未随 npm 发布 `dsh-llm-mock-server`，因此不经真实 agent loop；真实对话由人工冒烟覆盖 |
+| `tests/client/*.spec.ts(x)` | 单元 | 看板纯函数（筛选、标记、对比约束、请求错误归一化）与 `react-dom/server` 渲染的四页空状态 / 详情视图 |
+| `tests/client/check-bundle.mjs` | 离线 | `lib/client.js` banner / footer / 外部化白名单 / 未内联 React |
+| `tests/bench/*` | 性能 | 200 KB 文档 `check` ≤ 2 s（`pnpm bench`） |
 
 ## 15. 测试要点（供 S2）
 
