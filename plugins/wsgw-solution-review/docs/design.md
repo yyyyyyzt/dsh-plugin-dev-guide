@@ -199,7 +199,7 @@ export const reviewDomain = defineDomain({
 
 - 无二级索引：按 `reviewId` 过滤用 `entries()` 快照内存筛选；数据量（百级审查、千级问题）下足够。
 - 版本策略：schema 变更 → `version+1` + `scripts/migrate-domain.mjs`（S3b 起随包）；DSH 拒绝打开不匹配版本，迁移脚本在启动前由用户手动执行。
-- `rule_overrides` 一行可以只有 `stats`（finalize 刷新统计时自动建行）。只有含 `status / severity / suggestion / params / draft` 之一的行才算**覆盖**：规则包版本号后缀 `+ovN` 的 N、`RuleView.overridden` 都只按这些行计算，避免「定稿一次规则包版本就变」。
+- `rule_overrides` 一行可以只有 `stats`（finalize 刷新统计时自动建行）。只有含 `status / severity / suggestion / params / draft` 之一的行才算**覆盖**：规则包版本号后缀 `+ovN` 的 N、`RuleView.overridden` 都只按这些行计算，避免「定稿一次规则包版本就变」。对 shipped 规则执行 `enable / disable / set_severity` 时，若目标值等于 shipped 原值，则删除该覆盖字段而不是写入同值（审计照记），这样「改回去」就等于撤销覆盖；草案规则没有 shipped 原值，不受此限。
 - `sessionId` 字段保留但当前不写（工具执行上下文取不到稳定的会话 id）；看板「回到对话」链接推迟。
 
 ## 8. 工具契约
@@ -221,9 +221,10 @@ export const reviewDomain = defineDomain({
 `review_decide` 细则：
 
 - **answer 归一化**（只传 `answer` 不传 `action` 时，`normalizeAnswer`）：去掉末尾「（推荐）」后——
- - 等于或以「采纳 / 同意 / 确认为问题 / 是 / 对」开头并紧跟标点或结束 → `adopt`；
- - 等于或以「驳回 / 不是问题 / 不对 / 不成立 / 不需要 / 否」开头并紧跟标点或结束 → `reject`，标点后的文字作为 `reason`（显式 `reason` 优先）；
  - 以「改成 / 改为 / 换成 / 写成 / 建议写成 / 建议改为 / 措辞换成 / 换个说法」加冒号开头 → `rewrite`，冒号后为改写文；
+ - 恰为「是 / 是的 / 对 / 通过」，或以「采纳 / 同意 / 确认为问题」开头并紧跟标点或结束 → `adopt`；但若标点后（去掉「但是 / 但 / 不过」）是上一条的改写前缀，如「采纳，但改成：…」，按 `rewrite` 处理；
+ - 恰为「否」，或以「驳回 / 不是问题 / 不对 / 不成立 / 不需要」开头并紧跟标点或结束 → `reject`，标点后的文字作为 `reason`（显式 `reason` 优先）；
+ - 引导词后不是标点（如「不对外开放…」「对接口…」）不算命中；
  - 其余整段文字 → `rewrite`。
 - **`adopt_rest`** 只把状态为 `confirmed` 的问题批量采纳；`pending`（门禁未过或 soft）不批量处理，返回 `remainingPending[]` 让 agent 逐条请专家确认——「待人工」的含义就是要人看过。
 - **定稿后再修改**：已 `finalized` 的审查上任何改动问题、审核人或最终结论的 `decide` 都会把 `reviews.status` 改回 `open`；正式意见文件不动，需再次 `review_finalize` 生成 v2。看板据此显示「需重新定稿」。
@@ -238,7 +239,7 @@ export const reviewDomain = defineDomain({
 
 ## 10. HTTP 路由（看板读 + 受限写）
 
-前缀 `/plugins/wsgw-solution-review/api`，由 `ctx.webServer.register` 注册（`exact` / `prefix` 两种），`Content-Type: application/json`。每个请求先过 `ctx.connection.requestRejection(req)`（DSH Web 自身的访问令牌 / 局域网围栏，返回 401 / 403 时原样回绝），再校验 `Origin` 与 `Host` 同源（跨源 403）。本包不新增凭证、会话或路由框架。写请求体上限 64 KiB，必须 `application/json`（否则 415）。`ReviewToolError` 映射为 404（`*_NOT_FOUND`）或 400，其余 500。
+前缀 `/plugins/wsgw-solution-review/api`，由 `ctx.webServer.register` 注册（`exact` / `prefix` 两种；DSH 先查精确表、再取最长前缀，前缀 `p` 只匹配 `p` 与 `p/…`，所以路径**不带尾部斜杠**——`prefix …/rules` 承接 `/rules/:id`，`exact …/rules` 优先承接列表；未命中会落到 DSH 自己的 `/plugins` 资源路由，表现为 404 / 405），`Content-Type: application/json`。每个请求先过 `ctx.connection.requestRejection(req)`（DSH Web 自身的访问令牌 / 局域网围栏，返回 401 / 403 时原样回绝），再校验 `Origin` 与 `Host` 同源（跨源 403）。本包不新增凭证、会话或路由框架。写请求体上限 64 KiB，必须 `application/json`（否则 415）。`ReviewToolError` 映射为 404（`*_NOT_FOUND`）或 400，其余 500。
 
 读路由：
 
