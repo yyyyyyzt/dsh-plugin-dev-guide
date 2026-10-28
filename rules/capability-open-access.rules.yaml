@@ -1,0 +1,622 @@
+# Shipped rule pack. Schema: docs/rule-schema.md §1. Tiering: docs/rule-schema.md Appendix A/B.
+pack:
+  id: capability-open-access
+  name: 能力开放 / 三方接入类审查规则包
+  version: 1.0.0
+  scenario: 能力开放 / 三方接入
+  description: 面向网上国网能力对外开放、三方渠道接入类技术方案。规则权限由可验证性决定（hard / hybrid / soft）。
+
+lexicon:
+  headings:
+    resources-table: [资源变更清单, 资源清单]
+    background: [工作背景, 背景, 需求背景]
+    approach: [技术思路, 技术思路及实现方式, 实现方式, 技术方案]
+    access: [接入方式, 接入流程]
+    interface: [接口设计, 接口说明, 接口定义]
+    data-plan: [数据规划, 数据流转, 数据存储, 数据增长估算]
+    implementation: [实施方案, 实施计划, 上线计划]
+    goal: [上线目标]
+    resources: [资源评估, 资源需求]
+    risk: [风险评估, 风险分析]
+    attachments: [附件, 附件清单]
+  placeholders: ['/', '无', '略', '-', '—', 'N/A', 'n/a', '暂无', '待定', 'TBD', '见图', '如图']
+  negations: [不, 未, 无需, 不需要, 暂不, 没有, 无, 非, 免, 不会, 不做]
+  families:
+    ratelimit: [限流, 流控, 并发控制, 并发量, 令牌桶, 漏桶, 熔断, 降级, QPS, TPS]
+    loadtest: [压测, 压力测试, 性能测试, 负载测试]
+    scale: [扩容, 资源评估, 容量, 服务器, 实例, 节点, CPU, 内存]
+    volume: [业务量, 请求量, 调用量, 新增用户, 用户量, 访问量, 日活, 峰值, 并发]
+    riskctl: [风控, 风险控制, 风控开关]
+    crypto: [加密, 签名, 验签, 防篡改, HTTPS, TLS, 密钥, token, 令牌, 鉴权, 加签]
+    authcode: [授权码, auth_code, authCode, code码, 一次性授权码]
+    openid: [openId, openid, OpenID, 用户标识]
+    phone: [手机号, 手机号码]
+    bind-check: [校验, 授权关系, 绑定关系, 是否已授权, 是否已注册]
+    login: [登录, 一键登录, 注册]
+    realname: [实名, 身份证, 实名信息]
+    exposure: [暴露, 数据暴露, 外泄, 泄露, 越权]
+    boundary: [异常, 边界, 不存在, 失败, 为空, 未绑定, 无绑定, 超时, 重试, 兜底]
+    change: [修改, 改造, 优化, 调整, 变更]
+    existing: [现有, 原有, 既有, 当前逻辑, 现有接口, 原逻辑]
+    channel-id: [渠道标识, 渠道编号, 渠道号, member, channel, appCode]
+    idempotent: [幂等, 重试, 重复请求, 去重, 防重]
+    channel-ctl: [渠道管控, 渠道开关, 配额, 熔断, 下线, 黑名单, 白名单, 渠道限流]
+    sync: [数据同步, 同步数据, 实时同步, 异步同步, MQ, 定时任务]
+    tracking: [埋点, 打点, 数据采集]
+    tracking-impl: [SDK, 上报, 接口, 字段, 事件, 实现方式, 采集方式]
+    message: [消息推送, 订阅消息, 推送, 订阅, 站内信, 消息卡片]
+    ui-change: [样式, 交互优化, 交互调整, 页面优化, 文字优化, UI, 原型, 按钮]
+    prototype: [原型, UE, 对比, 优化前后, 效果图]
+
+rules:
+  # ---------------- capacity ----------------
+  - id: CAP-001
+    title: 限流与并发控制策略
+    dimension: capacity
+    severity: blocker
+    tier: hybrid
+    question: 方案是否评估了新增业务量，并设计了限流 / 并发控制策略？
+    rationale: 能力开放会引入外部新增流量，需配套限流与并发控制，防止冲击主业务链路。
+    suggestion: 评估新增业务量数据，建议增加数据限流策略以控制业务量及并发量。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        sections: [approach, data-plan, resources, risk]
+        families: [ratelimit]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:CAP-001
+      examples: ["评估新增业务量数据，建议增加数据限流策略以控制业务量及并发量；上线前建议开展压测，确保服务运行稳定。"]
+
+  - id: CAP-002
+    title: 压测方案
+    dimension: capacity
+    severity: major
+    tier: hard
+    question: 上线前是否安排了压测，明确压测范围与指标？
+    rationale: 对外接入类方案上线前应有压测，验证服务在新增流量下的稳定性。
+    suggestion: 上线前建议开展压测，确保服务运行稳定。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        sections: [implementation, resources]
+        families: [loadtest]
+        decisive: true
+        whenNoCandidate: fail
+    status: active
+    provenance:
+      source: legacy:CAP-002
+      examples: ["上线前建议开展压测，确保服务运行稳定。"]
+
+  - id: CAP-003
+    title: 资源扩容评估
+    dimension: capacity
+    severity: major
+    tier: hybrid
+    question: 是否依据业务请求量数据评估了服务资源是否需要扩容？
+    rationale: 新增外部流量可能超出当前容量，「无需扩容」需有数据支撑。
+    suggestion: 依据当前业务请求量数据，建议进一步评估服务资源扩容情况。
+    applicability: null
+    verifier:
+      kind: all
+      of:
+        - kind: section
+          params: { heading: resources, minChars: 10 }
+        - kind: statement
+          params:
+            sections: [resources, data-plan]
+            families: [scale]
+            assertionOnly: ['无需扩容', '不需要扩容', '无须扩容']
+            whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:CAP-003
+      examples: ["依据当前业务请求量数据，建议进一步评估服务资源扩容情况。"]
+
+  - id: CAP-004
+    title: 现有接口性能影响评估
+    dimension: capacity
+    severity: major
+    tier: soft
+    question: 是否评估了本次改动 / 开放对现有后端接口性能的影响？
+    rationale: 重新开放已有功能或新增调用会加重后端接口负载。
+    suggestion: 建议进一步核实评估该功能开放 / 改动后对后端接口性能的影响。
+    applicability: null
+    verifier: null
+    status: active
+    provenance:
+      source: legacy:CAP-004
+      examples: ["方案建议明确该功能之前隐藏的原因，并进一步核实评估本次功能重新开放后对后端接口性能影响。"]
+
+  - id: CAP-005
+    title: 风控接入响应时间影响
+    dimension: capacity
+    severity: major
+    tier: hybrid
+    question: 是否评估了接入风控后对各接口响应时间的影响？
+    rationale: 接入风控会增加链路环节与耗时。
+    suggestion: 建议进一步评估接入风控后对各个接口产生的影响，核实是否存在接口响应时间过长的风险。
+    applicability: { families: [riskctl] }
+    verifier:
+      kind: statement
+      params:
+        families: [riskctl]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:CAP-005
+      examples: ["建议进一步评估接入风控后对各个接口产生的影响，核实明确是否存在接口响应时间过长的风险。"]
+
+  - id: CAP-006
+    title: 业务量估算量化
+    dimension: capacity
+    severity: major
+    tier: hard
+    question: 数据增长估算 / 资源评估是否给出了量化的业务量数据？
+    rationale: 「大量新增用户」之类的定性描述无法支撑容量与限流决策。
+    suggestion: 建议预估并明确业务量数据（如日均请求量、峰值并发、新增用户数）。
+    applicability: null
+    verifier:
+      kind: quantity
+      params:
+        sections: [data-plan, resources]
+        contextFamilies: [volume]
+    status: active
+    provenance:
+      source: template
+      examples: ["建议预估明确业务量数据。", "方案建议评估并补充接入福建后业务增长量数据。"]
+
+  # ---------------- security ----------------
+  - id: SEC-001
+    title: 安全防护与加密策略
+    dimension: security
+    severity: blocker
+    tier: hybrid
+    question: 卡片 / 接口获取环节是否有明确的安全防护措施与加密策略？
+    rationale: 需防范 URL 外泄、参数被篡改等风险。
+    suggestion: 明确卡片获取时相应的安全防护措施与加密策略，避免 URL 外泄、参数被篡改所导致的风险。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        sections: [approach, interface, risk]
+        families: [crypto]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:SEC-001
+      examples: ["明确卡片获取时相应的安全防护措施与加密策略，避免 URL 外泄、参数被篡改所导致的风险。"]
+
+  - id: SEC-002
+    title: 鉴权链路闭环
+    dimension: security
+    severity: blocker
+    tier: hybrid
+    question: 用户鉴权链路是否完整闭环（授权码换取、身份校验、绑定关系校验、登录）？
+    rationale: 任一环节缺失即有安全漏洞。
+    suggestion: 补充 / 完善鉴权链路时序图，明确授权码换取、身份校验、绑定关系校验的完整闭环。
+    applicability: null
+    verifier:
+      kind: first
+      of:
+        - kind: mermaid-sequence
+          params:
+            participantFamilies: [authcode, openid, login]
+            requiredMessageFamilies: [authcode, openid, phone, bind-check, login]
+            treatImageAsFail: false
+        - kind: statement
+          params:
+            sections: [access, approach]
+            families: [authcode, openid, bind-check, login]
+            requireAll: true
+            whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:SEC-002
+      examples: ["补充时序图，明确消息订阅链路。"]
+
+  - id: SEC-003
+    title: 实名信息业务用途
+    dimension: security
+    severity: major
+    tier: hybrid
+    question: 新增实名信息调用是否明确了业务用途与对现有实名逻辑的影响？
+    rationale: 实名信息属敏感数据。
+    suggestion: 方案需明确新增实名信息接口调用的业务用途；建议核实确认是否会对现有实名信息查询逻辑进行改动。
+    applicability: { families: [realname] }
+    verifier:
+      kind: statement
+      params:
+        families: [realname]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:SEC-003
+      examples: ["方案需明确新增实名信息接口调用的业务用途；建议核实确认本次优化是否会对现有实名信息查询逻辑进行改动。"]
+
+  - id: SEC-004
+    title: 数据暴露面核实
+    dimension: security
+    severity: blocker
+    tier: hybrid
+    question: 外部渠道是否只与前端卡片 / 代理层交互？「无暴露风险」结论是否有链路依据？
+    rationale: 「无暴露风险」需有依据而非断言。
+    suggestion: 核实外部渠道与内部数据的交互边界，确认不直接调用内部数据，「无暴露风险」需有链路依据。
+    applicability: null
+    verifier:
+      kind: all
+      of:
+        - kind: section
+          params: { heading: risk, minChars: 10 }
+        - kind: statement
+          params:
+            sections: [risk]
+            families: [exposure]
+            assertionOnly: ['无暴露风险', '无风险', '不存在风险']
+            whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:SEC-004
+      examples: ["无暴露风险，支付宝智能体只与前端卡片做交互，不调用国网数据。"]
+
+  - id: SEC-005
+    title: 需求必要性及合规性
+    dimension: security
+    severity: major
+    tier: soft
+    question: 需求本身的必要性与合规性是否经过评估？
+    rationale: 对外开放能力需避免过度开放或违规开放。
+    suggestion: 进一步评估需求必要性及合规性。
+    applicability: null
+    verifier: null
+    status: active
+    provenance:
+      source: legacy:SEC-005
+      examples: ["进一步评估需求必要性及合规性。"]
+
+  # ---------------- interface ----------------
+  - id: INT-001
+    title: 接口文档完整性
+    dimension: interface
+    severity: major
+    tier: hard
+    question: 接口文档是否齐全（地址、入参出参、返回码）？
+    rationale: 缺项会导致联调与排查困难。
+    suggestion: 补齐对应的接口文档信息，明确接口地址、参数、返回码及异常场景。
+    applicability: null
+    verifier:
+      kind: all
+      of:
+        - kind: table
+          params:
+            locate: { section: interface, headerAny: [参数] }
+            requiredColumns: [[参数名, 参数名称, 字段], [类型, 数据格式], [必填, 是否非空, 是否必填]]
+            placeholderCells: ignore
+        - kind: table
+          params:
+            locate: { section: interface, headerAny: [返回, 输出, 字段] }
+            requireRow: { column: [字段, 参数, 参数英文名], equalsAny: [resultCode, code, 返回码] }
+        - kind: cross-ref
+          params: {}
+    status: active
+    provenance:
+      source: legacy:INT-001
+      examples: ["补齐对应的接口文档信息。"]
+
+  - id: INT-002
+    title: 边界逻辑覆盖
+    dimension: interface
+    severity: major
+    tier: hybrid
+    question: 异常 / 边界场景是否有处理逻辑（如关键业务关联关系不存在时）？
+    rationale: 如手机号与户号不存在绑定关系等边界场景需有明确处理。
+    suggestion: 进一步核实确认关键业务关联关系不存在时的处理逻辑，补齐对应的接口文档信息。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        sections: [interface, approach]
+        families: [boundary]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:INT-002
+      examples: ["进一步核实确认手机号与户号不存在绑定关系时的余额查询逻辑，补齐对应的接口文档信息。"]
+
+  - id: INT-003
+    title: 现有逻辑改动影响
+    dimension: interface
+    severity: major
+    tier: hybrid
+    question: 是否核实了本次改动对现有接口 / 查询逻辑的影响？
+    rationale: 改动现有逻辑需评估回归影响。
+    suggestion: 建议核实确认本次优化是否会对现有查询逻辑进行改动及其影响。
+    applicability: { tableRows: { column: 变更类型, equals: 修改 } }
+    verifier:
+      kind: statement
+      params:
+        families: [change, existing]
+        requireAll: true
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:INT-003
+      examples: ["建议核实确认本次优化是否会对现有实名信息查询逻辑进行改动。"]
+
+  - id: INT-004
+    title: 渠道标识规范
+    dimension: interface
+    severity: minor
+    tier: hard
+    question: 渠道标识字段是否规范、可识别、可区分来源？
+    rationale: 三方调用需传输固定渠道标识，便于区分来源与后续管控。
+    suggestion: 明确渠道标识字段的取值规范，调用方须传输固定的渠道标识。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        sections: [interface]
+        families: [channel-id]
+        decisive: true
+        whenNoCandidate: fail
+    status: active
+    provenance:
+      source: legacy:INT-004
+      examples: ["需支付宝阿宝侧在调用接口时，在渠道标识字段中传输支付宝阿宝侧固定的渠道标识。"]
+
+  - id: INT-005
+    title: 幂等与重试策略
+    dimension: interface
+    severity: minor
+    tier: hybrid
+    question: 接口是否有幂等与重试策略，防止重复请求造成数据异常？
+    rationale: 外部渠道网络波动可能触发重试。
+    suggestion: 建议明确接口幂等与重试策略，防止重复请求造成数据异常。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        sections: [interface, approach]
+        families: [idempotent]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:INT-005
+      examples: []
+
+  # ---------------- channel / sync / config / monitoring ----------------
+  - id: CHN-001
+    title: 渠道管控策略
+    dimension: channel
+    severity: major
+    tier: hybrid
+    question: 是否设计了渠道维度的管控策略（限流、开关、配额、下线）？
+    rationale: 面向三方渠道需有渠道维度的管控能力，便于运营管控与异常熔断。
+    suggestion: 建议设计对应渠道管控策略，便于后续运营管控。
+    applicability: null
+    verifier:
+      kind: statement
+      params:
+        families: [channel-ctl]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:CHN-001
+      examples: ["建议设计对应渠道管控策略，便于后续运营管控。"]
+
+  - id: SYN-001
+    title: 异步同步机制
+    dimension: data_sync
+    severity: major
+    tier: hybrid
+    question: 数据同步是否采用异步方式，避免实时同步加重主业务链路负载？
+    rationale: 不建议实时触发同步。
+    suggestion: 优化数据同步机制，建议采用异步方式同步数据，减轻主业务链路负载。
+    applicability: { families: [sync] }
+    verifier:
+      kind: statement
+      params:
+        families: [sync]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:SYN-001
+      examples: ["优化数据同步机制，不建议采用实时触发同步方式，建议采用异步方式同步数据，减轻主业务链路负载。"]
+
+  - id: CFG-001
+    title: 可配置化设计
+    dimension: config
+    severity: minor
+    tier: soft
+    question: 容量范围、开关等关键参数是否通过可配置形式实现？
+    rationale: 关键参数应可配置，避免硬编码。
+    suggestion: 建议考虑将关键参数通过可配置形式实现，便于后续变更管理。
+    applicability: null
+    verifier: null
+    status: active
+    provenance:
+      source: legacy:CFG-001
+      examples: ["建议考虑将申请容量范围通过可配置形式实现，便于后续变更管理。"]
+
+  - id: MON-001
+    title: 埋点实现方式
+    dimension: monitoring
+    severity: minor
+    tier: hybrid
+    question: 新增埋点是否明确了对应的技术实现方式？
+    rationale: 仅提埋点需求而无实现方式，上线后无法采集数据。
+    suggestion: 方案建议明确增加埋点所对应的技术实现方式。
+    applicability: { families: [tracking] }
+    verifier:
+      kind: statement
+      params:
+        families: [tracking-impl]
+        whenNoCandidate: pending
+    status: active
+    provenance:
+      source: legacy:MON-001
+      examples: ["方案建议明确增加埋点所对应的技术实现方式。"]
+
+  # ---------------- documentation ----------------
+  - id: DOC-001
+    title: 时序图完整性
+    dimension: documentation
+    severity: major
+    tier: hard
+    question: 方案是否有可校验的业务执行时序图（Mermaid）及配套技术描述？
+    rationale: 图片时序图无法校验；关键链路需以 Mermaid sequenceDiagram 提供。
+    suggestion: 方案需进一步完善技术实现部分，以 Mermaid 时序图明确业务执行链路和配套技术描述。
+    applicability: null
+    verifier:
+      kind: mermaid-sequence
+      params:
+        sections: [approach]
+        minParticipants: 2
+        minMessages: 3
+        treatImageAsFail: true
+    status: active
+    provenance:
+      source: legacy:DOC-001
+      examples: ["方案需进一步完善方案技术实现部分，明确业务执行时序图和配套技术描述。"]
+
+  - id: DOC-002
+    title: 优化前后对比
+    dimension: documentation
+    severity: minor
+    tier: hard
+    question: 样式 / 交互优化是否有优化前后原型对比？
+    rationale: 涉及样式 / 交互优化时需提供对比。
+    suggestion: 建议完善样式优化详情以及优化前后原型对比。
+    applicability: { families: [ui-change] }
+    verifier:
+      kind: first
+      of:
+        - kind: cross-ref
+          params:
+            listItemPattern: '附件\s*[0-9０-９一二三四五六七八九十]+\s*[:：][^；;\n]*(原型|UE|对比|效果图)'
+        - kind: statement
+          params:
+            families: [prototype]
+            decisive: true
+            whenNoCandidate: fail
+    status: active
+    provenance:
+      source: legacy:DOC-002
+      examples: ["建议完善首页切换户号样式优化详情以及优化前后原型对比。"]
+
+  - id: DOC-003
+    title: 变更原因说明
+    dimension: documentation
+    severity: minor
+    tier: soft
+    question: 功能重新开放 / 隐藏是否有原因说明？
+    rationale: 便于评审判断必要性。
+    suggestion: 方案建议明确该功能之前隐藏 / 本次重新开放的原因。
+    applicability: null
+    verifier: null
+    status: active
+    provenance:
+      source: legacy:DOC-003
+      examples: ["方案建议明确该功能之前隐藏的原因，并进一步核实评估本次功能重新开放后对后端接口性能影响。"]
+
+  - id: DOC-004
+    title: 改造逻辑明确
+    dimension: documentation
+    severity: major
+    tier: soft
+    question: 改动点是否明确了「如何解决待优化问题」的具体改造逻辑？
+    rationale: 仅列改动点不足以评审。
+    suggestion: 进一步完善该改动如何解决本次待优化问题，明确具体改造逻辑。
+    applicability: null
+    verifier: null
+    status: active
+    provenance:
+      source: legacy:DOC-004
+      examples: ["针对在解绑参数组装逻辑中新增用户 ID，方案需进一步完善该改动如何解决本次待优化问题，明确具体改造逻辑。"]
+
+  - id: DOC-005
+    title: 消息链路时序图
+    dimension: documentation
+    severity: major
+    tier: hard
+    question: 消息订阅 / 推送链路是否有可校验的时序图？
+    rationale: 消息类功能需有时序图明确链路。
+    suggestion: 补充 Mermaid 时序图，明确消息订阅 / 推送链路。
+    applicability: { families: [message] }
+    verifier:
+      kind: mermaid-sequence
+      params:
+        participantFamilies: [message]
+        minParticipants: 2
+        minMessages: 3
+        treatImageAsFail: true
+    status: active
+    provenance:
+      source: legacy:DOC-005
+      examples: ["方案需明确当前用户解绑后依旧推送订阅消息对应的原因；补充时序图，明确消息订阅链路。"]
+
+  - id: DOC-010
+    title: 资源变更清单表
+    dimension: documentation
+    severity: minor
+    tier: hard
+    question: 文首是否有资源变更清单表，且至少一行变更类型非占位？
+    rationale: 模板要求；清单表是改动范围的权威来源。
+    suggestion: 补充资源变更清单表（序号 / 资源名称 / 变更类型 / 名称 / 内外网位置 / 数据存储 / 备注）。
+    applicability: null
+    verifier:
+      kind: table
+      params:
+        locate: { headerAny: [资源名称, 变更类型] }
+        requiredColumns: [[资源名称], [变更类型], [名称]]
+        minRows: 1
+        placeholderCells: ignore
+        requireRow: { column: [变更类型], equalsAny: [新增, 修改, 删除, 变更] }
+    status: active
+    provenance:
+      source: template
+      examples: []
+
+  - id: DOC-011
+    title: 必备章节完整
+    dimension: documentation
+    severity: major
+    tier: hard
+    question: 工作背景 / 技术思路 / 数据规划 / 实施方案 / 资源评估 / 风险评估 / 附件 七个章节是否齐全且非占位？
+    rationale: 模板要求。
+    suggestion: 按模板补齐缺失章节并给出实质内容。
+    applicability: null
+    verifier:
+      kind: all
+      of:
+        - { kind: section, params: { heading: background } }
+        - { kind: section, params: { heading: approach } }
+        - { kind: section, params: { heading: data-plan } }
+        - { kind: section, params: { heading: implementation } }
+        - { kind: section, params: { heading: resources, minChars: 6 } }
+        - { kind: section, params: { heading: risk, minChars: 6 } }
+        - { kind: section, params: { heading: attachments, minChars: 6 } }
+    status: active
+    provenance:
+      source: template
+      examples: []
+
+  - id: DOC-012
+    title: 附件引用一致
+    dimension: documentation
+    severity: minor
+    tier: hard
+    question: 正文引用的附件是否都在附件清单中？
+    rationale: 悬空引用导致评审无法核对。
+    suggestion: 补齐附件清单或修正正文中的附件引用。
+    applicability: null
+    verifier:
+      kind: cross-ref
+      params: {}
+    status: active
+    provenance:
+      source: template
+      examples: []

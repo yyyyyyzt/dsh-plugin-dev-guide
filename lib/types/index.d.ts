@@ -1,0 +1,11 @@
+import type { Context } from '@deepseek-ai/cordis';
+import { Config, type ReviewConfig } from './host/config.js';
+export declare const name = "wsgw-solution-review";
+export declare const inject: string[];
+export declare const provide: string[];
+export { Config };
+export type { ReviewConfig };
+export { ReviewStore } from './host/store.js';
+export { ReviewToolError } from './host/errors.js';
+export { reviewDomain, DOMAIN_NAME, DOMAIN_VERSION } from './store/domain.js';
+export declare function apply(ctx: Context, rawConfig?: Partial<ReviewConfig>): Promise<void>;

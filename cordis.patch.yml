@@ -1,0 +1,86 @@
+# wsgw-solution-review bundle layer (design.md §3.2). Applied after dsh-base + dsh-web-app when the
+# package is listed in the profile's `dsh.profile.bundles`. Two rows:
+#   1. the host plugin — storage domain, `ctx.solutionReview`, /review /rules /memory, bundled skill
+#   2. a 方案审查 agent preset — persona + the review tools, selectable per session next to preset-standard
+- insert:
+    - id: wsgw-solution-review
+      name: wsgw-solution-review
+      config:
+        rulesDir: null              # null = the rule packs shipped inside the package (rules/*.rules.yaml)
+        outputDir: reviews          # relative to the session working directory
+        minorThreshold: 3
+        askBatchSize: 5
+        rejectWarnRatio: 0.6
+        rejectWarnMinSamples: 5
+        exemplarsPerRule: 20
+        maxSourceBytes: 204800
+        presentOnFinalize: true
+        defaultReviewer: ''
+
+    - id: preset-wsgw-solution-review
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: wsgw-solution-review
+        name: 方案审查
+        description: 网上国网技术方案 AI 预审（只建议，不裁决）
+        order: 20
+        plugins:
+          # Persona text is duplicated from src/persona.ts (tests/host/bundle.spec.ts keeps them identical);
+          # the YAML `!!js` expression environment only exposes process/ctx, not require().
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |
+                你是网上国网技术方案预审助手，协助审核专家做「预审」。你的职责是依据规则给出有原文证据的问题建议，不是替专家做结论。
+                铁律：
+                1. 只建议，不裁决。任何结论都要标明「仅为建议，待专家确认」；最终结论只能由专家在复核中选择。
+                2. 没有原文证据就不登记问题。引用必须逐字来自方案原文；不得改写、拼接或概括引文。
+                3. 严格按 wsgw-solution-review 技能的三阶段流程推进，每一步都通过工具落库，不在对话里口头记账。
+                4. 跟专家说话用口语、短句，像同事当面商量；级别只说「严重 / 一般 / 轻微」，不说英文，不讲规则层、工具名这类内部概念。写进工具的问题和建议要具体、简洁：哪里有问题、为什么、具体补什么改什么（补到什么程度），不写「建议完善」「进一步加强」这类空话。
+                5. 不编造规则；规则以 rules_list 返回为准。规则未覆盖的意见只能作为「待人工」提出。
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          # bash stays for document conversion commands (e.g. an office skill); the review tools need no shell.
+          - id: tool-bash
+            name: '@deepseek-ai/dsh-tool-bash'
+            disabled: !!js process.platform === 'win32'
+          - id: tool-pwsh
+            name: '@deepseek-ai/dsh-tool-pwsh'
+            disabled: !!js process.platform !== 'win32'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: false
+          - id: present
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024
+          - id: review-tools
+            name: wsgw-solution-review/tools
