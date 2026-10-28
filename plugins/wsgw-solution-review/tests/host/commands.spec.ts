@@ -31,7 +31,7 @@ describe('/review', () => {
     expect(list.text).toContain(reviewId)
     expect(list.text).toContain('网上国网余额查询能力对AI版支付宝开放技术方案')
     expect(list.text).toContain('建议整改')
-    expect(list.text).toContain('open')
+    expect(list.text).toContain('进行中')
 
     const one = await r.cmd.review(` ${reviewId} `)
     expect(one.kind).toBe('success')

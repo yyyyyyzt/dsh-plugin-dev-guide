@@ -129,7 +129,7 @@ describe('store persistence (T-REQ-18)', () => {
   it('entries() filtering by reviewId returns only that review’s issues / feedback', async () => {
     const o = await store()
     const a = (await o.store.parse({ source: readFixture('seed.md') })).reviewId
-    const b = (await o.store.parse({ source: readFixture('seed-no-impl.md') })).reviewId
+    const b = (await o.store.parse({ source: readFixture('seed-no-impl.md'), title: '另一份方案' })).reviewId
     await o.store.check(a)
     await o.store.check(b)
     const issuesA = o.store.issuesOf(a)

@@ -233,7 +233,7 @@ describe('canonical path on the seed solution (T-PRO-02, T-REQ-20, AC-10)', () =
     expect(names[1]).toBe('review_check')
     expect(names.filter((n) => n === 'memory_recall')).toHaveLength(7)
     expect(names.filter((n) => n === 'review_record_issue')).toHaveLength(8)
-    expect(names.filter((n) => n === 'review_decide')).toHaveLength(14)
+    expect(names.filter((n) => n === 'review_decide')).toHaveLength(15)
     expect(names.at(-1)).toBe('review_finalize')
 
     // Parameter snapshot: source, reviewId, candidate rule ids, and the first decisions.
@@ -242,7 +242,7 @@ describe('canonical path on the seed solution (T-PRO-02, T-REQ-20, AC-10)', () =
     const recorded = r.calls.filter((c) => c.name === 'review_record_issue').map((c) => c.args.ruleId)
     expect(recorded).toEqual(['CAP-003', 'SEC-001', 'SEC-002', 'SEC-003', 'SEC-004', 'INT-002', 'INT-003', 'INT-005'])
     const answers = r.calls.filter((c) => c.name === 'review_decide' && typeof c.args.answer === 'string').map((c) => c.args.answer)
-    expect(answers.slice(0, 2)).toEqual(['驳回', '改成：建议补充压测报告与回滚方案'])
+    expect(answers.slice(0, 3)).toEqual(['不用改', '要改，但我换个说法', '要改，但我换个说法：建议补充压测报告与回滚方案'])
 
     expect(r.writes).toHaveLength(1)
     expect(writesPath(r, reviewId)).toBe(`reviews/${r.writes[0]!.fileName}`)
