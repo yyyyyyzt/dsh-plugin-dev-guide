@@ -76,6 +76,7 @@
 - **DSH**：`deepseek-harness` tag **`dsh-v0.2.1-rc.2`**（2026-10-17，master 最新预发布）。本插件按这一版开发；`engines.dsh` 初定 `">=0.2.1-rc.2 <0.3.0"`。本仓库 `docs/` 指南的版本字符串已对齐，但行为细节仍以 0.2.1-rc.2 源码与 `docs/subsystems/*.zh.md` 为准（Web 平面已改为 agent preset 组合，新增 storage / plugin-market / sidebar-right 等）。
 - **运行时**：Node `^22.19 || >=24`，pnpm `11.x`（DSH 根 `packageManager: pnpm@11.28.5`）。DSH 源码工具链以 checkout 为准；本插件工程使用 TypeScript 5.9 / vitest 3，client bundle 的 tsdown 0.22 在 S4 引入。
 - **本地开发回路**：克隆 deepseek-harness 并 `pnpm install && pnpm run build`；`pnpm dsh web --patch <本插件 cordis.yml>` 源码加载；或 `pnpm dsh plugin --profile web add <本插件目录>` 安装进 profile。Client 半每次 `pnpm run build` 后刷新页面（仓库外插件没有 HMR watcher）。
+- **分发**：给其他机器（含 Windows 桌面版）用 GitHub 发布 tag：插件目录 `pnpm run release --push` → DSH 插件页填 `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#wsgw-solution-review-v<version>`（设计见插件 `docs/design.md` §16）。
 - **DSH 原生能力对照**（Web profile 默认已挂载，插件直接 `inject`）：
 
 | 能力 | 服务 / 包 | 本插件用途 |

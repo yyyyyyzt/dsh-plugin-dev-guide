@@ -4,7 +4,21 @@
 
 设计、规则模型、对话协议与评测方案见 [`docs/`](./docs/)；项目进度与决策见仓库根目录 [`progress.md`](../../progress.md)。
 
-## 安装（一条命令）
+## 从 GitHub 安装（Web 或 Windows / macOS 桌面版）
+
+在 DSH 的「插件」页点安装，填发布地址（`<version>` 见仓库 tag `wsgw-solution-review-v*`）：
+
+```
+https://github.com/yyyyyyzt/dsh-plugin-dev-guide#wsgw-solution-review-v<version>
+```
+
+- 本机没有 git 时改填 `#<该 tag 的 40 位提交 sha>`。
+- 安装源选能访问的 npm 源（如「中国大陆镜像源」）；运行时依赖从这里下载，不需要在本机构建。
+- 装好后：新建会话的模式里有「方案审查」，左侧栏有「方案审查」主面板，审查会话的右侧栏有「复核助手」。
+- 命令行等价：`dsh plugin --profile web add <地址>`；桌面版用桌面版自带的 `dsh` 命令（菜单「管理 dsh 命令…」安装）`--profile desktop`，执行前完全退出桌面版。
+- 升级：插件页卸载旧版，再填新 tag 地址。发布方式见 `docs/design.md` §16（`pnpm run release --push`）。
+
+## 本地目录安装（开发用，一条命令）
 
 前提：Node.js ≥ 22.19、pnpm 10+，并且已经用 `npx @deepseek-ai/dsh web` 启动过一次（会生成 `web` profile）。
 

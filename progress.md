@@ -141,6 +141,7 @@
 | 2026-10-28 | 新增 `GET /overview`（全部审查紧凑摘要，≤ 2000 条）；日期分桶在浏览器按本地时区做 | 指标卡、日历、趋势、列表共用一份数据；Host 时区与专家时区可能不同 |
 | 2026-10-28 | 规则全局编辑新增 `set_suggestion` 与 `reset`（`rules_propose` 与 `PATCH /rules/:id` 同步）；检查问题 / 依据 / 适用范围 / 校验器结构不在看板改 | 整改建议措辞是专家最常想改、且直接进入正式意见的字段；改语义等于新规则，应走起草 → 接受 |
 | 2026-10-28 | 图表用内联 SVG，不引入图表库；热力图分级用 `color-mix` + 主题变量 | 铁律 6；bundle 外部化白名单只有 react / react-dom / cordis；深色主题自动适配 |
+| 2026-10-28 | 对外分发改为 GitHub 发布 tag `wsgw-solution-review-v<version>`（无父提交，内容 = `pnpm pack` 产物 + 去掉 `scripts` / `devDependencies` 的清单），DSH 插件页填 `https://github.com/…#<tag>` 安装；本地目录 `link:` 只留给开发；取代 2026-10-20 的「不走 git 安装」 | 用户要在 Windows 桌面版上装：桌面版插件页支持包名 / Git 地址 / 本地路径，npm 版 `dsh` 拒绝管理 desktop profile；直接装仓库会在目标机上跑 `prepare` 构建（需 `allowBuilds`、拉 100 MB 开发依赖），且插件在子目录、`lib/` 不进 git。tag 不是分支，不改 main 内容；npm 发布仍推迟 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -212,7 +213,7 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 12. 主题与异常：切深色主题，日历、折线、胶囊、文字可读；停掉 `dsh web` 后点「刷新」出现错误条与「重试」，重启后重试恢复；窄窗口下指标卡换行、日历可横向滚动。
 13. 回填：每项 ✅ / ❌ + 截图或一句现象；录一段 1–2 分钟操作录屏留作 S4 验收证据。
 
-S5 的 npm 发布仍只支持本地目录安装。
+分发：其他机器（含 Windows 桌面版）用 GitHub 发布 tag 安装，见 `plugins/wsgw-solution-review/docs/design.md` §16 与插件 README；npm 发布仍推迟。
 
 论文侧（暂停中）：`paper/innovation-notes.md` v0.2；S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。
 

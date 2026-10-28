@@ -52,6 +52,7 @@ plugins/wsgw-solution-review/
 │     │                         每页一对：纯展示组件（props 进、元素出；测试用 react-dom/server 渲染）+ 页签容器（取数、写操作）
 │     ├─ ui.tsx / data.ts       主题样式与基础件；取数 / 写操作 hooks
 │     └─ model.ts               看板数据类型（引用 host / 引擎类型）、纯函数（日历、趋势、指标、筛选）、请求封装
+├─ scripts/release.mjs          GitHub 发布 tag（§16）
 ├─ tests/                       S2（见 §14）
 └─ docs/                        本目录
 ```
@@ -330,3 +331,18 @@ export const reviewDomain = defineDomain({
 | T-DES-12 | `--dump-config` 能组装 `cordis.patch.yml`（含 preset 行）且无撞名 |
 | T-DES-13 | client bundle 校验脚本：banner / footer / 外部化白名单 / 不含 `react` 实体 |
 | T-DES-14 | bench：200 KB 合成文档 `check` ≤ 2 s |
+| T-DES-15 | 发布清单：去掉 `scripts`（含 `prepare`）与 `devDependencies`，保留 `dependencies` / `peerDependencies` / `engines` / `exports` / `files` / `dsh`，不改输入对象；`exports` 指向的文件都被 `files` 覆盖 |
+| T-DES-16 | 发布 tag 名为 `wsgw-solution-review-v<version>`；安装地址由 `repository.url` 推出为 `https://github.com/<owner>/<repo>#<tag>` 与 `#<提交 sha>` 两种 |
+
+## 16. 发布与安装
+
+开发期仍用本地目录安装（`link:`，见 README）。给其他机器（含 Windows 桌面版）用的是 **GitHub 发布 tag**：
+
+- `pnpm run release`（`scripts/release.mjs`）要求插件目录无未提交改动，然后构建、跑 bundle 校验、`pnpm pack`，把包内容（`lib/`、`rules/`、`skills/`、`cordis.patch.yml`、`README.md`、改写后的 `package.json`）写成一个**无父提交**的独立提交，打 tag `wsgw-solution-review-v<version>`；加 `--push` 推送该 tag。不建分支，不改当前分支与工作区。
+- 发布清单去掉 `scripts` 与 `devDependencies`：没有 `prepare`，pnpm 从 git 安装时不触发构建，也就不需要在 profile 的 `allowBuilds` 里放行；运行时只从 npm 源拉 `dependencies`（纯 JS），DSH 相关包是 `peerDependencies`，由宿主提供（profile 的 `autoInstallPeers: false`）。
+- 同一版本只发布一次：tag 已存在（本地或远端）即拒绝，先改 `package.json` 的 `version`。
+- 安装地址填进 DSH 插件页（Web 或桌面版均可）或 `dsh plugin --profile <web|desktop> add <地址>`：
+  - `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#wsgw-solution-review-v<version>`：pnpm 用 `git ls-remote` 解析 tag，本机需要装有 git；
+  - `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#<40 位提交 sha>`：公开仓库直接下载 GitHub 归档，本机不需要 git。
+- 版本门禁看 `engines.dsh`（§3.3）。桌面版 profile 只能由桌面版插件页或其自带 `dsh` 命令管理（npm 版 `dsh` 拒绝 `--profile desktop`）；命令行方式需先启动一次桌面版初始化 profile，再完全退出（Windows 关窗只是隐藏到托盘）。
+- 升级：改版本号 → 提交 → `pnpm run release --push` → 在插件页卸载旧版再填新地址安装。审查记录、规则覆盖与记忆在 DSH 存储里，不随插件卸载丢失。
