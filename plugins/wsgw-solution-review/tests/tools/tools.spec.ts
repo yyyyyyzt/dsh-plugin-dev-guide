@@ -673,6 +673,68 @@ describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () =
     expect(r.store.ruleDetail('CAP-001').detail.override).toBeUndefined()
   })
 
+  it('set_suggestion edits a rule globally, feeds later verifier issues, and the shipped text clears it', async () => {
+    const r = await rig()
+    const base = r.store.effectiveRules().version
+    const first = await checked(r)
+    const hard = r.store.issuesOf(first.reviewId).find((i) => i.origin === 'verifier')!
+    const shipped = r.store.ruleDetail(hard.ruleId!).detail.suggestion
+    expect(await r.code('rules_propose', { action: 'set_suggestion', ruleId: hard.ruleId, suggestion: '   ' })).toBe('BAD_ACTION')
+    expect(await r.code('rules_propose', { action: 'set_suggestion', ruleId: hard.ruleId, suggestion: 'x'.repeat(501) })).toBe('BAD_ACTION')
+    expect(await r.code('rules_propose', { action: 'set_suggestion', ruleId: hard.ruleId })).toBe('BAD_ACTION')
+    await r.call('rules_propose', { action: 'set_suggestion', ruleId: hard.ruleId, suggestion: '  请按平台规范补充该项并附依据。 ', who: 'dashboard' })
+    expect(r.store.ruleDetail(hard.ruleId!).detail).toMatchObject({
+      suggestion: '请按平台规范补充该项并附依据。',
+      override: { suggestion: '请按平台规范补充该项并附依据。' },
+      shipped: { suggestion: shipped },
+    })
+    expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
+    const again = await r.call('review_parse', { source: { kind: 'inline', value: readFixture('seed.md') }, reuse: false })
+    await r.call('review_check', { reviewId: again.reviewId })
+    const reissued = r.store.issuesOf(again.reviewId).find((i) => i.ruleId === hard.ruleId)!
+    expect(reissued.suggestion).toBe('请按平台规范补充该项并附依据。')
+    await r.call('rules_propose', { action: 'set_suggestion', ruleId: hard.ruleId, suggestion: shipped })
+    expect(r.store.ruleDetail(hard.ruleId!).detail.override).toBeUndefined()
+    expect(r.store.effectiveRules().version).toBe(base)
+    expect(r.store.ruleDetail(hard.ruleId!).detail.audit.map((a) => a.change.field)).toEqual(['suggestion', 'suggestion'])
+  })
+
+  it('reset restores every shipped value in one step, keeps stats and audit, and refuses draft rules', async () => {
+    const r = await rig()
+    const base = r.store.effectiveRules().version
+    const { reviewId } = await checked(r)
+    await r.call('review_decide', { reviewId, action: 'adopt_rest' })
+    await r.call('review_decide', { reviewId, action: 'set_reviewer', reviewer: '张三' })
+    await r.call('review_decide', { reviewId, action: 'set_final_verdict', finalVerdict: '建议整改' })
+    await r.call('review_finalize', { reviewId })
+    const ruleId = r.store.issuesOf(reviewId).find((i) => i.ruleId && i.status === 'adopted' && i.origin === 'verifier')!.ruleId!
+    const shown = r.store.domain.table('rule_overrides').get(ruleId)!.stats.shown
+    const shipped = r.store.ruleDetail(ruleId).detail.shipped!
+    await r.call('rules_propose', { action: 'disable', ruleId })
+    await r.call('rules_propose', { action: 'set_severity', ruleId, severity: shipped.severity === 'minor' ? 'major' : 'minor' })
+    await r.call('rules_propose', { action: 'set_suggestion', ruleId, suggestion: '改过的建议' })
+    expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
+    const out = await r.call('rules_propose', { action: 'reset', ruleId })
+    expect(out.rule).toMatchObject({ ruleId, status: 'active', severity: shipped.severity, overridden: false })
+    const rec = r.store.domain.table('rule_overrides').get(ruleId)!
+    expect([rec.status, rec.severity, rec.suggestion, rec.params]).toEqual([undefined, undefined, undefined, undefined])
+    expect(rec.stats.shown).toBe(shown)
+    expect(rec.audit.slice(-3).map((a) => [a.change.field, a.change.to])).toEqual([
+      ['status', shipped.status],
+      ['severity', shipped.severity],
+      ['suggestion', shipped.suggestion],
+    ])
+    expect(r.store.effectiveRules().version).toBe(base)
+    const before = rec.audit.length
+    await r.call('rules_propose', { action: 'reset', ruleId })
+    expect(r.store.domain.table('rule_overrides').get(ruleId)!.audit).toHaveLength(before)
+    await r.call('rules_propose', {
+      action: 'draft',
+      draft: ['id: INT-905', 'title: 灰度', 'dimension: interface', 'severity: minor', 'tier: soft', 'question: q', 'rationale: r', 'suggestion: s'].join('\n'),
+    })
+    expect(await r.code('rules_propose', { action: 'reset', ruleId: 'INT-905' })).toBe('BAD_ACTION')
+  })
+
   it('rules_list merges shipped + overrides and filters by dimension / tier / status', async () => {
     const r = await rig()
     const all = await r.call('rules_list', {})

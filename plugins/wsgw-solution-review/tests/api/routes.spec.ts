@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs'
 import { parse as parseYaml } from 'yaml'
 import { defaultConfig } from '../../src/host/config.js'
 import { packageRoot, readFixture } from '../helpers.js'
-import { openStore, removeRoot, type OpenedStore } from '../store/harness.js'
+import { fixedDeps, openStore, removeRoot, type OpenedStore } from '../store/harness.js'
 
 interface CallOptions {
   body?: unknown
@@ -116,6 +116,7 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
       `prefix ${reviewApi.API_PREFIX}/rules`,
       `prefix ${reviewApi.API_PREFIX}/reviews`,
       `prefix ${reviewApi.API_PREFIX}/candidates`,
+      `exact ${reviewApi.API_PREFIX}/overview`,
     ]))
   })
 
@@ -298,6 +299,87 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
     expect(o.store.domain.table('rule_candidates').get(`rc_${reviewId}_1`)?.status).toBe('accepted')
     const dismissed = await http.call('POST', `${reviewApi.API_PREFIX}/candidates/rc_${reviewId}_2`, { body: { action: 'dismiss' } })
     expect(dismissed.json.candidate.status).toBe('dismissed')
+  })
+
+  it('GET /overview returns every review as a compact stamp, newest first, with state and counts', async () => {
+    let tick = 0
+    const o = await openStore({ defaultReviewer: '张三' }, undefined, {
+      now: () => new Date(Date.UTC(2026, 9, 20, 8, tick++)),
+      randomId: fixedDeps.randomId,
+    })
+    opened.push(o)
+    const http = install(o.store)
+    expect((await http.call('GET', `${reviewApi.API_PREFIX}/overview`)).json).toMatchObject({ items: [], total: 0, truncated: false })
+
+    const finalized = await parsed(o.store)
+    await o.store.check(finalized)
+    await o.store.decide(finalized, { action: 'adopt_rest' })
+    await o.store.decide(finalized, { action: 'set_final_verdict', finalVerdict: '建议整改' })
+    await o.store.finalize(finalized, async (name) => `reviews/${name}`)
+    const stale = await parsed(o.store, 'seed-negated.md')
+    await o.store.check(stale)
+    await o.store.decide(stale, { action: 'adopt_rest' })
+    await o.store.decide(stale, { action: 'set_final_verdict', finalVerdict: '通过' })
+    await o.store.finalize(stale, async (name) => `reviews/${name}`)
+    const first = o.store.issuesOf(stale)[0]!
+    await o.store.decide(stale, { action: 'reject', issueId: first.issueId, reason: '已说明' })
+    const open = await parsed(o.store, 'seed-compliant.md')
+
+    const out = await http.call('GET', `${reviewApi.API_PREFIX}/overview`)
+    expect(out.status).toBe(200)
+    expect(out.json.total).toBe(3)
+    expect(out.json.truncated).toBe(false)
+    expect(typeof out.json.generatedAt).toBe('string')
+    expect(out.json.items.map((s: any) => [s.reviewId, s.state])).toEqual([[open, 'open'], [stale, 'stale'], [finalized, 'finalized']])
+    const f = out.json.items[2]
+    expect(f).toMatchObject({ reviewer: '张三', aiVerdictAtFinalize: expect.any(String), finalVerdict: '建议整改', finalizedAt: expect.any(String) })
+    expect(f.counts.adopted).toBeGreaterThan(0)
+    expect(f.counts.total).toBe(f.counts.adopted + f.counts.rejected + f.counts.rewritten + f.counts.confirmed + f.counts.pending)
+    expect(out.json.items[1].counts.rejected).toBe(1)
+    expect(out.json.items[0]).not.toHaveProperty('finalizedAt')
+    expect(out.json.items[0]).not.toHaveProperty('finalVerdict')
+    expect(Object.keys(f).sort()).toEqual(['aiVerdict', 'aiVerdictAtFinalize', 'counts', 'createdAt', 'finalVerdict', 'finalizedAt', 'reviewId', 'reviewer', 'state', 'title'])
+    expect(JSON.stringify(out.json)).not.toMatch(/用户通过支付宝/)
+    expect((await http.call('POST', `${reviewApi.API_PREFIX}/overview`, { body: {} })).status).toBe(405)
+  })
+
+  it('PATCH /rules/:id set_suggestion overrides the suggestion; reset restores shipped values', async () => {
+    const o = await openStore()
+    opened.push(o)
+    const http = install(o.store)
+    const shipped = (await http.call('GET', `${reviewApi.API_PREFIX}/rules/CAP-002`)).json
+    const missing = await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'set_suggestion' } })
+    expect(missing.status).toBe(400)
+    expect(missing.json.error).toBe('BAD_SUGGESTION')
+    const blank = await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'set_suggestion', suggestion: '   ' } })
+    expect(blank.status).toBe(400)
+    expect(blank.json.error).toBe('BAD_ACTION')
+
+    const write = await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'set_suggestion', suggestion: '请补充压测报告与容量估算依据。' } })
+    expect(write.status).toBe(200)
+    expect(write.json.rule.overridden).toBe(true)
+    await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'disable' } })
+    const after = (await http.call('GET', `${reviewApi.API_PREFIX}/rules/CAP-002`)).json
+    expect(after.detail.suggestion).toBe('请补充压测报告与容量估算依据。')
+    expect(after.detail.shipped).toEqual({ severity: shipped.rule.severity, status: 'active', suggestion: shipped.detail.suggestion })
+    expect(after.detail.override).toEqual({ status: 'retired', suggestion: '请补充压测报告与容量估算依据。' })
+
+    const reset = await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'reset' } })
+    expect(reset.status).toBe(200)
+    expect(reset.json.rule).toMatchObject({ status: 'active', overridden: false })
+    const restored = (await http.call('GET', `${reviewApi.API_PREFIX}/rules/CAP-002`)).json
+    expect(restored.detail.suggestion).toBe(shipped.detail.suggestion)
+    expect(restored.detail.override).toBeUndefined()
+    expect(restored.detail.audit.map((a: any) => a.change.field)).toEqual(['suggestion', 'status', 'status', 'suggestion'])
+    expect(restored.detail.audit.every((a: any) => a.who === 'dashboard')).toBe(true)
+
+    await o.store.rulesPropose({
+      action: 'draft',
+      draft: ['id: INT-906', 'title: 灰度策略', 'dimension: interface', 'severity: minor', 'tier: soft', 'question: q', 'rationale: r', 'suggestion: s'].join('\n'),
+    })
+    const draftReset = await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/INT-906`, { body: { action: 'reset' } })
+    expect(draftReset.status).toBe(400)
+    expect(draftReset.json.error).toBe('BAD_ACTION')
   })
 
   it('rejects a write whose body is not JSON object', async () => {
