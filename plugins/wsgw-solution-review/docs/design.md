@@ -209,9 +209,9 @@ export const reviewDomain = defineDomain({
  - `contentKey` = 原文去 BOM、换行统一为 `\n`、去行尾空白、去首尾空行后的 sha256；旧记录没有该字段时按 `source` 现算。同一份方案无论粘贴还是给路径、Word 转换多出空白，都命中同一条。
  - 「同一方案」= `contentKey` 相同，或 `sourcePath` 相同，或标题相同（「未命名方案」除外）。
  - `review_parse` 新建记录后，把同一方案里**还在进行中且没有任何专家决定**的旧记录标为 `superseded`（`supersededBy` = 新 id，`closedReason` =「被 <新 id> 取代」）。有专家决定的进行中记录保留，由专家决定继续还是作废；已定稿记录是历史版本，保留。
- - 插件启动时对存量数据做一次同样的收拢（每组按创建时间，较旧的、进行中且无专家决定的记录被下一条较新的记录取代），用来清理本规则之前产生的重复记录。
+ - 插件启动时对存量数据做一次收拢，用来清理本规则之前产生的重复记录：对每条进行中且无专家决定的记录，若同一方案里有更新的未关闭记录 → 被其中最早的那条取代；否则若有内容相同（`contentKey` 相同）的较旧未关闭记录 → 被最近的那条取代；内容不同的最新版本保留。`supersededBy` 沿链解析到最终仍未关闭的记录。「专家决定」= 有反馈、专家新增问题、最终结论、正式意见版本或已定稿。
  - `discarded` 由专家主动作废（对话 `review_decide(discard)` 或看板「作废」），`closedReason` 记原因。
- - `superseded` / `discarded` 统称**已关闭**：不再接受 check / record_issue / decide / finalize（`REVIEW_CLOSED`，提示取代它的记录），不进入看板指标、日历、趋势、复核助手与 `/review` 列表，不计入规则统计；数据保留，看板「已作废」筛选可查看。
+ - `superseded` / `discarded` 统称**已关闭**：不再接受 check / record_issue / decide / finalize（`REVIEW_CLOSED`，提示取代它的记录），不进入看板指标、日历、趋势、复核助手与 `/review` 列表，不计入规则统计；作废已定稿的记录时立即重算规则统计并删除该记录产生的措辞范例（候选规则保留，由专家在规则页处理）；数据保留，看板「已作废」筛选可查看。
 - schema 只放宽枚举、新增可选字段，旧数据仍满足 schema，`version` 不变；回退到旧版插件前须没有已关闭记录（旧 schema 不认这两个状态）。
 
 ## 8. 工具契约
