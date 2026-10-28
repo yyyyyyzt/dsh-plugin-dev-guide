@@ -193,8 +193,8 @@ export const reviewDomain = defineDomain({
 
 | 表 | key | 主要字段 | 写入者 |
 |---|---|---|---|
-| `reviews` | `reviewId`（`rv_<yyyymmdd>_<base32-6>`） | `title, docHash, sourcePath?, reviewer?, sessionId?, status('open'|'finalized'), aiVerdict, aiVerdictAtFinalize, finalVerdict?, verdictDelta?, opinionPath?, versions[], metrics{startedAt, finalizedAt?, toolCalls, gateRejects}, createdAt` | parse / status / decide / finalize |
-| `issues` | `${reviewId}#${seq}` | §4 `Issue` 全字段 | check（hard）/ record_issue / decide(add) |
+| `reviews` | `reviewId`（`rv_<yyyymmdd>_<base32-6>`） | `title, docHash, contentKey?, sourcePath?, reviewer?, sessionId?, status('open'|'finalized'|'superseded'|'discarded'), supersededBy?, closedAt?, closedReason?, aiVerdict, aiVerdictAtFinalize, finalVerdict?, verdictDelta?, opinionPath?, versions[], metrics{startedAt, finalizedAt?, toolCalls, gateRejects}, createdAt` | parse / status / decide / finalize |
+| `issues` | `${reviewId}#${seq}` | §4 `Issue` 全字段 + `severityFrom?`（专家对这一条调过级别时的原级别） | check（hard）/ record_issue / decide(add / 带 severity 的 adopt、rewrite) |
 | `feedback` | `${issueId}#${n}` | `reviewId, issueId, action('adopt'|'reject'|'rewrite'), reason?, text?, reviewer?, at` | decide |
 | `exemplars` | `${ruleId}#${issueId}` | `ruleId, kind('adopt'|'rewrite'), text, reviewId, at` | finalize |
 | `rule_overrides` | `ruleId` | `status?, severity?, params?, stats{adopt, reject, rewrite, shown}, audit[{who, at, reviewId?, change}]` | rules_propose / finalize |
@@ -205,18 +205,26 @@ export const reviewDomain = defineDomain({
 - 版本策略：schema 变更 → `version+1` + `scripts/migrate-domain.mjs`（S3b 起随包）；DSH 拒绝打开不匹配版本，迁移脚本在启动前由用户手动执行。
 - `rule_overrides` 一行可以只有 `stats`（finalize 刷新统计时自动建行）。只有含 `status / severity / suggestion / params / draft` 之一的行才算**覆盖**：规则包版本号后缀 `+ovN` 的 N、`RuleView.overridden` 都只按这些行计算，避免「定稿一次规则包版本就变」。对 shipped 规则执行 `enable / disable / set_severity / set_suggestion` 时，若目标值等于 shipped 原值，则删除该覆盖字段而不是写入同值（审计照记），这样「改回去」就等于撤销覆盖；`reset` 一次删除 `status / severity / suggestion / params` 全部覆盖字段（每个被删字段记一条审计，`to` 为 shipped 值），统计与审计保留。草案规则没有 shipped 原值：不做同值比较，`reset` 返回 `BAD_ACTION`。
 - `sessionId` 字段保留但当前不写（工具执行上下文取不到稳定的会话 id）；看板「回到对话」链接推迟。
+- **同一方案只留一条进行中的记录**：
+ - `contentKey` = 原文去 BOM、换行统一为 `\n`、去行尾空白、去首尾空行后的 sha256；旧记录没有该字段时按 `source` 现算。同一份方案无论粘贴还是给路径、Word 转换多出空白，都命中同一条。
+ - 「同一方案」= `contentKey` 相同，或 `sourcePath` 相同，或标题相同（「未命名方案」除外）。
+ - `review_parse` 新建记录后，把同一方案里**还在进行中且没有任何专家决定**的旧记录标为 `superseded`（`supersededBy` = 新 id，`closedReason` =「被 <新 id> 取代」）。有专家决定的进行中记录保留，由专家决定继续还是作废；已定稿记录是历史版本，保留。
+ - 插件启动时对存量数据做一次同样的收拢（每组按创建时间，较旧的、进行中且无专家决定的记录被下一条较新的记录取代），用来清理本规则之前产生的重复记录。
+ - `discarded` 由专家主动作废（对话 `review_decide(discard)` 或看板「作废」），`closedReason` 记原因。
+ - `superseded` / `discarded` 统称**已关闭**：不再接受 check / record_issue / decide / finalize（`REVIEW_CLOSED`，提示取代它的记录），不进入看板指标、日历、趋势、复核助手与 `/review` 列表，不计入规则统计；数据保留，看板「已作废」筛选可查看。
+- schema 只放宽枚举、新增可选字段，旧数据仍满足 schema，`version` 不变；回退到旧版插件前须没有已关闭记录（旧 schema 不认这两个状态）。
 
 ## 8. 工具契约
 
-公共约定：参数用 `defineTool` schema 校验；`output.schema` 声明；错误用带 `code` 的 `HarnessError` 子类 `ReviewToolError`（`REVIEW_NOT_FOUND`, `REVIEW_ALREADY_DECIDED`, `SOURCE_TOO_LARGE`, `RULE_NOT_FOUND`, `HARD_RULE_VERIFIER_OWNED`, `VERDICT_NOT_SET`, `FINAL_VERDICT_FORBIDDEN`, `REVIEWER_REQUIRED`, `ISSUE_NOT_FOUND`, `CANDIDATE_NOT_FOUND`, `BAD_DRAFT`, `BAD_ACTION`）。所有工具描述里写明「本工具只记录建议；最终结论由专家在复核中确认」。
+公共约定：参数用 `defineTool` schema 校验；`output.schema` 声明；错误用带 `code` 的 `HarnessError` 子类 `ReviewToolError`（`REVIEW_NOT_FOUND`, `REVIEW_ALREADY_DECIDED`, `SOURCE_TOO_LARGE`, `RULE_NOT_FOUND`, `HARD_RULE_VERIFIER_OWNED`, `VERDICT_NOT_SET`, `FINAL_VERDICT_FORBIDDEN`, `REVIEWER_REQUIRED`, `ISSUE_NOT_FOUND`, `CANDIDATE_NOT_FOUND`, `BAD_DRAFT`, `BAD_ACTION`, `REVIEW_CLOSED`）。所有工具描述里写明「本工具只记录建议；最终结论由专家在复核中确认」。工具的文字输出（结论依据、计数、问题行）用中文级别名「严重 / 一般 / 轻微」（= `blocker / major / minor`），参数枚举仍是英文值；agent 面向专家时只用中文级别名。
 
 | 工具 | 参数 | 返回 | 关键行为 |
 |---|---|---|---|
-| `review_parse` | `source: { kind:'inline'|'path', value }`, `title?`, `reuse?: boolean` | `{ reviewId, title, outline[], stats, warnings[], existingReviewId? }` | 读文件经 `ctx.fs`；超限 `SOURCE_TOO_LARGE`；同哈希且 `reuse` 未指定 → 返回 `existingReviewId` 并提示 |
+| `review_parse` | `source: { kind:'inline'|'path', value }`, `title?`, `reuse?: boolean` | `{ reviewId, title, outline[], stats, warnings[], existingReviewId?, superseded?[] }` | 读文件经 `ctx.fs`；超限 `SOURCE_TOO_LARGE`；同一份方案（`contentKey` 相同，§7）已有未关闭记录且 `reuse` 未指定 → 返回 `existingReviewId`，不新建；新建时把同一方案里进行中且无专家决定的旧记录标为 `superseded` 并在 `superseded[]` 返回 |
 | `review_check` | `reviewId` | `{ hardIssues[], hybridCandidates[{ruleId, title, severity, snippets[{quote, sectionPath}]}], softRules[{ruleId, title, question}], checklist[], aiVerdict }` | hard 问题落 `issues`（重跑时先删旧的 verifier 问题再登记）；更新 `reviews.aiVerdict`；若该审查已有任何专家决定或已定稿 → `REVIEW_ALREADY_DECIDED`（重跑会抹掉已复核的 hard 问题），提示用 `review_parse(reuse:false)` 开新记录 |
 | `review_record_issue` | `reviewId, ruleId?, severity?, finding, suggestion, evidence[{quote, sectionPath?}]` | `{ issueId, status, gate:{passed, reason}, resolvedEvidence[] }` | `ruleId` 缺省 → `tier:'soft'`（pending）；severity 缺省取规则值；门禁 §5 |
 | `review_status` | `reviewId` | `{ aiVerdict, summary, issues[], checklist[], counts }` | 三层输出的结构化来源；不写库 |
-| `review_decide` | `reviewId, action?('adopt'|'reject'|'rewrite'|'add'|'adopt_rest'|'set_reviewer'|'set_final_verdict'), answer?, issueId?, text?, reason?, ruleId?, severity?, finalVerdict?, reviewer?` | `{ ok, issue?, affected?, remainingPending?, aiVerdict, finalVerdict? }` | 写 `feedback` 与 `issues.status`；`add` 新建 `origin:'expert'`；`set_reviewer` 写 `reviews.reviewer`；`set_final_verdict` 唯一写 `finalVerdict` 的入口，要求 `reviewer` 已知（或配置了 `defaultReviewer`）。细则见下 |
+| `review_decide` | `reviewId, action?('adopt'|'reject'|'rewrite'|'add'|'adopt_rest'|'set_reviewer'|'set_final_verdict'|'discard'), answer?, issueId?, text?, reason?, ruleId?, severity?, finalVerdict?, reviewer?` | `{ ok, issue?, affected?, remainingPending?, aiVerdict, finalVerdict? }` | 写 `feedback` 与 `issues.status`；`add` 新建 `origin:'expert'`；`adopt` / `rewrite` 带 `severity` 时只改这一条问题的级别（原级别记 `severityFrom`），结论随之重算，不动规则；`set_reviewer` 写 `reviews.reviewer`；`set_final_verdict` 唯一写 `finalVerdict` 的入口，要求 `reviewer` 已知（或配置了 `defaultReviewer`）；`discard` 作废整条审查（`reason` 记入 `closedReason`）。已关闭记录上任何 action → `REVIEW_CLOSED`。细则见下 |
 | `review_finalize` | `reviewId, present?: boolean` | `{ opinionPath, version, counts, memory:{exemplars, candidates} }` | 无 `finalVerdict` → `VERDICT_NOT_SET`；渲染 → 写文件（`ctx.fs`）→ 更新 reviews → 刷新记忆；`present` 由 agent 随后调用 `present` 工具完成（本工具只返回路径） |
 | `rules_list` | `dimension?, tier?, status?` | `{ rules[{ruleId, title, dimension, tier, severity, status, stats}] }` | 合并 shipped + overrides |
 | `rules_propose` | `action('disable'|'enable'|'set_severity'|'set_suggestion'|'set_param'|'reset'|'draft'|'accept_draft'|'dismiss')`, `ruleId?`, `severity?`, `suggestion?`, `param?`, `candidateId?`, `draft?(RuleYaml)` | `{ ok, rule?, candidate? }` | 写 `rule_overrides` / `rule_candidates`；`set_suggestion` 要求去空白后 1–500 字（否则 `BAD_ACTION`）；`reset` 恢复 shipped 值（§7）；`draft` 由 agent 填 YAML，工具用 schema 校验 |
@@ -225,11 +233,14 @@ export const reviewDomain = defineDomain({
 `review_decide` 细则：
 
 - **answer 归一化**（只传 `answer` 不传 `action` 时，`normalizeAnswer`）：去掉末尾「（推荐）」后——
- - 以「改成 / 改为 / 换成 / 写成 / 建议写成 / 建议改为 / 措辞换成 / 换个说法」加冒号开头 → `rewrite`，冒号后为改写文；
- - 恰为「是 / 是的 / 对 / 通过」，或以「采纳 / 同意 / 确认为问题」开头并紧跟标点或结束 → `adopt`；但若标点后（去掉「但是 / 但 / 不过」）是上一条的改写前缀，如「采纳，但改成：…」，按 `rewrite` 处理；
- - 恰为「否」，或以「驳回 / 不是问题 / 不对 / 不成立 / 不需要」开头并紧跟标点或结束 → `reject`，标点后的文字作为 `reason`（显式 `reason` 优先）；
+ - 以「改成 / 改为 / 换成 / 写成 / 建议写成 / 建议改为 / 措辞换成 / 换个说法」加冒号开头（前面可带「我」）→ `rewrite`，冒号后为改写文；
+ - 恰为「是 / 是的 / 对 / 通过」，或以「要改 / 是问题 / 确认为问题 / 采纳 / 同意」开头并紧跟标点或结束 → `adopt`；标点后（去掉「但是 / 但 / 不过」）若是改写前缀，如「要改，但我换个说法：…」，按 `rewrite` 处理；若只是「我换个说法 / 换个说法 / 改写 / 自己写」而没有内容 → 返回不带 text 的 `rewrite`，`decide` 报 `BAD_ACTION`（提示 agent 追问「您想怎么写」），不写库；
+ - 恰为「否」，或以「不用改 / 不是问题 / 不算问题 / 驳回 / 不对 / 不成立 / 不需要」开头并紧跟标点或结束 → `reject`，标点后的文字作为 `reason`（显式 `reason` 优先）；
+ - 级别短语「算 / 按 / 降为 / 降成 / 降到 / 改为 / 调为 / 定为 / 升为 / 升到 + 严重 | 一般 | 轻微 | blocker | major | minor」：整句只有它（可带「后采纳 / 再采纳 / 采纳」），或出现在 `adopt` 引导词后的标点之后 → `adopt` + `severity`（显式 `severity` 优先）；
+ - 恰为「改写 / 换个说法 / 我换个说法」→ 同上，不带 text 的 `rewrite`；
  - 引导词后不是标点（如「不对外开放…」「对接口…」）不算命中；
  - 其余整段文字 → `rewrite`。
+- **单条调级别**：`adopt` / `rewrite` 带 `severity`（显式或归一化得到）且与当前级别不同 → 改该问题 `severity`，首次调整时把原级别记入 `severityFrom`；调回原级别时删除 `severityFrom`。`aiVerdict` 随之重算；`rule_overrides` 不变（改规则要专家明说「以后 / 这类」，走 `rules_propose(set_severity)`）。
 - **`adopt_rest`** 只把状态为 `confirmed` 的问题批量采纳；`pending`（门禁未过或 soft）不批量处理，返回 `remainingPending[]` 让 agent 逐条请专家确认——「待人工」的含义就是要人看过。
 - **定稿后再修改**：已 `finalized` 的审查上任何改动问题、审核人或最终结论的 `decide` 都会把 `reviews.status` 改回 `open`；正式意见文件不动，需再次 `review_finalize` 生成 v2。看板据此显示「需重新定稿」。
 
@@ -237,8 +248,8 @@ export const reviewDomain = defineDomain({
 
 | 命令 | 输入 | 输出（`CommandResult.text`） |
 |---|---|---|
-| `/review` | 空 或 `<reviewId>` | 本会话（或全部）审查记录列表：id / 标题 / aiVerdict / finalVerdict / 状态；带 id 时输出该记录的三层摘要 |
-| `/rules` | 空 或 `<dimension|tier>` | 生效规则表（id / tier / severity / status / 采纳率） |
+| `/review` | 空 或 `<reviewId>` | 未关闭的审查记录列表：id / 标题 / aiVerdict / finalVerdict / 状态；带 id 时输出该记录的三层摘要（已关闭记录也可按 id 查看） |
+| `/rules` | 空 或 `<dimension|tier>` | 生效规则表（id / 判定方式 / 级别（中文）/ status / 采纳率） |
 | `/memory` | `<ruleId>` | 该规则统计 + 最近 5 条范例 + 最近 3 条驳回原因 |
 
 ## 10. HTTP 路由（看板读 + 受限写）
@@ -251,7 +262,7 @@ export const reviewDomain = defineDomain({
 |---|---|
 | `GET /rules` | `{ rules: RuleView[], warnings, loadErrors, version }` |
 | `GET /rules/:id` | `{ rule: RuleView, detail: { question, rationale, suggestion, applicability, verifier, provenance, shipped?:{severity,status,suggestion}, override?:{status?,severity?,suggestion?,params?}, audit[最近 10 条], memory: memory_recall 结果 } }` |
-| `GET /overview` | `{ items: ReviewStamp[], total, truncated, generatedAt }`：全部审查的紧凑摘要（按创建时间倒序，最多 2000 条，超出时 `truncated: true`），供主面板指标卡、日历 / 趋势与方案列表、复核助手使用。`ReviewStamp = { reviewId, title, createdAt, finalizedAt?, state:'open'|'finalized'|'stale', aiVerdict, aiVerdictAtFinalize?, finalVerdict?, reviewer?, counts:{total,confirmed,pending,adopted,rejected,rewritten} }`；`stale` = `status=open` 且已有正式意见版本。日期分桶由浏览器按本地时区做（`dashboard.md` §5） |
+| `GET /overview` | `{ items: ReviewStamp[], total, truncated, generatedAt }`：全部审查的紧凑摘要（按创建时间倒序，最多 2000 条，超出时 `truncated: true`），供主面板指标卡、日历 / 趋势与方案列表、复核助手使用。`ReviewStamp = { reviewId, title, createdAt, finalizedAt?, state:'open'|'finalized'|'stale'|'closed', aiVerdict, aiVerdictAtFinalize?, finalVerdict?, reviewer?, closedReason?, counts:{total,confirmed,pending,adopted,rejected,rewritten} }`；`stale` = `status=open` 且已有正式意见版本；`closed` = `superseded` 或 `discarded`（§7），客户端默认不展示、不计数。日期分桶由浏览器按本地时区做（`dashboard.md` §5） |
 | `GET /reviews?page=N` | `{ items[review + counts], page, total }`，每页 50 条，按创建时间倒序（保留给脚本与旧客户端；主面板用 `/overview`） |
 | `GET /reviews/:id` | `{ review, issues, checklist, checklistCounts, counts, basis, summary, feedback }`；不含正式意见正文（只给 `opinionPath` 与 `versions[]`，正文在文件里） |
 | `GET /memory` | `{ rules[有记录的规则：stats, warn, exemplars, recentRejectReasons, series(最近 5 次定稿)], candidates[], totals }` |
@@ -266,8 +277,11 @@ export const reviewDomain = defineDomain({
 | `POST /reviews/:id/issues/:issueId` | `{action:'adopt'|'reject'|'rewrite', text?, reason?}` | `review_decide` |
 | `POST /reviews/:id/reviewer` | `{reviewer}` | `review_decide(set_reviewer)` |
 | `POST /reviews/:id/final-verdict` | `{finalVerdict}` | `review_decide(set_final_verdict)`，要求审核人已知 |
+| `POST /reviews/:id/discard` | `{reason?}` | `review_decide(discard)`；已关闭 → 400 `REVIEW_CLOSED` |
 
-不开放：删除记录、编辑正式意见正文、看板内起草规则 YAML 或改规则的检查问题 / 依据 / 适用范围 / 校验器结构（起草留在对话里由 agent 完成，看板只审批）、看板内定稿（定稿要写文件并 `present`，留在对话）。定稿后在看板改动任何决定 → 记录回到 `open`（§8），看板提示回对话重新 `review_finalize`。
+`GET /reviews/:id` 的 `review` 含 `status`、`supersededBy?`、`closedAt?`、`closedReason?`，看板据此显示「已被 … 取代 / 已作废」。
+
+不开放：物理删除记录（作废是保留数据的关闭）、编辑正式意见正文、看板内起草规则 YAML 或改规则的检查问题 / 依据 / 适用范围 / 校验器结构（起草留在对话里由 agent 完成，看板只审批）、看板内定稿（定稿要写文件并 `present`，留在对话）。定稿后在看板改动任何决定 → 记录回到 `open`（§8），看板提示回对话重新 `review_finalize`。
 
 细粒度权限（只读 / 审批人 / 规则管理员）与 CSRF token 后置：同源 + DSH 连接围栏已挡住跨站与未授权来源；局域网多人使用时再加。
 
@@ -288,6 +302,7 @@ export const reviewDomain = defineDomain({
 | 复核中途退出 | `reviews.status` 保持 `open`；再次进入会话 `/review <id>` 可见；`review_decide` 可继续 |
 | 复核开始后又要重跑 `review_check` | `REVIEW_ALREADY_DECIDED`；方案修改过就 `review_parse(reuse:false)` 开新记录 |
 | 定稿后又改决定 | 记录回 `open`，旧意见文件保留；重新 `review_finalize` 产出新版本 |
+| 同一方案被解析多次（粘贴 / 路径 / 重新转换 / 「重新开始」） | 内容相同 → 复用原记录；内容不同 → 新建，旧的进行中且无专家决定的记录自动「被取代」；有专家决定的旧记录保留，专家可作废（§7） |
 | `ask_user_question` 被取消 | agent 停止推进复核，提示专家稍后继续；不写任何决定 |
 | finalize 文件写失败 | 不更新 `reviews`、不刷新记忆（先写文件后落库） |
 
@@ -333,6 +348,10 @@ export const reviewDomain = defineDomain({
 | T-DES-14 | bench：200 KB 合成文档 `check` ≤ 2 s |
 | T-DES-15 | 发布清单：去掉 `scripts`（含 `prepare`）与 `devDependencies`，保留 `dependencies` / `peerDependencies` / `engines` / `exports` / `files` / `dsh`，不改输入对象；`exports` 指向的文件都被 `files` 覆盖 |
 | T-DES-16 | 发布 tag 名为 `wsgw-solution-review-v<version>`；安装地址由 `repository.url` 推出为 `https://github.com/<owner>/<repo>#<tag>` 与 `#<提交 sha>` 两种 |
+| T-DES-17 | 同一方案：只差 BOM / CRLF / 行尾空白的原文复用同一条记录；同标题或同路径的新内容新建记录，旧的进行中且无决定的记录变 `superseded`，有决定的保留；启动收拢把存量重复记录收成一条 |
+| T-DES-18 | 已关闭记录：check / record_issue / decide / finalize → `REVIEW_CLOSED`；`discard` 写 `closedReason`；不进 `/review` 列表与规则统计；`/overview` 中 `state='closed'` |
+| T-DES-19 | `adopt` / `rewrite` 带 `severity`：只改该条问题级别并记 `severityFrom`，`aiVerdict` 重算，规则覆盖不变 |
+| T-DES-20 | 工具文字输出与结论依据用「严重 / 一般 / 轻微」，不出现 blocker / major / minor |
 
 ## 16. 发布与安装
 
