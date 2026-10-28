@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-28　|　当前步骤：**S4 看板交互重做（用户 2026-10-28 反馈：左侧栏总览 + 日历 / 折线 + 方案就地展开 + 全局规则编辑）；完成后待用户本机 GUI 冒烟，清单见 §7**
+> 更新：2026-10-28　|　当前步骤：**S4 看板 V2 已实现（左侧栏「方案审查」主面板：指标 + 日历 / 趋势 + 方案就地展开复核 + 全局规则编辑；右侧栏「复核助手」）；待用户本机 GUI 冒烟，清单见 §7**
 
 ## 1. 步骤总览
 
@@ -15,7 +15,7 @@
 | S3a | Host 引擎（纯函数）：Markdown/Mermaid 解析、6 种校验器、证据门禁、结论策略、记忆聚合 | S2 对应用例全绿；无 I/O | ✅ 2026-10-19 `pnpm test:engine` 214 passed；`pnpm bench` 200 KB 0.54 s；`pnpm typecheck` 通过 |
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ✅ 2026-10-20 `pnpm test` 284 passed（store 12 / tools 45 / host 13 条由 todo 转为断言）；`--dump-config` 出现两行 |
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ✅ 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）；同日真机 `rv_20261023_xnhfjz`：10 条问题、全部采纳、finalized、意见 `reviews/rv_20261023_xnhfjz.md` |
-| S4 | Client dashboard（sidebar-right tab 四页）+ 可写 API（规则 / 候选 / 复核）；设置卡片推迟 | bundle 校验脚本通过；页面展示并可修改规则 / 记录 / 记忆 / 评测；录屏 | 🟡 2026-10-27：API + client（TSX 四页）完成，`pnpm test` 337 passed / 15 todo；`build` / `check:bundle` 通过（46,552 bytes）；headless 真机：boot 预加载含插件 client、API 读写与围栏全部按文档返回（§6）。设置卡片推迟。剩余：用户本机 GUI 冒烟（§7 清单）与录屏 |
+| S4 | 看板 V2（`dashboard.md` V2.0）：左侧栏主面板（审查 / 规则 / 评测）+ 右侧栏复核助手 + 可写 API（规则含建议 / 恢复出厂、候选、复核）；设置卡片推迟 | bundle 校验脚本通过；主面板可看审查量、展开复核、编辑规则；录屏 | 🟡 2026-10-28：V2 完成，`pnpm test` 355 passed / 15 todo；`build` / `check:bundle` 通过（76,607 bytes）；headless 真机 API + Chrome 无头浏览器走查（§6）。V1（右栏四页，2026-10-27）已被替换。剩余：用户本机 GUI 冒烟（§7 清单）与录屏 |
 | S5 | 数据迁移与评测：24 条规则重写入新 schema；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
 | S6 | 论文：大纲 → 实验 → 稿件（MDPI *Computers* 模板） | 稿件初稿 + 图表 + 可复现包 | ⬜ |
 
@@ -185,29 +185,32 @@
 | P0（2026-10-23） | `pnpm typecheck` 通过；`pnpm test` → `Tests 288 passed | 53 todo (341)`；`pnpm build` 通过。工具输出已含自动登记问题/候选原文/soft 规则/检查清单与计数（`review_check`、`review_status`、`rules_list`）；hybrid 无候选一律 `pending`，`whenNoCandidate: fail` 仅允许 hard；LLM 的 absence 伪引文被 `ABSENCE_NOT_ALLOWED` 拒绝，校验器 absence 统一标注「非引文」。新增 `invalid-hybrid-fail.yaml`、renderer / gate / hybrid 断言；`review_check` 种子期望改为 `建议整改`（3 条 hard 自动登记，CAP-001 / CHN-001 转 pending）。 |
 | S3c 协议回放（2026-10-23） | `pnpm test` → `Tests 299 passed | 37 todo (336)`（较 P0 +11）；`pnpm typecheck` / `pnpm build` 通过。`tests/protocol/protocol.e2e.ts` 用脚本化 agent 跑通 parse → check（3 hard / 7 candidates / 1 pending）→ memory_recall ×7 → record_issue ×8 → status（11 条）→ 批次 5/5/1 → decide ×14 → set_reviewer → set_final_verdict → finalize；正式意见与 `tests/fixtures/expected/opinion-seed.md` 归一化后逐字相等。真机：`DEEPSEEK_API_KEY` + headless + 插件 tools，真实模型完成 `rv_20261023_xnhfjz`（10 条、全部采纳、finalized、`reviews/rv_20261023_xnhfjz.md`）；headless 临时安装已移除。 |
 | S4（2026-10-27） | `pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（`lib/client.js` 46,552 bytes，仅外部化 `react`，无 host 代码）；`pnpm test` → `Tests 337 passed | 15 todo (352)`。`tests/api/routes.spec.ts` 16 passed / 1 todo（路由可匹配性、连接围栏 401/403 透传、规则详情、候选接受草案、配置默认值与 patch 行一致）；`tests/client/dashboard.spec.tsx` 17 passed（tab 定义、纯函数、SSR 渲染四页标记、无 web storage / prompt / 硬编码颜色）；`tests/tools/tools.spec.ts` 51 passed（重复 check 拒绝、adopt_rest 只采纳 confirmed、答案归一化、定稿后修改回 open、stats-only 不算覆盖、改回出厂值撤销覆盖）。headless 真机（Node v22.23.4，隔离 `DSH_HOME`，`npx @deepseek-ai/dsh@0.2.1-rc.2`）：`plugin --profile web add` 成功；`--dump-config` 第 1230 行起为插件行与 preset 行；`dsh web --no-open --port 7788` 首页预加载组含 `wsgw-solution-review/client.js`（位于 sidebar-right 之后），带 rev 请求返回 200 / 46,594 bytes 且以 `window.__ModuleLoader__.load({ id: "wsgw-solution-review"` 开头；API：`GET /rules` 28 条、`/rules/CAP-001` 详情含 shipped 与 verifier、PATCH 改级 → `+ov1`、改回 → 覆盖清空版本复原、坏参数 400、跨源 403、无 cookie 401、未知审查 / 候选返回插件 JSON 404；重启后审计保留。修复前 `/rules/:id` 为空 404、PATCH 为 405。 |
+| S4 V2（2026-10-28） | 提交 `32454c4` docs → `d15758d` test（红灯 5 条：`/overview` 未注册、`set_suggestion` / `reset` 不在枚举、client 模块缺失）→ `06e5864` host → `10677ae` client → `fb8f225` 走查后修正。`pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（76,607 bytes，仅外部化 `react`，sourcemap 只含 `src/client/*` 与纯类型模块 `src/host/api-types.ts`）；`pnpm test` → `Tests 355 passed | 15 todo (370)`：`dashboard.spec.tsx` 31（三处注册与 `openOverview → layout.selectPanel`、按本地日分桶、53×7 日历与级别、30 天趋势、五项指标、列表筛选、助手队列、建议校验与恢复出厂可用性、范例去重、SSR 各视图）；`routes.spec.ts` +2（`GET /overview` 顺序 / 状态 / 计数 / 无原文；PATCH `set_suggestion` 400 `BAD_SUGGESTION` / 成功 / `reset` 恢复与审计、草案 400）；`tools.spec.ts` +2（建议改写影响后续登记、改回出厂撤销；`reset` 一步恢复、保留统计、逐字段审计、草案拒绝）。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：`/overview` 200、PATCH 新动作往返、无 cookie 401；合并脚本含新 client。Chrome 无头走查（种子 23 条，`v2-browser-walk.log`）：左侧栏出现「方案审查」并打开主面板；371 格、21 格非零；指标 23 / 18 / 3（需重新定稿 1）/ 89% / 90%；点 10月28日 → 2 行；趋势 2 条线；展开进行中记录 9 个复核按钮；规则 28 行；深色主题可读；控制台 0 错误。走查发现并修正：空格子在浅色主题不可见、行内计数被截断、同一范例重复 12 行、审计字段为英文、采纳率列换行。复核助手需要真实会话（右侧栏随会话出现），未在无头环境覆盖，列入 §7。 |
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
 
 S3c 已于 2026-10-23 收口：脚本化协议回放 11 条全绿；真机 `rv_20261023_xnhfjz` 用 `DEEPSEEK_API_KEY` 走通（10 条、全部采纳、finalized、意见文件已生成），headless 临时安装已移除。
 
-S4 当前 🟡：自动化与 headless 真机已过，剩用户本机 GUI 冒烟。完成后进入 P1：按文档类型 / 变更类型决定规则适用范围（用户最初的核心痛点）。
+S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已过，剩用户本机 GUI 冒烟（重点：复核助手、真实会话里的刷新时机、窄窗口）。完成后进入 P1：按文档类型 / 变更类型决定规则适用范围（用户最初的核心痛点）。
 
-**GUI 冒烟清单（用户本机执行，结果回填 §6）**
+**GUI 冒烟清单 V2（用户本机执行，结果回填 §6）**
 
-准备：`git pull` → `cd plugins/wsgw-solution-review && pnpm install && pnpm run build` → 已装过的 profile 只需重启 `dsh web`（link 安装，`lib/` 即时生效）；未装过用 `pnpm dsh:install`。client 改动后刷新页面即可，host 改动需重启。
+准备：`git pull` → `cd plugins/wsgw-solution-review && pnpm install && pnpm run build` → 重启 `dsh web`（本次有 host 改动：`/overview` 与规则建议 / 恢复出厂）；之后只改 client 时刷新页面即可。
 
-1. 入口：右侧栏引导页出现「方案审查看板」（描述「规则 · 审查记录 · 记忆 · 评测」）；点开后 chip 标题「方案审查」，默认页「审查记录」。切换会话后看板仍在（`keepMounted`）。
-2. 预审：模式切到「方案审查」，粘贴 `tests/fixtures/seed.md`（或任意方案）说「预审这份方案」；完成后点看板「刷新」，列表出现新记录，状态「进行中」。
-3. 复核（看板内）：进入记录 → 对一条问题点「采纳」、一条点「驳回」并填原因、一条点「改写」填文本；每次写后数字与「当前预审建议」随之变化；不出现浏览器原生弹窗。
-4. 结论：未署名时「确认最终结论」给出需要署名的提示；填审核人 →「保存署名」→ 选结论 →「确认最终结论」。
-5. 定稿与过期：回对话让 agent `review_finalize`；看板刷新后为「已定稿」。再在看板改一条决定 → 状态变「需重新定稿」并出现「旧意见文件已过期」提示；回对话再定稿得到 v2。
-6. 对话复核：在对话里回答「驳回：方案 3.2 已说明」「采纳，但改成：…」，看板中分别显示为驳回（原因已记）与改写。
-7. 规则页：维度 / 层级 / 状态筛选有结果；展开一条看到问题、依据、校验器、适用范围；「停用」后标「已覆盖」，再「启用」后「已覆盖」消失；改严重级别同理。
-8. 记忆页：定稿过的规则出现采纳 / 驳回 / 改写计数与范例；专家新增意见出现在候选区，未起草的只有「忽略」，起草后出现「接受草案」。
-9. 评测页：无数据时显示「尚无评测结果…」。
-10. 主题与异常：切深色主题文字与边框可读；停掉 `dsh web` 后点「刷新」出现错误条与「重试」，重启后重试恢复。
-11. 回填：每项 ✅ / ❌ + 截图或一句现象；录一段 1–2 分钟操作录屏留作 S4 验收证据。
+1. 入口：左侧栏「定时任务」下方出现「方案审查」（剪贴板图标），点开占据中间主区域，标题「方案审查」+「刷新」，页签「审查 / 规则 / 评测」，默认「审查」。点任一会话回到对话，再点「方案审查」回来。
+2. 预审：新会话模式选「方案审查」，粘贴 `tests/fixtures/seed.md` 说「预审这份方案」；完成后回主面板点「刷新」：累计 +1、待处理 +1，日历今天的格子变深，列表首行为新方案「进行中」。
+3. 日历 / 趋势：悬停格子显示「M月D日 · n 份（已定稿 k）」；点今天 → 列表只剩今天的方案，筛选条出现「M月D日 ×」；再点同一格或点 × 取消。切「趋势」看到两条线（发起实线、定稿虚线），悬停显示当天数字。
+4. 指标卡：点「待处理」→ 状态筛选切到「待处理」且卡片描边高亮，再点取消；「问题采纳率」「结论一致率」在第一次定稿后出现数值。
+5. 展开复核：点新方案整行 → 行下就地展开结果；对一条「采纳」、一条「驳回」填原因、一条「改写」；每次写后行内计数（待复核 / 采纳 / 驳回 / 改写）与指标卡同步变化；同一时刻只展开一行；无浏览器原生弹窗。
+6. 署名与结论：未署名时有提示；填审核人 → 保存 → 选结论 → 确认；行内「最终」从「未定」变为所选结论。
+7. 定稿与过期：回对话让 agent 定稿 → 刷新后行状态「已定稿」，结论一致率出现；再在展开行改一条决定 → 状态「需重新定稿」（橙色）+ 过期提示，「待处理」卡副文「需重新定稿 1」。
+8. 规则编辑：「规则」页签 → 搜索 `CAP-002` → 展开：左「内容」、中「编辑（全局生效）」、右「记忆」。改「整改建议」→「保存建议」→ 行出现「已覆盖」，中栏显示「已覆盖出厂值 / 整改建议：已修改（出厂：…）」，最近变更显示「整改建议：旧 → 新」；再预审一份方案，CAP-002 的问题建议是新文本。点「恢复出厂」→ 出现「确认恢复 / 取消」→ 确认后「已覆盖」消失。「只看已覆盖」胶囊可筛出被改过的规则。
+9. 停用 / 级别：停用一条规则 → 行变灰「停用」，下一次预审不再出现该规则的问题；启用复原；改级别后行内级别颜色变化。
+10. 候选规则：在对话里补充一条不对应任何规则的意见并定稿 → 「规则」页签顶部出现「候选规则」，未起草只有「忽略」；让 agent 起草后出现「接受草案 RULE-ID」，接受后该规则出现在表格中为「启用」。
+11. 复核助手：在「方案审查」会话里打开右侧栏引导页「方案审查 · 复核助手」：列出进行中 / 需重新定稿的审查（多于一条时有下拉），可直接采纳 / 驳回 / 改写；「打开总览」切到左侧主面板；无待处理时显示空状态与「打开总览」。
+12. 主题与异常：切深色主题，日历、折线、胶囊、文字可读；停掉 `dsh web` 后点「刷新」出现错误条与「重试」，重启后重试恢复；窄窗口下指标卡换行、日历可横向滚动。
+13. 回填：每项 ✅ / ❌ + 截图或一句现象；录一段 1–2 分钟操作录屏留作 S4 验收证据。
 
 S5 的 npm 发布仍只支持本地目录安装。
 

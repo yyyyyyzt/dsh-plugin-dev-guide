@@ -47,9 +47,9 @@ plugins/wsgw-solution-review/
 │  │  └─ rules-loader.ts / errors.ts / service.ts
 │  └─ client/
 │     ├─ index.tsx              注册：左侧栏面板行 + main 主面板 + 右侧栏复核助手（dashboard.md §2）
-│     ├─ pages.tsx              容器：主面板三页签、复核助手（取数、写操作）
+│     ├─ pages.tsx              主面板外框与页签、复核助手（AssistantView 纯展示 + ReviewAssistant 取数）
 │     ├─ overview.tsx / rules.tsx / review-detail.tsx / eval.tsx
-│     │                         纯展示组件（props 进、元素出；测试用 react-dom/server 渲染）
+│     │                         每页一对：纯展示组件（props 进、元素出；测试用 react-dom/server 渲染）+ 页签容器（取数、写操作）
 │     ├─ ui.tsx / data.ts       主题样式与基础件；取数 / 写操作 hooks
 │     └─ model.ts               看板数据类型（引用 host / 引擎类型）、纯函数（日历、趋势、指标、筛选）、请求封装
 ├─ tests/                       S2（见 §14）
