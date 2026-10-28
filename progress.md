@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-28　|　当前步骤：**S4 看板 V2 已实现（左侧栏「方案审查」主面板：指标 + 日历 / 趋势 + 方案就地展开复核 + 全局规则编辑；右侧栏「复核助手」）；待用户本机 GUI 冒烟，清单见 §7**
+> 更新：2026-10-28　|　当前步骤：**S4 看板 V2 + 第二轮反馈（口语化复核、中文级别、同一方案只留一条记录）已实现并发布 `wsgw-solution-review-v0.1.0-dev.1`；待用户本机 GUI 冒烟，清单见 §7**
 
 ## 1. 步骤总览
 
@@ -192,6 +192,7 @@
 | S4（2026-10-27） | `pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（`lib/client.js` 46,552 bytes，仅外部化 `react`，无 host 代码）；`pnpm test` → `Tests 337 passed | 15 todo (352)`。`tests/api/routes.spec.ts` 16 passed / 1 todo（路由可匹配性、连接围栏 401/403 透传、规则详情、候选接受草案、配置默认值与 patch 行一致）；`tests/client/dashboard.spec.tsx` 17 passed（tab 定义、纯函数、SSR 渲染四页标记、无 web storage / prompt / 硬编码颜色）；`tests/tools/tools.spec.ts` 51 passed（重复 check 拒绝、adopt_rest 只采纳 confirmed、答案归一化、定稿后修改回 open、stats-only 不算覆盖、改回出厂值撤销覆盖）。headless 真机（Node v22.23.4，隔离 `DSH_HOME`，`npx @deepseek-ai/dsh@0.2.1-rc.2`）：`plugin --profile web add` 成功；`--dump-config` 第 1230 行起为插件行与 preset 行；`dsh web --no-open --port 7788` 首页预加载组含 `wsgw-solution-review/client.js`（位于 sidebar-right 之后），带 rev 请求返回 200 / 46,594 bytes 且以 `window.__ModuleLoader__.load({ id: "wsgw-solution-review"` 开头；API：`GET /rules` 28 条、`/rules/CAP-001` 详情含 shipped 与 verifier、PATCH 改级 → `+ov1`、改回 → 覆盖清空版本复原、坏参数 400、跨源 403、无 cookie 401、未知审查 / 候选返回插件 JSON 404；重启后审计保留。修复前 `/rules/:id` 为空 404、PATCH 为 405。 |
 | S4 V2（2026-10-28） | 提交 `32454c4` docs → `d15758d` test（红灯 5 条：`/overview` 未注册、`set_suggestion` / `reset` 不在枚举、client 模块缺失）→ `06e5864` host → `10677ae` client → `fb8f225` 走查后修正。`pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（76,607 bytes，仅外部化 `react`，sourcemap 只含 `src/client/*` 与纯类型模块 `src/host/api-types.ts`）；`pnpm test` → `Tests 355 passed | 15 todo (370)`：`dashboard.spec.tsx` 31（三处注册与 `openOverview → layout.selectPanel`、按本地日分桶、53×7 日历与级别、30 天趋势、五项指标、列表筛选、助手队列、建议校验与恢复出厂可用性、范例去重、SSR 各视图）；`routes.spec.ts` +2（`GET /overview` 顺序 / 状态 / 计数 / 无原文；PATCH `set_suggestion` 400 `BAD_SUGGESTION` / 成功 / `reset` 恢复与审计、草案 400）；`tools.spec.ts` +2（建议改写影响后续登记、改回出厂撤销；`reset` 一步恢复、保留统计、逐字段审计、草案拒绝）。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：`/overview` 200、PATCH 新动作往返、无 cookie 401；合并脚本含新 client。Chrome 无头走查（种子 23 条，`v2-browser-walk.log`）：左侧栏出现「方案审查」并打开主面板；371 格、21 格非零；指标 23 / 18 / 3（需重新定稿 1）/ 89% / 90%；点 10月28日 → 2 行；趋势 2 条线；展开进行中记录 9 个复核按钮；规则 28 行；深色主题可读；控制台 0 错误。走查发现并修正：空格子在浅色主题不可见、行内计数被截断、同一范例重复 12 行、审计字段为英文、采纳率列换行。复核助手需要真实会话（右侧栏随会话出现），未在无头环境覆盖，列入 §7。 |
 | 分发（2026-10-28） | 提交 `3e81552` docs → `2a8915d` test（红灯：`scripts/release.mjs` 缺失）→ `ff7985e` feat → `185986c` 修正。`pnpm typecheck` 通过；`pnpm test` → `Tests 361 passed | 15 todo (376)`（`tests/host/release.spec.ts` 6：清单去 `scripts` / `devDependencies`、无 `prepare`、`exports` 均被 `files` 覆盖、tag 名、GitHub 安装地址、非 GitHub 拒绝）。`pnpm run release` → tag `wsgw-solution-review-v0.1.0-dev.0` → 提交 `94002e6`（无父提交），已推送。隔离 `DSH_HOME` 真机（`/opt/cursor/artifacts/github-release-install.log`）：tag 地址安装 65 个依赖、无构建；git 不可用时 sha 地址安装成功、tag 地址失败（pnpm 需 `git ls-remote` 解析 tag）；启动后 client 200 / 79,579 bytes、`/overview` 200、规则 28 条、preset 行存在。Windows 桌面版插件页安装待用户验证 |
+| 第二轮反馈（2026-10-28） | 提交 `e06202d` / `4534cc5` docs → `6e1fbeb` test（红灯 30 条：去重 / 作废 / `REVIEW_CLOSED` / 单条调级别 / 口语答复归一化 / 中文级别 / 看板已作废与规则说明条）→ `f06e587` test 校正（回放 `review_decide` 计 15 次含一次「只说换个说法」被拒、同标题夹具改名、`/review` 状态中文）→ `1054178` feat → `cccca99` 版本 0.1.0-dev.1。`pnpm typecheck` / `pnpm build` / `pnpm run check:bundle` 通过（80,614 bytes，仅外部化 `react`）；`pnpm test` → `Tests 386 passed | 15 todo (401)`。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：在存储里放两条与已有记录同文的「进行中、无决定」副本（其一为 CRLF 换行）后重启 → 两条均 `closed`「被 rv_… 取代」；`POST /reviews/:id/discard` 200、重复作废 400 `REVIEW_CLOSED`；对已取代记录写入 400 并提示新编号；`GET /rules` 带 `minorThreshold`。发布：`pnpm run release --push` → tag `wsgw-solution-review-v0.1.0-dev.1` → 提交 `c38bfbd`；在装有 dev.0 的隔离 `DSH_HOME` 里 `dsh plugin add <tag 地址>` 原地升级（+1 包），启动后 `/overview` 200、规则 28 条、client 83,988 bytes 含新文案（`github-release-install.log` 末段） |
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 
 ## 7. 下一步
@@ -217,6 +218,16 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 11. 复核助手：在「方案审查」会话里打开右侧栏引导页「方案审查 · 复核助手」：列出进行中 / 需重新定稿的审查（多于一条时有下拉），可直接采纳 / 驳回 / 改写；「打开总览」切到左侧主面板；无待处理时显示空状态与「打开总览」。
 12. 主题与异常：切深色主题，日历、折线、胶囊、文字可读；停掉 `dsh web` 后点「刷新」出现错误条与「重试」，重启后重试恢复；窄窗口下指标卡换行、日历可横向滚动。
 13. 回填：每项 ✅ / ❌ + 截图或一句现象；录一段 1–2 分钟操作录屏留作 S4 验收证据。
+
+**第二轮补充冒烟（0.1.0-dev.1）**
+
+升级：插件页填 `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#wsgw-solution-review-v0.1.0-dev.1`（无 git 用 `#c38bfbd2d3405980f29a38a8c48e0ede5707c2fa`）→ 重启 DSH。
+
+14. 重复记录：重启后「审查」列表里原来同一文件的 3 条只剩 1 条（已定稿那条）；筛选条出现「已作废」，点开能看到另外 2 条「已被 rv_… 取代」，只读、无按钮；指标卡与日历不再计入它们。
+15. 再预审同一文件（粘贴或路径均可）：agent 说「这份方案之前审过，接着上次的进度来」，列表不新增记录；明确说「从头再审」才新建，旧的未决记录自动变「已作废」。
+16. 作废：展开任一未关闭记录，底部「作废这条记录」→ 填原因 →「确认作废」→ 该行移入「已作废」。
+17. 口语化复核：每条问题形如「第 n 条 · 一般」+「……，要改吗？」+ 原文 + 建议改成；选项「要改，按这个建议（推荐）/ 不用改 / 要改，但我换个说法」；只选「换个说法」时 agent 追问「您想怎么写」；说「算轻微」只改这一条级别，看板显示「一般 → 轻微」，规则页不变。
+18. 规则页：表格上方一行说明「严重：出现一条就建议不通过 · 一般：出现一条就建议整改 · 轻微：累计 3 条才建议整改」与判定方式说明；列名「判定方式」、级别显示中文；展开后没有「来源：」和「不在看板修改」提示。
 
 分发：其他机器（含 Windows 桌面版）用 GitHub 发布 tag 安装，见 `plugins/wsgw-solution-review/docs/design.md` §16 与插件 README；npm 发布仍推迟。
 
