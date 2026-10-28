@@ -43,8 +43,8 @@ export const DIMENSION_LABEL: Record<Dimension, string> = {
   monitoring: '监控',
   documentation: '文档',
 }
-export const TIER_LABEL: Record<Tier, string> = { hard: '硬校验', hybrid: '混合', soft: '语义' }
-export const SEVERITY_LABEL: Record<Severity, string> = { blocker: 'blocker', major: 'major', minor: 'minor' }
+export const TIER_LABEL: Record<Tier, string> = { hard: '程序检查', hybrid: 'AI 辅助', soft: '人工判断' }
+export const SEVERITY_LABEL: Record<Severity, string> = { blocker: '严重', major: '一般', minor: '轻微' }
 export const RULE_STATUS_LABEL: Record<RuleStatus, string> = { active: '启用', draft: '草案', retired: '停用' }
 export const ISSUE_STATUS_LABEL: Record<IssueStatus, string> = {
   confirmed: '已确认',
@@ -53,14 +53,14 @@ export const ISSUE_STATUS_LABEL: Record<IssueStatus, string> = {
   rejected: '已驳回',
   rewritten: '已改写',
 }
-export const ORIGIN_LABEL: Record<IssueOrigin, string> = { verifier: '校验器', llm: '模型', expert: '专家' }
+export const ORIGIN_LABEL: Record<IssueOrigin, string> = { verifier: '程序检查', llm: 'AI', expert: '专家' }
 export const CHECKLIST_STATUS_LABEL: Record<ChecklistStatus, string> = {
   pass: '通过',
   fail: '未通过',
   candidate: '待判断',
   pending: '待人工',
   'not-applicable': '不适用',
-  soft: '语义',
+  soft: '人工判断',
   'reviewed-no-issue': '已审阅无问题',
 }
 export const CANDIDATE_STATUS_LABEL: Record<RuleCandidateRecord['status'], string> = {
@@ -69,8 +69,35 @@ export const CANDIDATE_STATUS_LABEL: Record<RuleCandidateRecord['status'], strin
   accepted: '已接受',
   dismissed: '已忽略',
 }
-export const REVIEW_STATE_LABEL: Record<ReviewState, string> = { open: '进行中', finalized: '已定稿', stale: '需重新定稿' }
+export const REVIEW_STATE_LABEL: Record<ReviewState, string> = { open: '进行中', finalized: '已定稿', stale: '需重新定稿', closed: '已作废' }
 export const VERDICTS: readonly Verdict[] = ['通过', '建议整改', '不通过']
+export const GATE_REASON_LABEL: Record<string, string> = {
+  NO_RULE: '没有对应规则',
+  SOFT_RULE: '人工判断类规则',
+  NO_EVIDENCE: '没有给出引文',
+  QUOTE_TOO_SHORT: '引文太短',
+  QUOTE_TOO_LONG: '引文太长',
+  QUOTE_NOT_FOUND: '引文在原文中找不到',
+  OUT_OF_CANDIDATES: '引文不在程序找出的片段里',
+  ABSENCE_NOT_ALLOWED: '不能用「未提及」作证据',
+}
+
+/** Severity in plain words for the rules legend; minorThreshold comes from GET /rules. */
+export function severityLegend(minorThreshold: number): { severity: Severity; text: string }[] {
+  return [
+    { severity: 'blocker', text: '出现一条就建议不通过' },
+    { severity: 'major', text: '出现一条就建议整改' },
+    { severity: 'minor', text: `累计 ${minorThreshold} 条才建议整改` },
+  ]
+}
+
+export const TIER_HINT: Record<Tier, string> = {
+  hard: '程序直接判定',
+  hybrid: '程序找出片段，AI 判断',
+  soft: 'AI 只提示，由专家定',
+}
+
+const live = (items: ReviewStamp[]): ReviewStamp[] => items.filter((s) => s.state !== 'closed')
 
 export function filterRules(rules: RuleView[], filter: RuleFilter): RuleView[] {
   const query = filter.query?.trim().toLowerCase() ?? ''
@@ -241,7 +268,7 @@ function bucket(items: ReviewStamp[], key: (s: ReviewStamp) => string | undefine
 }
 
 export function buildCalendar(items: ReviewStamp[], today: Date, weeks = 53): Calendar {
-  const byDay = bucket(items, (s) => localDayKey(s.createdAt))
+  const byDay = bucket(live(items), (s) => localDayKey(s.createdAt))
   const todayKey = dayKeyOf(today)
   const monday = addDays(today, -((today.getDay() + 6) % 7))
   const start = addDays(monday, -7 * (weeks - 1))
@@ -274,8 +301,8 @@ export interface TrendPoint {
 }
 
 export function trendSeries(items: ReviewStamp[], today: Date, days = 30): TrendPoint[] {
-  const created = bucket(items, (s) => localDayKey(s.createdAt))
-  const finalized = bucket(items, (s) => (s.finalizedAt ? localDayKey(s.finalizedAt) : undefined))
+  const created = bucket(live(items), (s) => localDayKey(s.createdAt))
+  const finalized = bucket(live(items), (s) => (s.finalizedAt ? localDayKey(s.finalizedAt) : undefined))
   return Array.from({ length: days }, (_, i) => {
     const date = dayKeyOf(addDays(today, i - days + 1))
     return { date, created: created.get(date)?.length ?? 0, finalized: finalized.get(date)?.length ?? 0 }
@@ -293,7 +320,8 @@ export interface OverviewKpis {
   agreementSample: number
 }
 
-export function overviewKpis(items: ReviewStamp[], today: Date): OverviewKpis {
+export function overviewKpis(all: ReviewStamp[], today: Date): OverviewKpis {
+  const items = live(all)
   const since = dayKeyOf(addDays(today, -29))
   let adopted = 0
   let decided = 0
@@ -329,7 +357,7 @@ export interface ReviewFilter {
 }
 
 export const STATE_FILTERS: [StateFilter | undefined, string][] = [
-  [undefined, '全部'], ['pending', '待处理'], ['open', '进行中'], ['stale', '需重新定稿'], ['finalized', '已定稿'],
+  [undefined, '全部'], ['pending', '待处理'], ['open', '进行中'], ['stale', '需重新定稿'], ['finalized', '已定稿'], ['closed', '已作废'],
 ]
 
 export function effectiveVerdict(stamp: Pick<ReviewStamp, 'aiVerdict' | 'finalVerdict'>): Verdict {
@@ -339,6 +367,7 @@ export function effectiveVerdict(stamp: Pick<ReviewStamp, 'aiVerdict' | 'finalVe
 export function filterStamps(items: ReviewStamp[], filter: ReviewFilter): ReviewStamp[] {
   const query = filter.query?.trim().toLowerCase() ?? ''
   return items.filter((s) => {
+    if (filter.state === 'closed' ? s.state !== 'closed' : s.state === 'closed') return false
     if (filter.state === 'pending' ? s.state === 'finalized' : filter.state && s.state !== filter.state) return false
     if (filter.verdict && effectiveVerdict(s) !== filter.verdict) return false
     if (filter.day && localDayKey(s.createdAt) !== filter.day) return false
@@ -348,7 +377,7 @@ export function filterStamps(items: ReviewStamp[], filter: ReviewFilter): Review
 }
 
 export function assistantQueue(items: ReviewStamp[]): ReviewStamp[] {
-  return items.filter((s) => s.state !== 'finalized').sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
+  return items.filter((s) => s.state !== 'finalized' && s.state !== 'closed').sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
 }
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>

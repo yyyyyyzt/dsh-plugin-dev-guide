@@ -7,6 +7,7 @@ import type { IssueRecord } from '../store/domain.js'
 import { post, useLoad, useWrite } from './data.js'
 import {
   CHECKLIST_STATUS_LABEL,
+  GATE_REASON_LABEL,
   ISSUE_STATUS_LABEL,
   ORIGIN_LABEL,
   REVIEW_STATE_LABEL,
@@ -23,7 +24,7 @@ function EvidenceList({ evidence }: { evidence: Evidence[] }): React.ReactElemen
   return (
     <>
       {evidence.map((e, i) => e.kind === 'absence'
-        ? <span key={i} style={S.muted}>{`未提及（校验器判定，非引文）：${e.quote}`}</span>
+        ? <span key={i} style={S.muted}>{`未提及（程序检查判定，非引文）：${e.quote}`}</span>
         : (
           <blockquote key={i} style={S.quote}>
             “{e.quote}”{e.sectionPath ? <span style={S.muted}>{`（${e.sectionPath}）`}</span> : null}
@@ -35,26 +36,27 @@ function EvidenceList({ evidence }: { evidence: Evidence[] }): React.ReactElemen
 
 type Draft = { issueId: string; mode: 'reject' | 'rewrite'; text: string }
 
-function IssueCard({ issue, draft, busy, onDraft, onDecide }: {
+function IssueCard({ issue, draft, busy, readOnly, onDraft, onDecide }: {
   issue: IssueRecord
   draft: Draft | null
   busy: boolean
+  readOnly: boolean
   onDraft: (draft: Draft | null) => void
   onDecide: (issueId: string, body: DecideBody) => void
 }): React.ReactElement {
-  const undecided = issue.status === 'confirmed' || issue.status === 'pending'
+  const undecided = !readOnly && (issue.status === 'confirmed' || issue.status === 'pending')
   const mine = draft?.issueId === issue.issueId ? draft : null
   return (
     <div style={S.issue}>
       <div style={S.spread}>
         <strong>{`${issue.ruleId ?? '专家'} · ${issue.finding}`}</strong>
         <span style={S.row}>
-          <Pill color={SEVERITY_COLOR[issue.severity]}>{SEVERITY_LABEL[issue.severity]}</Pill>
+          <Pill color={SEVERITY_COLOR[issue.severity]}>{issue.severityFrom && issue.severityFrom !== issue.severity ? `${SEVERITY_LABEL[issue.severityFrom]} → ${SEVERITY_LABEL[issue.severity]}` : SEVERITY_LABEL[issue.severity]}</Pill>
           <Pill color={issue.status === 'pending' ? C.warn : undefined}>{ISSUE_STATUS_LABEL[issue.status]}</Pill>
         </span>
       </div>
       <span style={S.muted}>
-        {`来源：${ORIGIN_LABEL[issue.origin]}${!issue.gate.passed && issue.gate.reasons.length ? ` · 门禁未过：${issue.gate.reasons.join('、')}` : ''}`}
+        {`提出：${ORIGIN_LABEL[issue.origin]}${!issue.gate.passed && issue.gate.reasons.length ? ` · 未计入结论：${issue.gate.reasons.map((r) => GATE_REASON_LABEL[r] ?? r).join('、')}` : ''}`}
       </span>
       <EvidenceList evidence={issue.evidence} />
       <span style={S.secondary}>{`建议：${issue.status === 'rewritten' && issue.rewriteText ? issue.rewriteText : issue.suggestion}`}</span>
@@ -98,18 +100,40 @@ function IssueCard({ issue, draft, busy, onDraft, onDecide }: {
   )
 }
 
-export function ReviewDetailView({ data, busy, onDecide, onReviewer, onVerdict }: {
+function DiscardControl({ busy, onDiscard }: { busy: boolean; onDiscard: (reason: string) => void }): React.ReactElement {
+  const [confirming, setConfirming] = useState(false)
+  const [reason, setReason] = useState('')
+  if (!confirming) {
+    return (
+      <div style={S.row}>
+        <button type="button" data-discard style={S.link} disabled={busy} onClick={() => setConfirming(true)}>作废这条记录</button>
+        <span style={S.muted}>用于清理重复或测试记录；数据保留，只是不再统计。</span>
+      </div>
+    )
+  }
+  return (
+    <div style={S.row}>
+      <input style={{ ...S.field, flex: 1, minWidth: 160 }} aria-label="作废原因" placeholder="原因（可空），例如：重复记录" value={reason} onChange={(e) => setReason(e.currentTarget.value)} />
+      <button type="button" data-discard="confirm" style={S.button} disabled={busy} onClick={() => onDiscard(reason.trim())}>确认作废</button>
+      <button type="button" style={S.link} onClick={() => setConfirming(false)}>取消</button>
+    </div>
+  )
+}
+
+export function ReviewDetailView({ data, busy, onDecide, onReviewer, onVerdict, onDiscard }: {
   data: ReviewDetailPayload
   busy: boolean
   onDecide: (issueId: string, body: DecideBody) => void
   onReviewer: (reviewer: string) => void
   onVerdict: (verdict: Verdict) => void
+  onDiscard?: (reason: string) => void
 }): React.ReactElement {
   const r = data.review
   const [draft, setDraft] = useState<Draft | null>(null)
   const [reviewer, setReviewer] = useState(r.reviewer ?? '')
   const [verdict, setVerdict] = useState<Verdict | ''>(r.finalVerdict ?? '')
   const state = reviewState(r)
+  const closed = state === 'closed'
   const delta = r.aiVerdictAtFinalize !== undefined && r.finalVerdict !== undefined && r.aiVerdictAtFinalize !== r.finalVerdict
   const decide = (issueId: string, body: DecideBody): void => {
     setDraft(null)
@@ -126,6 +150,11 @@ export function ReviewDetailView({ data, busy, onDecide, onReviewer, onVerdict }
         <Pill color={STATE_COLOR[state]}>{REVIEW_STATE_LABEL[state]}</Pill>
       </div>
       <span style={S.muted}>{`${r.reviewId} · 规则包 ${r.rulePackVersion}`}</span>
+      {closed ? (
+        <div data-closed style={S.notice}>
+          {r.supersededBy ? `已被 ${r.supersededBy} 取代（同一份方案的新记录），本条只读。` : `已作废：${r.closedReason ?? '专家作废'}。本条只读。`}
+        </div>
+      ) : null}
       {state === 'stale' ? <div style={S.notice}>定稿后决定已变更，旧意见文件已过期：需回到对话重新定稿（review_finalize）。</div> : null}
       {(r.warnings ?? []).map((w) => <div key={w} style={S.notice}>{w}</div>)}
 
@@ -142,9 +171,10 @@ export function ReviewDetailView({ data, busy, onDecide, onReviewer, onVerdict }
       <div style={S.section}>{`问题（${data.issues.length}）`}</div>
       {data.issues.length === 0 ? <span style={S.muted}>没有登记问题。</span> : null}
       {data.issues.map((issue) => (
-        <IssueCard key={issue.issueId} issue={issue} draft={draft} busy={busy} onDraft={setDraft} onDecide={decide} />
+        <IssueCard key={issue.issueId} issue={issue} draft={draft} busy={busy} readOnly={closed} onDraft={setDraft} onDecide={decide} />
       ))}
 
+      {closed ? null : <>
       <div style={S.section}>署名与最终结论</div>
       <div style={S.row}>
         <input style={S.field} aria-label="审核人" placeholder="审核人姓名或工号" value={reviewer} onChange={(e) => setReviewer(e.currentTarget.value)} />
@@ -158,12 +188,13 @@ export function ReviewDetailView({ data, busy, onDecide, onReviewer, onVerdict }
         <button type="button" style={S.button} disabled={busy || !verdict || verdict === r.finalVerdict} onClick={() => verdict && onVerdict(verdict)}>确认最终结论</button>
       </div>
       {!r.reviewer ? <span style={S.muted}>确认最终结论前需要审核人署名（或在配置中设置默认署名）。</span> : null}
+      </>}
 
       <div style={S.section}>正式意见</div>
       {r.versions.length === 0
         ? <span style={S.muted}>尚未定稿。定稿在对话中完成（review_finalize）。</span>
         : r.versions.map((v) => <span key={v.version} style={S.muted}>{`v${v.version} · ${v.path} · ${v.at}`}</span>)}
-      <span style={S.muted}>{`工具调用 ${r.metrics.toolCalls} 次 · 门禁拒绝 ${r.metrics.gateRejects} 次`}</span>
+      <span style={S.muted}>{`工具调用 ${r.metrics.toolCalls} 次 · 证据不合格被退回 ${r.metrics.gateRejects} 次`}</span>
 
       <details>
         <summary style={{ ...S.section, cursor: 'pointer' }}>{`检查清单（${data.checklist.length} 条）${checklistSummary ? ` · ${checklistSummary}` : ''}`}</summary>
@@ -177,6 +208,7 @@ export function ReviewDetailView({ data, busy, onDecide, onReviewer, onVerdict }
           ))}
         </div>
       </details>
+      {!closed && onDiscard ? <DiscardControl busy={busy} onDiscard={onDiscard} /> : null}
     </div>
   )
 }
@@ -201,6 +233,7 @@ export function ReviewDetailPanel({ reviewId, version, onChanged }: { reviewId: 
           onDecide={(issueId, body) => void write.run(issueId, `${base}/issues/${encodeURIComponent(issueId)}`, post(body))}
           onReviewer={(reviewer) => void write.run('reviewer', `${base}/reviewer`, post({ reviewer }))}
           onVerdict={(finalVerdict) => void write.run('verdict', `${base}/final-verdict`, post({ finalVerdict }))}
+          onDiscard={(reason) => void write.run('discard', `${base}/discard`, post(reason ? { reason } : {}))}
         />
       ) : detail.error ? null : <Empty>加载中…</Empty>}
     </div>

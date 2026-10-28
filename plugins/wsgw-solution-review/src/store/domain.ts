@@ -48,7 +48,7 @@ const TierSchema = z.enum(['hard', 'hybrid', 'soft'])
 const IssueTierSchema = z.enum(['hard', 'hybrid', 'soft', 'expert'])
 const IssueStatusSchema = z.enum(['confirmed', 'pending', 'rejected', 'adopted', 'rewritten'])
 const GateReasonSchema = z.enum([
-  'NO_RULE', 'SOFT_RULE', 'NO_EVIDENCE', 'QUOTE_TOO_SHORT', 'QUOTE_TOO_LONG', 'QUOTE_NOT_FOUND', 'OUT_OF_CANDIDATES',
+  'NO_RULE', 'SOFT_RULE', 'NO_EVIDENCE', 'QUOTE_TOO_SHORT', 'QUOTE_TOO_LONG', 'QUOTE_NOT_FOUND', 'OUT_OF_CANDIDATES', 'ABSENCE_NOT_ALLOWED',
 ])
 const DimensionSchema = z.enum(['capacity', 'security', 'interface', 'channel', 'data_sync', 'config', 'monitoring', 'documentation'])
 
@@ -95,11 +95,15 @@ export const ReviewRecordSchema = z.object({
   reviewId: z.string().regex(REVIEW_ID_RE),
   title: z.string(),
   docHash: z.string(),
+  contentKey: z.string().optional(),
   source: z.string(),
   sourcePath: z.string().optional(),
   reviewer: z.string().optional(),
   sessionId: z.string().optional(),
-  status: z.enum(['open', 'finalized']),
+  status: z.enum(['open', 'finalized', 'superseded', 'discarded']),
+  supersededBy: z.string().optional(),
+  closedAt: z.string().optional(),
+  closedReason: z.string().optional(),
   aiVerdict: VerdictSchema,
   aiVerdictAtFinalize: VerdictSchema.optional(),
   finalVerdict: VerdictSchema.optional(),
@@ -132,6 +136,7 @@ export const IssueRecordSchema = z.object({
   status: IssueStatusSchema,
   gate: z.object({ passed: z.boolean(), reasons: z.array(GateReasonSchema) }),
   rewriteText: z.string().optional(),
+  severityFrom: SeveritySchema.optional(),
   seq: z.number().int(),
 })
 
@@ -218,15 +223,23 @@ export interface LastCheck {
   softRules: { ruleId: string; title: string; question: string }[]
 }
 
+export type ReviewStatus = 'open' | 'finalized' | 'superseded' | 'discarded'
+
+export const isClosed = (r: Pick<ReviewRecord, 'status'>): boolean => r.status === 'superseded' || r.status === 'discarded'
+
 export interface ReviewRecord {
   reviewId: string
   title: string
   docHash: string
+  contentKey?: string
   source: string
   sourcePath?: string
   reviewer?: string
   sessionId?: string
-  status: 'open' | 'finalized'
+  status: ReviewStatus
+  supersededBy?: string
+  closedAt?: string
+  closedReason?: string
   aiVerdict: Verdict
   aiVerdictAtFinalize?: Verdict
   finalVerdict?: Verdict

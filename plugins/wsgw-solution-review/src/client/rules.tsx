@@ -10,6 +10,7 @@ import {
   RULE_STATUS_LABEL,
   SEVERITY_LABEL,
   SUGGESTION_MAX,
+  TIER_HINT,
   TIER_LABEL,
   canReset,
   candidateActions,
@@ -17,6 +18,7 @@ import {
   formatDateTime,
   formatRate,
   markFrequentlyRejected,
+  severityLegend,
   countDistinct,
   dedupeExemplars,
   memoryByRule,
@@ -34,11 +36,12 @@ import {
 } from './model.js'
 import { C, Chip, Empty, ErrorBar, Pill, S, SEVERITY_COLOR } from './ui.js'
 
-const RULE_GRID = '72px minmax(0, 1fr) 64px 56px 64px 48px 96px minmax(0, auto) 14px'
+const RULE_GRID = '72px minmax(0, 1fr) 64px 64px 64px 48px 96px minmax(0, auto) 14px'
 const AUDIT_FIELD: Record<string, string> = { status: '状态', severity: '级别', suggestion: '整改建议', params: '参数', draft: '草案' }
 const auditValue = (field: string, value: unknown): string => {
   if (value === undefined || value === null) return '—'
   if (field === 'status' && typeof value === 'string' && value in RULE_STATUS_LABEL) return RULE_STATUS_LABEL[value as RuleStatus]
+  if (field === 'severity' && typeof value === 'string' && value in SEVERITY_LABEL) return SEVERITY_LABEL[value as Severity]
   return typeof value === 'string' ? value : JSON.stringify(value)
 }
 
@@ -94,7 +97,7 @@ function RuleEditor({ rule, detail, busy, onAct }: { rule: RuleView; detail: Rul
   const unchanged = text.trim() === d.suggestion
   const diffs: string[] = []
   if (d.shipped && d.override?.status) diffs.push(`状态：${RULE_STATUS_LABEL[d.shipped.status]} → ${RULE_STATUS_LABEL[d.override.status]}`)
-  if (d.shipped && d.override?.severity) diffs.push(`级别：${d.shipped.severity} → ${d.override.severity}`)
+  if (d.shipped && d.override?.severity) diffs.push(`级别：${SEVERITY_LABEL[d.shipped.severity]} → ${SEVERITY_LABEL[d.override.severity]}`)
   if (d.shipped && d.override?.suggestion) diffs.push(`整改建议：已修改（出厂：${d.shipped.suggestion}）`)
   if (d.override?.params) diffs.push('校验器参数：已在对话中调整')
   return (
@@ -109,7 +112,7 @@ function RuleEditor({ rule, detail, busy, onAct }: { rule: RuleView; detail: Rul
           </button>
         )}
         <select style={S.field} aria-label="严重级别" value={rule.severity} disabled={busy} onChange={(e) => onAct({ action: 'set_severity', severity: e.currentTarget.value as Severity })}>
-          {(Object.keys(SEVERITY_LABEL) as Severity[]).map((s) => <option key={s} value={s}>{s}</option>)}
+          {(Object.keys(SEVERITY_LABEL) as Severity[]).map((s) => <option key={s} value={s}>{SEVERITY_LABEL[s]}</option>)}
         </select>
       </div>
       <Field label="整改建议（预审登记问题时使用的默认建议）">
@@ -179,11 +182,9 @@ function RuleContent({ detail }: { detail: RuleDetailPayload }): React.ReactElem
       <span style={S.secondary}>{`依据：${d.rationale}`}</span>
       <span style={S.muted}>{`适用范围：${d.applicability ? JSON.stringify(d.applicability) : '全部方案'}`}</span>
       <details>
-        <summary style={{ ...S.muted, cursor: 'pointer' }}>{d.verifier ? `校验器：${d.verifier.kind}` : '校验器：无（语义规则）'}</summary>
-        <pre style={S.pre}>{d.verifier ? JSON.stringify(d.verifier, null, 2) : '语义规则由模型判断后一律待人工。'}</pre>
+        <summary style={{ ...S.muted, cursor: 'pointer' }}>{d.verifier ? `程序检查方式：${d.verifier.kind}` : '程序检查方式：无（人工判断）'}</summary>
+        <pre style={S.pre}>{d.verifier ? JSON.stringify(d.verifier, null, 2) : '人工判断类规则：AI 只提示，由专家定，不计入结论。'}</pre>
       </details>
-      <span style={S.muted}>{`来源：${d.provenance.source}`}</span>
-      <span style={S.muted}>检查问题、依据、适用范围与校验器结构不在看板修改；需要时在对话中让 agent 起草新规则。</span>
     </div>
   )
 }
@@ -208,6 +209,18 @@ export function RulesView({ data, memory, filter, onFilter, expanded, detail, bu
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {data.loadErrors.map((e, i) => <ErrorBar key={i} message={`规则包加载失败：${JSON.stringify(e)}`} />)}
       {data.warnings.length > 0 ? <div style={S.notice}>{data.warnings.join('；')}</div> : null}
+      <div data-severity-legend style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <span style={S.muted}>
+          {severityLegend(data.minorThreshold).map((l, i) => (
+            <React.Fragment key={l.severity}>
+              {i > 0 ? ' · ' : ''}
+              <span style={{ color: SEVERITY_COLOR[l.severity] }}>{SEVERITY_LABEL[l.severity]}</span>
+              {`：${l.text}`}
+            </React.Fragment>
+          ))}
+        </span>
+        <span style={S.muted}>{(Object.keys(TIER_LABEL) as Tier[]).map((t) => `${TIER_LABEL[t]}：${TIER_HINT[t]}`).join(' · ')}</span>
+      </div>
       {memory ? <CandidateList memory={memory} busy={busy} onCandidate={onCandidate} /> : null}
 
       <section style={{ ...S.card, padding: 0, gap: 0 }}>
@@ -217,8 +230,8 @@ export function RulesView({ data, memory, filter, onFilter, expanded, detail, bu
               <option value="">全部维度</option>
               {(Object.keys(DIMENSION_LABEL) as Dimension[]).map((d) => <option key={d} value={d}>{DIMENSION_LABEL[d]}</option>)}
             </select>
-            <select style={S.field} aria-label="层级" value={filter.tier ?? ''} onChange={(e) => onFilter({ ...filter, tier: (e.currentTarget.value || undefined) as Tier | undefined })}>
-              <option value="">全部层级</option>
+            <select style={S.field} aria-label="判定方式" value={filter.tier ?? ''} onChange={(e) => onFilter({ ...filter, tier: (e.currentTarget.value || undefined) as Tier | undefined })}>
+              <option value="">全部判定方式</option>
               {(Object.keys(TIER_LABEL) as Tier[]).map((t) => <option key={t} value={t}>{TIER_LABEL[t]}</option>)}
             </select>
             <select style={S.field} aria-label="状态" value={filter.status ?? ''} onChange={(e) => onFilter({ ...filter, status: (e.currentTarget.value || undefined) as RuleStatus | undefined })}>
@@ -235,7 +248,7 @@ export function RulesView({ data, memory, filter, onFilter, expanded, detail, bu
             <span>规则号</span>
             <span>标题</span>
             <span>维度</span>
-            <span>层级</span>
+            <span>判定方式</span>
             <span>级别</span>
             <span>状态</span>
             <span title="(采纳 + 改写) / 全部决定 · 展示次数">采纳率 · 次</span>

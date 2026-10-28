@@ -6,7 +6,7 @@ import type { RuleView, StatusResult } from './store.js'
 
 /** The review record as the dashboard sees it: no source text, no internal bookkeeping. */
 export type ReviewView = Pick<ReviewRecord, 'reviewId' | 'title' | 'status' | 'aiVerdict' | 'versions' | 'metrics' | 'createdAt' | 'rulePackVersion'>
-  & Partial<Pick<ReviewRecord, 'reviewer' | 'aiVerdictAtFinalize' | 'finalVerdict' | 'verdictDelta' | 'opinionPath' | 'warnings'>>
+  & Partial<Pick<ReviewRecord, 'reviewer' | 'aiVerdictAtFinalize' | 'finalVerdict' | 'verdictDelta' | 'opinionPath' | 'warnings' | 'supersededBy' | 'closedAt' | 'closedReason'>>
 
 export interface ReviewCounts {
   total: number
@@ -22,6 +22,7 @@ export interface RulesPayload {
   warnings: string[]
   loadErrors: RulePackLoadError[]
   version: string
+  minorThreshold: number
 }
 
 export interface ReviewListPayload {
@@ -41,10 +42,11 @@ export interface ReviewDetailPayload {
   feedback: Feedback[]
 }
 
-export type ReviewState = 'open' | 'finalized' | 'stale'
+export type ReviewState = 'open' | 'finalized' | 'stale' | 'closed'
 
-/** `stale` = reopened by a decision after finalize: the opinion file on disk no longer matches. */
+/** `stale` = reopened by a decision after finalize: the opinion file on disk no longer matches. `closed` = superseded or discarded. */
 export function reviewState(review: Pick<ReviewRecord, 'status' | 'versions'>): ReviewState {
+  if (review.status === 'superseded' || review.status === 'discarded') return 'closed'
   if (review.status === 'finalized') return 'finalized'
   return review.versions.length > 0 ? 'stale' : 'open'
 }
@@ -59,6 +61,7 @@ export interface ReviewStamp {
   aiVerdictAtFinalize?: Verdict
   finalVerdict?: Verdict
   reviewer?: string
+  closedReason?: string
   counts: ReviewCounts
 }
 

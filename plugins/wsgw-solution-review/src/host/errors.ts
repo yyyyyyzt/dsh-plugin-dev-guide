@@ -14,6 +14,7 @@ export type ReviewToolErrorCode =
   | 'BAD_ACTION'
   | 'BAD_DRAFT'
   | 'CANDIDATE_NOT_FOUND'
+  | 'REVIEW_CLOSED'
 
 export class ReviewToolError extends HarnessError {
   override readonly code: ReviewToolErrorCode

@@ -1,5 +1,6 @@
 // ReviewStore: the one owner of the `wsgw_solution_review` domain handle. Pure engine functions do the
 // judging; this class only sequences reads/writes (design.md §7–§8, review-protocol.md §3, §5).
+import { createHash } from 'node:crypto'
 import type { Domain } from '@deepseek-ai/dsh-storage-domain'
 import {
   candidatesFrom,
@@ -39,6 +40,7 @@ import {
   candidateKey,
   exemplarKey,
   feedbackKey,
+  isClosed,
   issueKey,
   newReviewId,
   type ExemplarRecord,
@@ -75,6 +77,8 @@ export interface ParseResult {
   stats: Doc['stats']
   warnings: string[]
   existingReviewId?: string
+  /** Older undecided records of the same solution closed by this parse. */
+  superseded?: string[]
 }
 
 export interface CheckResult {
@@ -126,7 +130,7 @@ export interface StatusResult {
   checklistCounts: Record<ChecklistEntry['status'], number>
 }
 
-export type DecideAction = 'adopt' | 'reject' | 'rewrite' | 'add' | 'adopt_rest' | 'set_reviewer' | 'set_final_verdict'
+export type DecideAction = 'adopt' | 'reject' | 'rewrite' | 'add' | 'adopt_rest' | 'set_reviewer' | 'set_final_verdict' | 'discard'
 
 export interface DecideInput {
   action?: DecideAction | undefined
@@ -273,11 +277,16 @@ const defaultRandomId = (): string => {
 }
 
 const ADOPT_EXACT = ['是', '是的', '对', '通过']
-const ADOPT_LEADS = ['确认为问题', '采纳', '同意']
+const ADOPT_LEADS = ['确认为问题', '是问题', '要改', '采纳', '同意']
 const REJECT_EXACT = ['否']
-const REJECT_LEADS = ['不是问题', '不成立', '不需要', '驳回', '不对']
+const REJECT_LEADS = ['不是问题', '不算问题', '不用改', '不成立', '不需要', '驳回', '不对']
 const LEAD_PUNCT = /^[，,。.；;：:！!、\s]+/u
-const REWRITE_PREFIX = /^(?:改成|改为|换成|写成|建议写成|措辞换成|建议改为|换个说法)\s*[:：]\s*(.+)$/su
+const REWRITE_PREFIX = /^我?(?:改成|改为|换成|写成|建议写成|措辞换成|建议改为|换个说法)\s*[:：]\s*(.+)$/su
+const BARE_REWRITE = /^我?(?:换个说法|改写|自己写)[。.！!]?$/u
+const SEVERITY_PHRASE = /^(?:算|按|降为|降成|降到|改为|调为|调成|定为|升为|升到|升成)\s*(严重|一般|轻微|blocker|major|minor)\s*(?:级|的)?\s*(?:(?:后|再)?\s*采纳)?[。.！!]?$/iu
+const SEVERITY_WORD: Record<string, Severity> = { 严重: 'blocker', 一般: 'major', 轻微: 'minor', blocker: 'blocker', major: 'major', minor: 'minor' }
+export const SEVERITY_NAME: Record<Severity, string> = { blocker: '严重', major: '一般', minor: '轻微' }
+const UNTITLED = '未命名方案'
 
 /** Text after a lead word that is followed by punctuation (or nothing); undefined when no lead matches. */
 function afterLead(text: string, leads: readonly string[]): string | undefined {
@@ -288,26 +297,60 @@ function afterLead(text: string, leads: readonly string[]): string | undefined {
   return undefined
 }
 
+export interface NormalizedAnswer {
+  action: 'adopt' | 'reject' | 'rewrite'
+  /** Absent on a rewrite means the expert chose 「换个说法」 without saying how. */
+  text?: string
+  reason?: string
+  severity?: Severity
+}
+
 /**
  * Expert free text → decision (review-protocol.md §5, design.md §8). A decision word only counts when it
  * stands alone or is followed by punctuation, so 「不对外开放…」 stays a rewrite.
  */
-export function normalizeAnswer(answer: string): { action: 'adopt' | 'reject' | 'rewrite'; text?: string; reason?: string } {
+export function normalizeAnswer(answer: string): NormalizedAnswer {
   const t = answer.trim().replace(/[（(]推荐[)）]$/u, '').trim()
   const rewriteOf = (s: string): string | undefined => REWRITE_PREFIX.exec(s)?.[1]?.trim() || undefined
+  const severityOf = (s: string): Severity | undefined => {
+    const word = SEVERITY_PHRASE.exec(s)?.[1]
+    return word ? SEVERITY_WORD[word.toLowerCase()] : undefined
+  }
   const direct = rewriteOf(t)
   if (direct) return { action: 'rewrite', text: direct }
+  if (BARE_REWRITE.test(t)) return { action: 'rewrite' }
+  const graded = severityOf(t)
+  if (graded) return { action: 'adopt', severity: graded }
   if (ADOPT_EXACT.includes(t)) return { action: 'adopt' }
   if (REJECT_EXACT.includes(t)) return { action: 'reject' }
   const adoptTail = afterLead(t, ADOPT_LEADS)
   if (adoptTail !== undefined) {
-    const amended = rewriteOf(adoptTail.replace(/^(?:但是|但|不过)\s*/u, ''))
-    return amended ? { action: 'rewrite', text: amended } : { action: 'adopt' }
+    const tail = adoptTail.replace(/^(?:但是|但|不过)\s*/u, '')
+    const amended = rewriteOf(tail)
+    if (amended) return { action: 'rewrite', text: amended }
+    if (BARE_REWRITE.test(tail)) return { action: 'rewrite' }
+    const severity = severityOf(tail)
+    return severity ? { action: 'adopt', severity } : { action: 'adopt' }
   }
   const rejectTail = afterLead(t, REJECT_LEADS)
   if (rejectTail !== undefined) return rejectTail ? { action: 'reject', reason: rejectTail } : { action: 'reject' }
   return { action: 'rewrite', text: t }
 }
+
+/** Identity of a solution's text that survives BOM, CRLF, trailing blanks and blank edge lines (design.md §7). */
+export function contentKeyOf(source: string): string {
+  const text = source
+    .replace(/^\uFEFF/u, '')
+    .replace(/\r\n?/gu, '\n')
+    .split('\n')
+    .map((line) => line.replace(/[ \t\u3000]+$/u, ''))
+    .join('\n')
+    .replace(/^\n+|\n+$/gu, '')
+  return createHash('sha256').update(text, 'utf8').digest('hex')
+}
+
+const byCreated = (a: ReviewRecord, b: ReviewRecord): number =>
+  a.createdAt < b.createdAt ? -1 : a.createdAt > b.createdAt ? 1 : a.reviewId < b.reviewId ? -1 : a.reviewId > b.reviewId ? 1 : 0
 
 /** A row that changes the rule (as opposed to one finalize created only to hold stats). */
 function isRealOverride(rec: RuleOverrideRecord): boolean {
@@ -322,6 +365,7 @@ export class ReviewStore {
   private readonly now: () => Date
   private readonly randomId: () => string
   private readonly docCache = new Map<string, Doc>()
+  private readonly contentKeys = new Map<string, string>()
 
   constructor(
     readonly domain: Domain<ReviewDomain>,
@@ -662,7 +706,92 @@ export class ReviewStore {
   // ---------- reviews ----------
 
   listReviews(): ReviewRecord[] {
-    return [...this.domain.table('reviews').entries()].map(([, r]) => r).sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
+    return [...this.domain.table('reviews').entries()].map(([, r]) => r).sort((a, b) => byCreated(b, a))
+  }
+
+  private keyOf(review: ReviewRecord): string {
+    let key = this.contentKeys.get(review.source)
+    if (!key) {
+      key = contentKeyOf(review.source)
+      this.contentKeys.set(review.source, key)
+    }
+    return key
+  }
+
+  private sameSolution(a: ReviewRecord, b: ReviewRecord): boolean {
+    if (this.keyOf(a) === this.keyOf(b)) return true
+    if (a.sourcePath && a.sourcePath === b.sourcePath) return true
+    return a.title === b.title && a.title !== UNTITLED
+  }
+
+  /** Reviews carrying any expert decision: feedback, expert issues, a final verdict, an opinion file or finalize. */
+  private decidedIds(): Set<string> {
+    const ids = new Set<string>()
+    for (const [, f] of this.domain.table('feedback').entries()) ids.add(f.reviewId)
+    for (const [, i] of this.domain.table('issues').entries()) if (i.origin === 'expert') ids.add(i.reviewId)
+    for (const [, r] of this.domain.table('reviews').entries()) {
+      if (r.status === 'finalized' || r.versions.length > 0 || r.finalVerdict !== undefined) ids.add(r.reviewId)
+    }
+    return ids
+  }
+
+  private isDecided(review: ReviewRecord): boolean {
+    return review.status === 'finalized'
+      || review.versions.length > 0
+      || review.finalVerdict !== undefined
+      || this.feedbackOf(review.reviewId).length > 0
+      || this.issuesOf(review.reviewId).some((i) => i.origin === 'expert')
+  }
+
+  private async markSuperseded(reviewId: string, by: string): Promise<void> {
+    const at = this.now().toISOString()
+    await this.updateReview(reviewId, (r) => {
+      r.status = 'superseded'
+      r.supersededBy = by
+      r.closedAt = at
+      r.closedReason = `被 ${by} 取代`
+    })
+  }
+
+  /**
+   * Startup collapse of duplicates created before one-open-record-per-solution (design.md §7): an open,
+   * undecided record yields to the next newer record of the same solution, else to the latest older
+   * record with identical content. Returns the ids it closed.
+   */
+  async supersedeStale(): Promise<string[]> {
+    const active = this.listReviews().filter((r) => !isClosed(r)).sort(byCreated)
+    const decided = this.decidedIds()
+    const target = new Map<string, string>()
+    for (const review of active) {
+      if (review.status !== 'open' || decided.has(review.reviewId)) continue
+      const peers = active.filter((o) => o.reviewId !== review.reviewId && !target.has(o.reviewId) && this.sameSolution(o, review))
+      const newer = peers.find((o) => byCreated(o, review) > 0)
+      const older = peers.filter((o) => byCreated(o, review) < 0 && this.keyOf(o) === this.keyOf(review)).at(-1)
+      const by = newer ?? older
+      if (by) target.set(review.reviewId, by.reviewId)
+    }
+    for (const [reviewId, first] of target) {
+      let by = first
+      const seen = new Set([reviewId])
+      while (target.has(by) && !seen.has(by)) {
+        seen.add(by)
+        by = target.get(by)!
+      }
+      await this.markSuperseded(reviewId, by)
+    }
+    return [...target.keys()]
+  }
+
+  /** Throws REVIEW_CLOSED for superseded / discarded records; every write path goes through here. */
+  requireActive(reviewId: string): ReviewRecord {
+    const review = this.requireReview(reviewId)
+    if (review.status === 'superseded') {
+      throw new ReviewToolError('REVIEW_CLOSED', `审查 ${reviewId} 已被 ${review.supersededBy ?? '新记录'} 取代，请改用 ${review.supersededBy ?? '新记录'}`)
+    }
+    if (review.status === 'discarded') {
+      throw new ReviewToolError('REVIEW_CLOSED', `审查 ${reviewId} 已作废（${review.closedReason ?? '专家作废'}）；需要重新审查请 review_parse`)
+    }
+    return review
   }
 
   /** Read model for the dashboard evaluation page; the service filters the optional id set. */
@@ -752,7 +881,9 @@ export class ReviewStore {
     const warnings = ReviewStore.warningsOf(doc)
     const base = { title, outline, stats: doc.stats, warnings }
 
-    const existing = this.listReviews().find((r) => r.docHash === doc.hash)
+    const contentKey = contentKeyOf(input.source)
+    const active = this.listReviews().filter((r) => !isClosed(r))
+    const existing = active.find((r) => this.keyOf(r) === contentKey)
     if (existing && input.reuse !== false) {
       return { reviewId: existing.reviewId, existingReviewId: existing.reviewId, ...base, title: existing.title }
     }
@@ -765,6 +896,7 @@ export class ReviewStore {
       reviewId,
       title,
       docHash: doc.hash,
+      contentKey,
       source: input.source,
       ...(input.sourcePath ? { sourcePath: input.sourcePath } : {}),
       status: 'open',
@@ -778,17 +910,19 @@ export class ReviewStore {
     }
     await reviews.put(reviewId, record)
     this.docCache.set(doc.hash, doc)
-    return { reviewId, ...base }
+    const decided = this.decidedIds()
+    const superseded: string[] = []
+    for (const old of active) {
+      if (old.status !== 'open' || decided.has(old.reviewId) || !this.sameSolution(old, record)) continue
+      await this.markSuperseded(old.reviewId, reviewId)
+      superseded.push(old.reviewId)
+    }
+    return { reviewId, ...base, ...(superseded.length > 0 ? { superseded } : {}) }
   }
 
   async check(reviewId: string): Promise<CheckResult> {
-    const review = this.requireReview(reviewId)
-    const decided = review.status === 'finalized'
-      || review.versions.length > 0
-      || review.finalVerdict !== undefined
-      || this.feedbackOf(reviewId).length > 0
-      || this.issuesOf(reviewId).some((i) => i.origin === 'expert')
-    if (decided) {
+    const review = this.requireActive(reviewId)
+    if (this.isDecided(review)) {
       throw new ReviewToolError(
         'REVIEW_ALREADY_DECIDED',
         `审查 ${reviewId} 已有专家决定或已定稿，重跑预审会抹掉已复核的问题；方案未改请继续复核，方案已改请 review_parse(reuse: false) 开新记录`,
@@ -834,7 +968,7 @@ export class ReviewStore {
   }
 
   async recordIssue(reviewId: string, input: RecordIssueInput): Promise<RecordIssueResult> {
-    const review = this.requireReview(reviewId)
+    const review = this.requireActive(reviewId)
     const rule = input.ruleId ? this.requireRule(input.ruleId) : null
     if (rule?.tier === 'hard') {
       throw new ReviewToolError('HARD_RULE_VERIFIER_OWNED', `规则 ${rule.id} 为 hard 规则，其问题由校验器自动登记，不接受人工登记`)
@@ -897,7 +1031,7 @@ export class ReviewStore {
       pass: 0, fail: 0, candidate: 0, pending: 0, 'not-applicable': 0, soft: 0, 'reviewed-no-issue': 0,
     }
     for (const c of checklist) checklistCounts[c.status] += 1
-    const summary = `${verdict.verdict}——依据：${verdict.counts.blocker} 个 blocker / ${verdict.counts.major} 个 major / ${verdict.counts.minor} 个 minor；待人工 ${counts.pending} 项。仅为建议，待专家确认。`
+    const summary = `${verdict.verdict}（仅为建议，待专家确认）——严重 ${verdict.counts.blocker} 条、一般 ${verdict.counts.major} 条、轻微 ${verdict.counts.minor} 条；待人工 ${counts.pending} 项。`
     return {
       reviewId,
       title: review.title,
@@ -940,27 +1074,40 @@ export class ReviewStore {
     return issue
   }
 
-  private async setIssueStatus(issue: IssueRecord, status: Issue['status'], rewriteText?: string): Promise<IssueRecord> {
+  private async setIssueStatus(issue: IssueRecord, status: Issue['status'], rewriteText?: string, severity?: Severity): Promise<IssueRecord> {
     return this.domain.table('issues').update(issue.issueId, (current) => {
       const next = structuredClone(current)
       next.status = status
       if (rewriteText !== undefined) next.rewriteText = rewriteText
+      if (severity !== undefined && severity !== current.severity) {
+        if (next.severityFrom === undefined) next.severityFrom = current.severity
+        next.severity = severity
+        if (next.severityFrom === severity) delete next.severityFrom
+      }
       return next
     })
   }
 
   async decide(reviewId: string, input: DecideInput): Promise<DecideResult> {
-    const review = this.requireReview(reviewId)
+    const review = this.requireActive(reviewId)
     let action = input.action
     let text = input.text
     let reason = input.reason
+    let severity = input.severity
     if (!action && input.answer !== undefined) {
       const normalized = normalizeAnswer(input.answer)
       action = normalized.action
-      if (normalized.text !== undefined) text = normalized.text
+      if (normalized.text !== undefined && !text?.trim()) text = normalized.text
       if (!reason?.trim() && normalized.reason) reason = normalized.reason
+      if (severity === undefined && normalized.severity) severity = normalized.severity
+      if (action === 'rewrite' && !text?.trim()) {
+        throw new ReviewToolError('BAD_ACTION', '专家选了「换个说法」但还没说怎么写：先追问一句「这条您想怎么写？直接说要求就行」，拿到原话再调用 review_decide')
+      }
     }
     if (!action) throw new ReviewToolError('BAD_ACTION', 'review_decide 需要 action 或 answer')
+    if (severity !== undefined && !SEVERITIES.includes(severity)) {
+      throw new ReviewToolError('BAD_ACTION', 'severity 只能是 blocker（严重）/ major（一般）/ minor（轻微）')
+    }
     if (input.finalVerdict !== undefined && action !== 'set_final_verdict') {
       throw new ReviewToolError('FINAL_VERDICT_FORBIDDEN', '只有 review_decide(action: set_final_verdict) 可以写入最终结论')
     }
@@ -984,7 +1131,7 @@ export class ReviewStore {
     switch (action) {
       case 'adopt': {
         const issue = this.requireIssue(reviewId, input.issueId)
-        const next = await this.setIssueStatus(issue, 'adopted')
+        const next = await this.setIssueStatus(issue, 'adopted', undefined, severity)
         await this.writeFeedback(review, issue, 'adopt', {})
         return done({ issue: next })
       }
@@ -997,7 +1144,7 @@ export class ReviewStore {
       case 'rewrite': {
         const issue = this.requireIssue(reviewId, input.issueId)
         if (!text?.trim()) throw new ReviewToolError('BAD_ACTION', 'rewrite 需要 text（改写后的意见措辞）')
-        const next = await this.setIssueStatus(issue, 'rewritten', text.trim())
+        const next = await this.setIssueStatus(issue, 'rewritten', text.trim(), severity)
         await this.writeFeedback(review, issue, 'rewrite', { text })
         return done({ issue: next })
       }
@@ -1010,7 +1157,7 @@ export class ReviewStore {
           issueId,
           reviewId,
           ...(rule ? { ruleId: rule.id } : {}),
-          severity: input.severity ?? rule?.severity ?? 'major',
+          severity: severity ?? rule?.severity ?? 'major',
           tier: 'expert',
           origin: 'expert',
           finding: text.trim(),
@@ -1064,6 +1211,26 @@ export class ReviewStore {
         })
         return done({})
       }
+      case 'discard': {
+        const closedReason = reason?.trim() || '专家作废'
+        const at = this.now().toISOString()
+        const updated = await this.updateReview(reviewId, (r) => {
+          r.status = 'discarded'
+          r.closedAt = at
+          r.closedReason = closedReason
+          r.metrics.toolCalls += 1
+        })
+        if (review.status === 'finalized' || review.versions.length > 0) await this.forgetReview(reviewId)
+        return {
+          ok: true,
+          action,
+          aiVerdict: updated.aiVerdict,
+          ...(updated.finalVerdict ? { finalVerdict: updated.finalVerdict } : {}),
+          ...(updated.reviewer ? { reviewer: updated.reviewer } : {}),
+          status: updated.status,
+          needsRefinalize: false,
+        }
+      }
       default:
         throw new ReviewToolError('BAD_ACTION', `未知 action: ${String(action)}`)
     }
@@ -1082,7 +1249,7 @@ export class ReviewStore {
   }
 
   async finalize(reviewId: string, sink: OpinionSink): Promise<FinalizeResult> {
-    const review = this.requireReview(reviewId)
+    const review = this.requireActive(reviewId)
     if (!review.finalVerdict) {
       throw new ReviewToolError('VERDICT_NOT_SET', '尚未确认最终结论：请先完成复核并 review_decide(action: set_final_verdict)')
     }
@@ -1123,11 +1290,41 @@ export class ReviewStore {
     return { opinionPath, version, counts, memory }
   }
 
+  /** Rule stats over finalized reviews only (closed records never count); `include` is the review being finalized. */
+  private async refreshRuleStats(include?: string): Promise<void> {
+    const overridesTable = this.domain.table('rule_overrides')
+    const finalized = new Set(this.listReviews().filter((r) => r.status === 'finalized' || r.reviewId === include).map((r) => r.reviewId))
+    const stats = new Map<string, RuleStats>()
+    for (const [, issue] of this.domain.table('issues').entries()) {
+      if (!issue.ruleId || issue.origin === 'expert' || !finalized.has(issue.reviewId)) continue
+      const s = stats.get(issue.ruleId) ?? emptyStats()
+      s.shown += 1
+      if (issue.status === 'adopted') s.adopt += 1
+      else if (issue.status === 'rejected') s.reject += 1
+      else if (issue.status === 'rewritten') s.rewrite += 1
+      stats.set(issue.ruleId, s)
+    }
+    for (const [ruleId, current] of [...overridesTable.entries()]) {
+      if (!stats.has(ruleId) && current.stats.shown > 0) stats.set(ruleId, emptyStats())
+    }
+    for (const [ruleId, s] of stats) {
+      const current = overridesTable.get(ruleId)
+      if (current && JSON.stringify(current.stats) === JSON.stringify(s)) continue
+      await overridesTable.put(ruleId, current ? { ...current, stats: s } : { ruleId, stats: s, audit: [] })
+    }
+  }
+
+  /** A discarded review that had been finalized leaves rule stats and exemplars (design.md §7). */
+  private async forgetReview(reviewId: string): Promise<void> {
+    const exemplars = this.domain.table('exemplars')
+    for (const [key, e] of [...exemplars.entries()]) if (e.reviewId === reviewId) await exemplars.delete(key)
+    await this.refreshRuleStats()
+  }
+
   /** Recompute memory tables from every finalized review, so repeated finalize runs are idempotent. */
   private async refreshMemory(reviewId: string, issues: IssueRecord[], at: string): Promise<FinalizeResult['memory']> {
     const exemplarsTable = this.domain.table('exemplars')
     const candidatesTable = this.domain.table('rule_candidates')
-    const overridesTable = this.domain.table('rule_overrides')
 
     for (const issue of issues) {
       if (!issue.ruleId) continue
@@ -1165,22 +1362,7 @@ export class ReviewStore {
       await candidatesTable.put(candidateKey(reviewId, n), record)
     }
 
-    const finalized = new Set(this.listReviews().filter((r) => r.status === 'finalized' || r.reviewId === reviewId).map((r) => r.reviewId))
-    const stats = new Map<string, RuleStats>()
-    for (const [, issue] of this.domain.table('issues').entries()) {
-      if (!issue.ruleId || issue.origin === 'expert' || !finalized.has(issue.reviewId)) continue
-      const s = stats.get(issue.ruleId) ?? emptyStats()
-      s.shown += 1
-      if (issue.status === 'adopted') s.adopt += 1
-      else if (issue.status === 'rejected') s.reject += 1
-      else if (issue.status === 'rewritten') s.rewrite += 1
-      stats.set(issue.ruleId, s)
-    }
-    for (const [ruleId, s] of stats) {
-      const current = overridesTable.get(ruleId)
-      if (current && JSON.stringify(current.stats) === JSON.stringify(s)) continue
-      await overridesTable.put(ruleId, current ? { ...current, stats: s } : { ruleId, stats: s, audit: [] })
-    }
+    await this.refreshRuleStats(reviewId)
 
     return {
       exemplars: exemplarsTable.size,

@@ -133,6 +133,8 @@ export interface Issue {
   status: IssueStatus
   gate: { passed: boolean; reasons: GateReason[] }
   rewriteText?: string
+  /** Original severity when the expert re-graded this one issue during review. */
+  severityFrom?: Severity
   seq: number
 }
 

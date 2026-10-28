@@ -249,6 +249,8 @@ export interface ReviewsViewProps {
 export function ReviewsView({ data, today, filter, onFilter, chart, onChart, expanded, onToggle, detail, limit, onMore }: ReviewsViewProps): React.ReactElement {
   const rows = filterStamps(data.items, filter)
   const shown = rows.slice(0, limit)
+  const hasClosed = data.items.some((s) => s.state === 'closed')
+  const listed = data.items.filter((s) => (s.state === 'closed') === (filter.state === 'closed')).length
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       <KpiCards data={data} today={today} pendingOn={filter.state === 'pending'} onPending={() => onFilter({ ...filter, state: filter.state === 'pending' ? undefined : 'pending' })} />
@@ -269,7 +271,7 @@ export function ReviewsView({ data, today, filter, onFilter, chart, onChart, exp
       <section style={{ ...S.card, padding: 0, gap: 0 }}>
         <div style={{ ...S.spread, padding: 12, borderBottom: `1px solid ${C.border}` }}>
           <span style={S.row}>
-            {STATE_FILTERS.map(([state, label]) => (
+            {STATE_FILTERS.filter(([state]) => state !== 'closed' || hasClosed).map(([state, label]) => (
               <Chip key={label} on={filter.state === state} onClick={() => onFilter({ ...filter, state })} data-state-filter={state ?? 'all'}>{label}</Chip>
             ))}
           </span>
@@ -282,7 +284,7 @@ export function ReviewsView({ data, today, filter, onFilter, chart, onChart, exp
               {VERDICTS.map((v) => <option key={v} value={v}>{v}</option>)}
             </select>
             <input style={{ ...S.field, width: 180 }} type="search" aria-label="搜索方案" placeholder="搜索标题 / 编号 / 审核人" value={filter.query ?? ''} onChange={(e) => onFilter({ ...filter, query: e.currentTarget.value || undefined })} />
-            <span style={S.muted}>{`${rows.length} / ${data.items.length}`}</span>
+            <span style={S.muted}>{`${rows.length} / ${listed}`}</span>
           </span>
         </div>
         {data.items.length === 0

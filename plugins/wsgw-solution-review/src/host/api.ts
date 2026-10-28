@@ -3,7 +3,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
 import type { Verdict } from '../engine/types.js'
-import type { ReviewRecord } from '../store/domain.js'
+import { isClosed, type ReviewRecord } from '../store/domain.js'
 import { reviewState, type OverviewPayload, type ReviewCounts, type ReviewDetailPayload, type ReviewListPayload, type ReviewStamp, type ReviewView, type RulesPayload } from './api-types.js'
 import { ReviewToolError } from './errors.js'
 import type { ReviewStore } from './store.js'
@@ -125,6 +125,9 @@ function reviewView(review: ReviewRecord): ReviewView {
     createdAt: review.createdAt,
     rulePackVersion: review.rulePackVersion,
     ...(review.warnings ? { warnings: review.warnings } : {}),
+    ...(review.supersededBy ? { supersededBy: review.supersededBy } : {}),
+    ...(review.closedAt ? { closedAt: review.closedAt } : {}),
+    ...(review.closedReason ? { closedReason: review.closedReason } : {}),
   }
 }
 
@@ -159,6 +162,7 @@ export function overviewPayload(store: ReviewStore): OverviewPayload {
     ...(review.aiVerdictAtFinalize ? { aiVerdictAtFinalize: review.aiVerdictAtFinalize } : {}),
     ...(review.finalVerdict ? { finalVerdict: review.finalVerdict } : {}),
     ...(review.reviewer ? { reviewer: review.reviewer } : {}),
+    ...(isClosed(review) && review.closedReason ? { closedReason: review.closedReason } : {}),
     counts: byReview.get(review.reviewId)!,
   }))
   return { items, total: all.length, truncated: all.length > reviews.length, generatedAt: new Date().toISOString() }
@@ -166,7 +170,7 @@ export function overviewPayload(store: ReviewStore): OverviewPayload {
 
 export function rulesPayload(store: ReviewStore): RulesPayload {
   const listed = store.rulesList({})
-  return { rules: listed.rules, warnings: listed.warnings, loadErrors: listed.loadErrors, version: store.effectiveRules().version }
+  return { rules: listed.rules, warnings: listed.warnings, loadErrors: listed.loadErrors, version: store.effectiveRules().version, minorThreshold: store.config.minorThreshold }
 }
 
 export function reviewListPayload(store: ReviewStore, page: number): ReviewListPayload {
@@ -341,6 +345,16 @@ export function apply(ctx: Context): void {
         return sendError(res, 400, 'BAD_VERDICT', 'finalVerdict 必须是 通过 / 建议整改 / 不通过')
       }
       const result = await store.decide(reviewId, { action: 'set_final_verdict', finalVerdict: body.finalVerdict as Verdict })
+      return sendJson(res, 200, result)
+    }
+
+    if (parts.length === 2 && parts[1] === 'discard') {
+      const body = await readJson(req, res)
+      if (!body) return
+      const result = await store.decide(reviewId, {
+        action: 'discard',
+        ...(typeof body.reason === 'string' ? { reason: body.reason } : {}),
+      })
       return sendJson(res, 200, result)
     }
 

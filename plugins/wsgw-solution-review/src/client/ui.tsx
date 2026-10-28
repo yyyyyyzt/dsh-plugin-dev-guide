@@ -63,7 +63,7 @@ export const S: Record<string, CSSProperties> = {
 
 export const VERDICT_COLOR: Record<Verdict, string> = { 通过: C.success, 建议整改: C.warn, 不通过: C.error }
 export const SEVERITY_COLOR: Record<Severity, string> = { blocker: C.error, major: C.warn, minor: C.secondary }
-export const STATE_COLOR: Record<ReviewState, string | undefined> = { open: C.brand, finalized: undefined, stale: C.warn }
+export const STATE_COLOR: Record<ReviewState, string | undefined> = { open: C.brand, finalized: undefined, stale: C.warn, closed: C.tertiary }
 
 export function Pill({ children, color }: { children: ReactNode; color?: string | undefined }): React.ReactElement {
   return <span style={{ ...S.pill, ...(color ? { color, borderColor: color } : {}) }}>{children}</span>

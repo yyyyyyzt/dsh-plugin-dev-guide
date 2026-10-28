@@ -15,21 +15,21 @@ export function computeVerdict(issues: VerdictIssue[], cfg: VerdictConfig): Verd
   for (const issue of issues) if (countsTowardVerdict(issue)) counts[issue.severity] += 1
 
   if (counts.blocker > 0) {
-    return { verdict: '不通过', counts, basis: `存在 ${counts.blocker} 条 blocker 级问题，判定不通过` }
+    return { verdict: '不通过', counts, basis: `有 ${counts.blocker} 条严重问题，建议不通过` }
   }
   if (counts.major > 0) {
-    return { verdict: '建议整改', counts, basis: `存在 ${counts.major} 条 major 级问题，判定建议整改` }
+    return { verdict: '建议整改', counts, basis: `有 ${counts.major} 条一般问题，建议整改` }
   }
   if (counts.minor >= cfg.minorThreshold) {
     return {
       verdict: '建议整改',
       counts,
-      basis: `minor 级问题 ${counts.minor} 条，达到阈值 ${cfg.minorThreshold}，判定建议整改`,
+      basis: `轻微问题 ${counts.minor} 条，达到 ${cfg.minorThreshold} 条，建议整改`,
     }
   }
   const basis =
     counts.minor > 0
-      ? `仅 ${counts.minor} 条 minor 级问题，未达阈值 ${cfg.minorThreshold}，判定通过`
-      : '无生效问题（未确认或 soft 级问题不计入），判定通过'
+      ? `只有 ${counts.minor} 条轻微问题，不到 ${cfg.minorThreshold} 条，建议通过`
+      : '没有计入结论的问题（待人工判断的不计入），建议通过'
   return { verdict: '通过', counts, basis }
 }

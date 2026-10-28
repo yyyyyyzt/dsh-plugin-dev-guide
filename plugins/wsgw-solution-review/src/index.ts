@@ -32,6 +32,8 @@ export async function apply(ctx: Context, rawConfig: Partial<ReviewConfig> = {})
   ctx.effect(() => () => domain.close(), 'wsgw-solution-review.domainClose')
 
   const store = new ReviewStore(domain, config, loaded.packs, {}, loaded.errors)
+  const collapsed = await store.supersedeStale()
+  if (collapsed.length > 0) ctx.logger.info(`wsgw-solution-review: ${collapsed.length} duplicate open review(s) superseded: ${collapsed.join(', ')}`)
   ctx.provide('solutionReview', store)
   ctx.logger.info(
     `wsgw-solution-review ready: ${loaded.packs.reduce((n, p) => n + p.rules.length, 0)} rules from ${loaded.packs.length} pack(s), ` +
