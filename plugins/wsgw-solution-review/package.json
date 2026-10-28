@@ -1,6 +1,6 @@
 {
   "name": "wsgw-solution-review",
-  "version": "0.1.0-dev.0",
+  "version": "0.1.0-dev.1",
   "description": "DSH plugin: AI pre-review of wsgw technical solutions (suggest-only, expert-confirmed, memory-backed).",
   "keywords": [
     "dsh-plugin",
