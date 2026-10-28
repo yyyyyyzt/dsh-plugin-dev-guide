@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-27（按 0.2.1-rc.2 源码复核 §3 能力表与 §4.1；设置卡片推迟；协议测试改为脚本化 agent；目标期刊同步为 *Computers*）。
+> 最后更新：2026-10-28（看板交互重做：左侧栏「方案审查」主面板做总览与全局规则，右侧栏只留复核助手；§2.2 / §3 / §4.1 同步）。
 
 ## 0. 这个仓库现在是什么
 
@@ -41,7 +41,7 @@
    | 交付文件 | `present`（`dsh-tool-present`）+ Markdown 文件 | 不写 Word 生成器；需要 .docx 时让 office skill 转 |
    | 专用 agent | `dsh-agent-preset` + `dsh-persona` 组成「方案审查」preset | 不改系统提示词全局行 |
    | 审查流程指令 | DSH skill（`SKILL.md`）+ 工具描述 | 不把流程写死在代码里 |
-   | 页面 | 右侧 Sidebar tab（`ctx.sidebarRightTabs` + `sidebar.right.pane.tab` slot）；数据走 `ctx.webServer` 同源路由，鉴权用 `ctx.connection` | 不建独立前端工程、不自建 Router / 鉴权；设置卡片推迟（配置改 YAML） |
+   | 页面 | 左侧栏全局面板（`sidebar.panellist` + 布局 `main` keyed slot，与 DSH「定时任务」「插件」页同机制）+ 右侧 Sidebar tab（`ctx.sidebarRightTabs` + `sidebar.right.pane.tab`）；数据走 `ctx.webServer` 同源路由，鉴权用 `ctx.connection` | 不建独立前端工程、不自建 Router / 鉴权、不引入图表库（图表为内联 SVG）；设置卡片推迟（配置改 YAML） |
 2. **先文档，再测试用例，最后开发。** 每个步骤的顺序不可倒置：`docs/` 里的对应章节定稿 → `tests/` 里写出用例（允许先 `.todo` / 红灯）→ 实现让其变绿。没有对应文档条目的代码不合并。
 3. **AI 只做初筛，不自动驳回。** 存储与输出中必须区分 `ai_verdict`（建议）与 `final_verdict`（仅专家可写）。任何未经专家确认的 LLM 判断不得进入正式意见。
 4. **证据必须可验证。** 文本证据的 `quote` 必须能在方案原文中按子串命中（归一化空白后）；`kind: absence` 只能由校验器产生，必须记录缺失项与定位章节，展示时标注「absence / 非引文」，不得伪装成原文引用。LLM 提交的 absence 一律拒绝。未通过门禁的问题降级为 `待人工`，不参与结论计算。这条由工具侧强制。
@@ -89,7 +89,8 @@
 | 交付 | `present` | 正式意见 Markdown |
 | 会话查询 | `dsh-session-query-sqlite` | 评测时回放会话、统计耗时 |
 | Web 路由 | `ctx.webServer.register` | dashboard 的 `/plugins/wsgw-solution-review/api/*` |
-| 右侧栏 | `ctx.sidebarRightTabs` + `sidebar.right.pane.tab` | dashboard tab |
+| 左侧栏面板 | `sidebar.panellist` + `main`（`ctx.layout.selectPanel`） | 「方案审查」主面板：审查总览（日历 / 趋势 / 方案列表）、全局规则、评测 |
+| 右侧栏 | `ctx.sidebarRightTabs` + `sidebar.right.pane.tab` | 「复核助手」：进行中审查的逐条复核 |
 | 连接围栏 | `ctx.connection.requestRejection(req)` | 看板路由的 401 / 403（与 DSH Web 同一访问控制） |
 | 配置 | 插件行 `config`（schemastery） | 阈值、规则包目录、默认署名。0.2.1 没有给第三方插件自动生成设置表单的入口（`installSettingsSection` / `settings.plugin.item` 是 0.1.x 指南写法），设置卡片推迟 |
 | 测试支撑 | 真实 `dsh-storage-json` + 脚本化 agent | `dsh-llm-mock-server` 未随 npm 发布，协议回放用脚本化工具调用序列；真实对话靠人工冒烟 |
@@ -112,7 +113,8 @@ wsgw-solution-review (bundle, cordis.patch.yml)
 │  ├─ skill `wsgw-solution-review`   审查三阶段 SOP + 输出格式
 │  └─ 工具白名单        tool-fs(只读为主)、tool-skill、tool-ask-user、present、review-tools
 └─ client 平面
-   └─ sidebar-right tab `wsgw-review`   审查记录 / 规则 / 记忆 / 评测 四页（可复核、可调规则）
+   ├─ 左侧栏面板 + main 主面板「方案审查」   审查（指标 / 日历·趋势 / 方案列表就地展开复核）· 规则（全局编辑 + 记忆 + 候选）· 评测
+   └─ sidebar-right tab `wsgw-review`「复核助手」   进行中 / 需重新定稿的审查，与对话并排复核
 ```
 
 ### 4.2 对话协议（三阶段，一个会话内完成）

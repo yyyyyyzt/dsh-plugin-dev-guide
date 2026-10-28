@@ -226,15 +226,15 @@ merge: 浅覆盖 status/severity/suggestion；params 按白名单逐键覆盖，
 候选意见 (rule_candidates.status=new)
   → rules_propose(draft)      agent 起草 LRN-xxx，tier 默认 soft，status=draft
   → 专家对话确认 (accept_draft) status=active
-  → 运行积累 stats；专家可 set_severity / set_param / disable
+  → 运行积累 stats；专家可 set_severity / set_suggestion / set_param / disable / reset
   → disable → status=retired（保留 stats 与范例）
 ```
 
-草案升级为 `hybrid`/`hard` 需要人工写校验器参数（对话中由 agent 代填，专家确认）；`soft → hybrid` 升级在看板「记忆」页提示「该规则采纳率高且有稳定关键词，可考虑升级」（只提示，不自动改）。
+草案升级为 `hybrid`/`hard` 需要人工写校验器参数（对话中由 agent 代填，专家确认）；`soft → hybrid` 升级提示（「该规则采纳率高且有稳定关键词，可考虑升级」，只提示不自动改）计划放在总览「规则」页该规则的记忆区，暂推迟（`progress.md` §5）。
 
 ### 6.3 审计
 
-每次 override 写入追加 `audit[]`：`{ who: reviewer, at, reviewId?, change: { field, from, to } }`。看板规则页展示最近 5 条。
+每次 override 写入追加 `audit[]`：`{ who: reviewer, at, reviewId?, change: { field, from, to } }`。看板「规则」页展开时展示最近 10 条。`reset` 为每个被删除的覆盖字段各记一条（`to` 为 shipped 值）。
 
 ## 7. 词表（shipped 初版，可被 override 增删）
 

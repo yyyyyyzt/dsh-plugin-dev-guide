@@ -46,9 +46,12 @@ plugins/wsgw-solution-review/
 │  │  ├─ skills.ts              SkillProvider（随包 SKILL.md）
 │  │  └─ rules-loader.ts / errors.ts / service.ts
 │  └─ client/
-│     ├─ index.tsx              sidebar-right tab 注册 + 四页容器（取数、写操作）
-│     ├─ views.tsx              纯展示组件（props 进、元素出；测试用 react-dom/server 渲染）
-│     └─ model.ts               看板数据类型（引用引擎类型）、纯函数、请求封装
+│     ├─ index.tsx              注册：左侧栏面板行 + main 主面板 + 右侧栏复核助手（dashboard.md §2）
+│     ├─ pages.tsx              容器：主面板三页签、复核助手（取数、写操作）
+│     ├─ overview.tsx / rules.tsx / review-detail.tsx / eval.tsx
+│     │                         纯展示组件（props 进、元素出；测试用 react-dom/server 渲染）
+│     ├─ ui.tsx / data.ts       主题样式与基础件；取数 / 写操作 hooks
+│     └─ model.ts               看板数据类型（引用 host / 引擎类型）、纯函数（日历、趋势、指标、筛选）、请求封装
 ├─ tests/                       S2（见 §14）
 └─ docs/                        本目录
 ```
@@ -61,7 +64,7 @@ plugins/wsgw-solution-review/
 |---|---|---|---|
 | `wsgw-solution-review`（`src/index.ts`） | `name`, `Config`, `apply` | `storageDomain`, `commands`, `skills`；可选 `webServer` + `connection`（`ctx.inject` 子作用域挂 `api.ts`，headless 与单测不需要） | 服务 `ctx.solutionReview`（`ReviewStore`）、命令 ×3、SkillProvider、看板路由（§10） |
 | `wsgw-solution-review/tools`（`src/tools.ts`） | `name`, `apply` | `tools`, `solutionReview`, `workingDirectory`, `fs` | 9 个工具（§8）；挂在 preset 内，因此只有审查 agent 可见 |
-| client（`exports["./client"]` → `lib/client.js`，源 `src/client/index.tsx`） | `name`, `inject = ['slots','sidebarRightTabs']` | — | tab 定义（`ctx.sidebarRightTabs.register`）+ `sidebar.right.pane.tab` keyed 正文 |
+| client（`exports["./client"]` → `lib/client.js`，源 `src/client/index.tsx`） | `name`, `inject = ['slots','sidebarRightTabs','layout']` | — | `sidebar.panellist` 面板行 + 同 id 的 `main` keyed 主面板；右侧栏 tab 定义（`ctx.sidebarRightTabs.register`）+ `sidebar.right.pane.tab` keyed 正文（`dashboard.md` §2） |
 
 `ReviewStore` 用 `ctx.provide('solutionReview', …)`（Cordis 服务注册）暴露给 tools 子插件、命令与路由；它是唯一持有 domain 句柄的对象。
 
@@ -87,13 +90,13 @@ bundle 层只有两行，原文以仓库内 `cordis.patch.yml` 为准（本节�
 "exports": { "./client": { "types": "./lib/types/client/index.d.ts", "default": "./lib/client.js" } },
 "dsh": {
   "bundle": { "patch": "./cordis.patch.yml" },
-  "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-sidebar-right"] }
+  "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-layout", "@deepseek-ai/dsh-client-ui-sidebar", "@deepseek-ai/dsh-client-ui-sidebar-right"] }
 },
 "engines": { "dsh": ">=0.2.1-rc.2 <0.3.0" }
 ```
 
 - `dsh-client-modules` 扫描 host Loader 已加载的包，凡声明 `dsh.client` 且 `exports["./client"]` 指向已构建 bundle 的，成为一条 client entry（entry id = 包名），由 `/plugins/??wsgw-solution-review/client.js&rev=…` 提供。
-- `dsh.client.inject` 只决定**脚本到达顺序**（列出的包若不在启动图中会被跳过）；服务等待由 client 插件自身的 Cordis `inject = ['slots','sidebarRightTabs']` 负责。
+- `dsh.client.inject` 只决定**脚本到达顺序**（列出的包若不在启动图中会被跳过）；服务等待由 client 插件自身的 Cordis `inject = ['slots','sidebarRightTabs','layout']` 负责。
 - bundle 形态：CJS 闭包工厂，banner `window.__ModuleLoader__.load({ id: "wsgw-solution-review", factory: (require) => {`，footer `return module.exports; } });`，与 DSH `packages/client/tsdown.client.ts` 预设一致；`react` 外部化（平台种子表提供），其余依赖内联。
 
 ## 4. 引擎数据模型（`src/engine/types.ts`）
@@ -199,7 +202,7 @@ export const reviewDomain = defineDomain({
 
 - 无二级索引：按 `reviewId` 过滤用 `entries()` 快照内存筛选；数据量（百级审查、千级问题）下足够。
 - 版本策略：schema 变更 → `version+1` + `scripts/migrate-domain.mjs`（S3b 起随包）；DSH 拒绝打开不匹配版本，迁移脚本在启动前由用户手动执行。
-- `rule_overrides` 一行可以只有 `stats`（finalize 刷新统计时自动建行）。只有含 `status / severity / suggestion / params / draft` 之一的行才算**覆盖**：规则包版本号后缀 `+ovN` 的 N、`RuleView.overridden` 都只按这些行计算，避免「定稿一次规则包版本就变」。对 shipped 规则执行 `enable / disable / set_severity` 时，若目标值等于 shipped 原值，则删除该覆盖字段而不是写入同值（审计照记），这样「改回去」就等于撤销覆盖；草案规则没有 shipped 原值，不受此限。
+- `rule_overrides` 一行可以只有 `stats`（finalize 刷新统计时自动建行）。只有含 `status / severity / suggestion / params / draft` 之一的行才算**覆盖**：规则包版本号后缀 `+ovN` 的 N、`RuleView.overridden` 都只按这些行计算，避免「定稿一次规则包版本就变」。对 shipped 规则执行 `enable / disable / set_severity / set_suggestion` 时，若目标值等于 shipped 原值，则删除该覆盖字段而不是写入同值（审计照记），这样「改回去」就等于撤销覆盖；`reset` 一次删除 `status / severity / suggestion / params` 全部覆盖字段（每个被删字段记一条审计，`to` 为 shipped 值），统计与审计保留。草案规则没有 shipped 原值：不做同值比较，`reset` 返回 `BAD_ACTION`。
 - `sessionId` 字段保留但当前不写（工具执行上下文取不到稳定的会话 id）；看板「回到对话」链接推迟。
 
 ## 8. 工具契约
@@ -215,7 +218,7 @@ export const reviewDomain = defineDomain({
 | `review_decide` | `reviewId, action?('adopt'|'reject'|'rewrite'|'add'|'adopt_rest'|'set_reviewer'|'set_final_verdict'), answer?, issueId?, text?, reason?, ruleId?, severity?, finalVerdict?, reviewer?` | `{ ok, issue?, affected?, remainingPending?, aiVerdict, finalVerdict? }` | 写 `feedback` 与 `issues.status`；`add` 新建 `origin:'expert'`；`set_reviewer` 写 `reviews.reviewer`；`set_final_verdict` 唯一写 `finalVerdict` 的入口，要求 `reviewer` 已知（或配置了 `defaultReviewer`）。细则见下 |
 | `review_finalize` | `reviewId, present?: boolean` | `{ opinionPath, version, counts, memory:{exemplars, candidates} }` | 无 `finalVerdict` → `VERDICT_NOT_SET`；渲染 → 写文件（`ctx.fs`）→ 更新 reviews → 刷新记忆；`present` 由 agent 随后调用 `present` 工具完成（本工具只返回路径） |
 | `rules_list` | `dimension?, tier?, status?` | `{ rules[{ruleId, title, dimension, tier, severity, status, stats}] }` | 合并 shipped + overrides |
-| `rules_propose` | `action('disable'|'enable'|'set_severity'|'set_param'|'draft'|'accept_draft'|'dismiss')`, `ruleId?`, `severity?`, `param?`, `candidateId?`, `draft?(RuleYaml)` | `{ ok, rule?, candidate? }` | 写 `rule_overrides` / `rule_candidates`；`draft` 由 agent 填 YAML，工具用 schema 校验 |
+| `rules_propose` | `action('disable'|'enable'|'set_severity'|'set_suggestion'|'set_param'|'reset'|'draft'|'accept_draft'|'dismiss')`, `ruleId?`, `severity?`, `suggestion?`, `param?`, `candidateId?`, `draft?(RuleYaml)` | `{ ok, rule?, candidate? }` | 写 `rule_overrides` / `rule_candidates`；`set_suggestion` 要求去空白后 1–500 字（否则 `BAD_ACTION`）；`reset` 恢复 shipped 值（§7）；`draft` 由 agent 填 YAML，工具用 schema 校验 |
 | `memory_recall` | `ruleId` 或 `dimension` | `{ stats{adopt,reject,rewrite,shown,rejectRatio}, warn: boolean, exemplars[], recentRejectReasons[] }` | `warn = rejectRatio ≥ cfg.rejectWarnRatio && shown ≥ cfg.rejectWarnMinSamples` |
 
 `review_decide` 细则：
@@ -246,8 +249,9 @@ export const reviewDomain = defineDomain({
 | 路由 | 返回 |
 |---|---|
 | `GET /rules` | `{ rules: RuleView[], warnings, loadErrors, version }` |
-| `GET /rules/:id` | `{ rule: RuleView, detail: { question, rationale, suggestion, applicability, verifier, provenance, shipped?:{severity,status}, override?:{status?,severity?,params?}, audit[最近 10 条], memory: memory_recall 结果 } }` |
-| `GET /reviews?page=N` | `{ items[review + counts], page, total }`，每页 50 条，按创建时间倒序 |
+| `GET /rules/:id` | `{ rule: RuleView, detail: { question, rationale, suggestion, applicability, verifier, provenance, shipped?:{severity,status,suggestion}, override?:{status?,severity?,suggestion?,params?}, audit[最近 10 条], memory: memory_recall 结果 } }` |
+| `GET /overview` | `{ items: ReviewStamp[], total, truncated, generatedAt }`：全部审查的紧凑摘要（按创建时间倒序，最多 2000 条，超出时 `truncated: true`），供主面板指标卡、日历 / 趋势与方案列表、复核助手使用。`ReviewStamp = { reviewId, title, createdAt, finalizedAt?, state:'open'|'finalized'|'stale', aiVerdict, aiVerdictAtFinalize?, finalVerdict?, reviewer?, counts:{total,confirmed,pending,adopted,rejected,rewritten} }`；`stale` = `status=open` 且已有正式意见版本。日期分桶由浏览器按本地时区做（`dashboard.md` §5） |
+| `GET /reviews?page=N` | `{ items[review + counts], page, total }`，每页 50 条，按创建时间倒序（保留给脚本与旧客户端；主面板用 `/overview`） |
 | `GET /reviews/:id` | `{ review, issues, checklist, checklistCounts, counts, basis, summary, feedback }`；不含正式意见正文（只给 `opinionPath` 与 `versions[]`，正文在文件里） |
 | `GET /memory` | `{ rules[有记录的规则：stats, warn, exemplars, recentRejectReasons, series(最近 5 次定稿)], candidates[], totals }` |
 | `GET /eval-runs[?ids=a,b]` | `{ runs[] }`；带 `ids` 时要求 2–7 个且全部存在（400 / 404） |
@@ -256,13 +260,13 @@ export const reviewDomain = defineDomain({
 
 | 路由 | 请求 | 等价 |
 |---|---|---|
-| `PATCH /rules/:id` | `{action:'disable'|'enable'|'set_severity'|'set_param', severity?, param?:{key,value}}` | `rules_propose`；`param.key` 仅白名单（§4.3 参数），越界返回 warnings |
+| `PATCH /rules/:id` | `{action:'disable'|'enable'|'set_severity'|'set_suggestion'|'set_param'|'reset', severity?, suggestion?, param?:{key,value}}` | `rules_propose`；`param.key` 仅白名单（§4.3 参数），越界返回 warnings；`set_suggestion` 缺字符串 → 400 `BAD_SUGGESTION`；`reset` 对草案规则 → 400 `BAD_ACTION` |
 | `POST /candidates/:id` | `{action:'accept_draft'|'dismiss'|'draft', draft?}` | `rules_propose`；`accept_draft` 取候选的 `draftRuleId`，候选尚未起草 → 400 `BAD_ACTION` |
 | `POST /reviews/:id/issues/:issueId` | `{action:'adopt'|'reject'|'rewrite', text?, reason?}` | `review_decide` |
 | `POST /reviews/:id/reviewer` | `{reviewer}` | `review_decide(set_reviewer)` |
 | `POST /reviews/:id/final-verdict` | `{finalVerdict}` | `review_decide(set_final_verdict)`，要求审核人已知 |
 
-不开放：删除记录、编辑正式意见正文、看板内起草规则 YAML（起草留在对话里由 agent 完成，看板只审批）、看板内定稿（定稿要写文件并 `present`，留在对话）。定稿后在看板改动任何决定 → 记录回到 `open`（§8），看板提示回对话重新 `review_finalize`。
+不开放：删除记录、编辑正式意见正文、看板内起草规则 YAML 或改规则的检查问题 / 依据 / 适用范围 / 校验器结构（起草留在对话里由 agent 完成，看板只审批）、看板内定稿（定稿要写文件并 `present`，留在对话）。定稿后在看板改动任何决定 → 记录回到 `open`（§8），看板提示回对话重新 `review_finalize`。
 
 细粒度权限（只读 / 审批人 / 规则管理员）与 CSRF token 后置：同源 + DSH 连接围栏已挡住跨站与未授权来源；局域网多人使用时再加。
 
@@ -304,7 +308,7 @@ export const reviewDomain = defineDomain({
 | `tests/host/*` | 契约 | 插件装配：tools 插件、`/review` `/rules` `/memory` 命令、skill 注册、bundle 补丁与 persona 同源 |
 | `tests/api/*` | 契约 | 路由：fake `webServer` / `connection` 注入后直接调 handler；鉴权、同源、405 / 404 / 415、写路由等价于工具 |
 | `tests/protocol/*.e2e.ts` | 回放 | 脚本化 agent（固定工具调用序列 + 固定专家回答）跑完「预审 → 复核 → 定稿」，断言落库与正式意见快照。0.2.1 未随 npm 发布 `dsh-llm-mock-server`，因此不经真实 agent loop；真实对话由人工冒烟覆盖 |
-| `tests/client/*.spec.ts(x)` | 单元 | 看板纯函数（筛选、标记、对比约束、请求错误归一化）与 `react-dom/server` 渲染的四页空状态 / 详情视图 |
+| `tests/client/*.spec.ts(x)` | 单元 | 看板注册（面板行 / 主面板 / 右栏 tab）、纯函数（日历、趋势、指标、筛选、规则标记、对比约束、请求错误归一化）与 `react-dom/server` 渲染的主面板三页签 / 复核助手 / 复核组件 |
 | `tests/client/check-bundle.mjs` | 离线 | `lib/client.js` banner / footer / 外部化白名单 / 未内联 React |
 | `tests/bench/*` | 性能 | 200 KB 文档 `check` ≤ 2 s（`pnpm bench`） |
 
@@ -321,7 +325,7 @@ export const reviewDomain = defineDomain({
 | T-DES-07 | domain spec：非法记录被 zod 拒绝；键格式正则 |
 | T-DES-08 | `review_decide(set_final_verdict)` 是唯一能改 `finalVerdict` 的路径；其他工具尝试写入抛 `FINAL_VERDICT_FORBIDDEN` |
 | T-DES-09 | `review_finalize` 先写文件后落库；文件写失败时库无变化 |
-| T-DES-10 | `rules_list` 合并：override 的 `status/severity` 覆盖 shipped；shipped 文件内容不变 |
+| T-DES-10 | `rules_list` 合并：override 的 `status/severity/suggestion` 覆盖 shipped；改回出厂值或 `reset` 即撤销覆盖；shipped 文件内容不变 |
 | T-DES-11 | 路由：非 GET 405、跨源 403、未知 id 404、JSON 结构快照 |
 | T-DES-12 | `--dump-config` 能组装 `cordis.patch.yml`（含 preset 行）且无撞名 |
 | T-DES-13 | client bundle 校验脚本：banner / footer / 外部化白名单 / 不含 `react` 实体 |
