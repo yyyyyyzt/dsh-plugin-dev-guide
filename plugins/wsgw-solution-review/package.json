@@ -59,7 +59,8 @@
     "prepare": "pnpm run build",
     "dsh:install": "pnpm install && pnpm run build && npx -y @deepseek-ai/dsh plugin --profile web add .",
     "dsh:verify": "npx -y @deepseek-ai/dsh --profile web --dump-config",
-    "check:bundle": "node tests/client/check-bundle.mjs"
+    "check:bundle": "node tests/client/check-bundle.mjs",
+    "release": "node scripts/release.mjs"
   },
   "dependencies": {
     "@deepseek-ai/schemastery": "3.18.5",
