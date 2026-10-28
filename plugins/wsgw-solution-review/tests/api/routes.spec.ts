@@ -269,7 +269,7 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
     await http.call('PATCH', `${reviewApi.API_PREFIX}/rules/CAP-002`, { body: { action: 'set_severity', severity: 'minor' } })
     const after = await http.call('GET', `${reviewApi.API_PREFIX}/rules/CAP-002`)
     expect(after.json.rule).toMatchObject({ severity: 'minor', overridden: true })
-    expect(after.json.detail.shipped).toEqual({ severity: shippedSeverity, status: 'active' })
+    expect(after.json.detail.shipped).toEqual({ severity: shippedSeverity, status: 'active', suggestion: plain.json.detail.suggestion })
     expect(after.json.detail.override).toEqual({ severity: 'minor' })
     expect(after.json.detail.audit).toMatchObject([{ who: 'dashboard', change: { field: 'severity', from: shippedSeverity, to: 'minor' } }])
     expect((await http.call('GET', `${reviewApi.API_PREFIX}/rules/NOPE-001`)).status).toBe(404)
@@ -305,7 +305,7 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
     let tick = 0
     const o = await openStore({ defaultReviewer: '张三' }, undefined, {
       now: () => new Date(Date.UTC(2026, 9, 20, 8, tick++)),
-      randomId: fixedDeps.randomId,
+      randomId: fixedDeps.randomId!,
     })
     opened.push(o)
     const http = install(o.store)

@@ -20,7 +20,7 @@ const TIER = ['hard', 'hybrid', 'soft'] as const
 const DIMENSION = ['capacity', 'security', 'interface', 'channel', 'data_sync', 'config', 'monitoring', 'documentation'] as const
 const VERDICT = ['通过', '建议整改', '不通过'] as const
 const DECIDE_ACTIONS = ['adopt', 'reject', 'rewrite', 'add', 'adopt_rest', 'set_reviewer', 'set_final_verdict'] as const
-const PROPOSE_ACTIONS = ['disable', 'enable', 'set_severity', 'set_param', 'draft', 'accept_draft', 'dismiss'] as const
+const PROPOSE_ACTIONS = ['disable', 'enable', 'set_severity', 'set_suggestion', 'set_param', 'reset', 'draft', 'accept_draft', 'dismiss'] as const
 
 const json = (value: unknown): Json => JSON.parse(JSON.stringify(value)) as Json
 const text = (s: string): ContentBlock[] => [{ type: 'text', text: s }]
@@ -360,12 +360,13 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
   const rulesPropose = defineTool({
     name: 'rules_propose',
     description:
-      '按专家要求调整规则：disable / enable / set_severity / set_param 修改规则生效方式（不改 shipped 文件）；' +
+      '按专家要求调整规则：disable / enable / set_severity / set_suggestion / set_param 修改规则生效方式（不改 shipped 文件），reset 恢复出厂值；' +
       'draft 把候选规则写成规则 YAML（工具用规则 schema 校验）；accept_draft 使草稿生效；dismiss 关闭候选。只在专家明确要求时调用。',
     parameters: {
       action: { type: 'string', required: true, enum: [...PROPOSE_ACTIONS] },
       ruleId: { type: 'string' },
       severity: { type: 'string', enum: [...SEVERITY] },
+      suggestion: { type: 'string', description: 'set_suggestion：新的整改建议（1–500 字）' },
       param: {
         type: 'object',
         additionalProperties: false,
@@ -398,6 +399,7 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
           action: args.action as ProposeAction,
           ruleId: args.ruleId,
           severity: args.severity as Severity | undefined,
+          suggestion: args.suggestion,
           param: args.param,
           candidateId: args.candidateId,
           draft: args.draft,

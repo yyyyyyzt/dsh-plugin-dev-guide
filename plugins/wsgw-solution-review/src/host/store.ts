@@ -182,7 +182,7 @@ export interface RuleDetail {
   applicability: Rule['applicability']
   verifier: Rule['verifier']
   provenance: Rule['provenance']
-  shipped?: { severity: Severity; status: Rule['status'] }
+  shipped?: { severity: Severity; status: Rule['status']; suggestion: string }
   override?: Partial<Pick<RuleOverrideRecord, 'status' | 'severity' | 'suggestion' | 'params'>>
   audit: RuleAudit[]
   memory: MemoryRecall
@@ -231,12 +231,13 @@ export interface DashboardEvalRun extends EvalRunRecord {
   runId: string
 }
 
-export type ProposeAction = 'disable' | 'enable' | 'set_severity' | 'set_param' | 'draft' | 'accept_draft' | 'dismiss'
+export type ProposeAction = 'disable' | 'enable' | 'set_severity' | 'set_suggestion' | 'set_param' | 'reset' | 'draft' | 'accept_draft' | 'dismiss'
 
 export interface ProposeInput {
   action: ProposeAction
   ruleId?: string | undefined
   severity?: Severity | undefined
+  suggestion?: string | undefined
   param?: { key: string; value: unknown } | undefined
   candidateId?: string | undefined
   draft?: string | undefined
@@ -260,6 +261,7 @@ export interface EffectiveRules {
 }
 
 const SEVERITIES: readonly Severity[] = ['blocker', 'major', 'minor']
+export const SUGGESTION_MAX = 500
 const VERDICTS: readonly Verdict[] = ['通过', '建议整改', '不通过']
 const emptyStats = (): RuleStats => ({ shown: 0, adopt: 0, reject: 0, rewrite: 0 })
 
@@ -399,7 +401,7 @@ export class ReviewStore {
       applicability: rule.applicability,
       verifier: rule.verifier,
       provenance: rule.provenance,
-      ...(shipped ? { shipped: { severity: shipped.severity, status: shipped.status } } : {}),
+      ...(shipped ? { shipped: { severity: shipped.severity, status: shipped.status, suggestion: shipped.suggestion } } : {}),
       ...(Object.keys(override).length > 0 ? { override } : {}),
       audit: (record?.audit ?? []).slice(-10),
       memory,
@@ -481,6 +483,41 @@ export class ReviewStore {
           else rec.severity = severity
           if (rec.draft) rec.draft.severity = severity
         })
+        return { ok: true, action: input.action, rule: view(ruleId), warnings }
+      }
+      case 'set_suggestion': {
+        const ruleId = requireId()
+        const rule = this.requireRule(ruleId)
+        const suggestion = typeof input.suggestion === 'string' ? input.suggestion.trim() : ''
+        if (!suggestion || suggestion.length > SUGGESTION_MAX) {
+          throw new ReviewToolError('BAD_ACTION', `set_suggestion 需要 suggestion（去空白后 1–${SUGGESTION_MAX} 字）`)
+        }
+        const shipped = this.shippedRule(ruleId)
+        await upsert(ruleId, (rec) => {
+          rec.audit.push(audit('suggestion', rule.suggestion, suggestion))
+          if (shipped?.suggestion === suggestion) delete rec.suggestion
+          else rec.suggestion = suggestion
+          if (rec.draft) rec.draft.suggestion = suggestion
+        })
+        return { ok: true, action: input.action, rule: view(ruleId), warnings }
+      }
+      case 'reset': {
+        const ruleId = requireId()
+        const rule = this.requireRule(ruleId)
+        const shipped = this.shippedRule(ruleId)
+        if (!shipped) throw new ReviewToolError('BAD_ACTION', `规则 ${ruleId} 是草案规则，没有出厂值可恢复`)
+        if (overrides.get(ruleId)) {
+          await upsert(ruleId, (rec) => {
+            if (rec.status !== undefined) rec.audit.push(audit('status', rule.status, shipped.status))
+            if (rec.severity !== undefined) rec.audit.push(audit('severity', rule.severity, shipped.severity))
+            if (rec.suggestion !== undefined) rec.audit.push(audit('suggestion', rule.suggestion, shipped.suggestion))
+            if (rec.params !== undefined) rec.audit.push(audit('params', rec.params, null))
+            delete rec.status
+            delete rec.severity
+            delete rec.suggestion
+            delete rec.params
+          })
+        }
         return { ok: true, action: input.action, rule: view(ruleId), warnings }
       }
       case 'set_param': {

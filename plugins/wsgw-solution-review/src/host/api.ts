@@ -4,11 +4,11 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { Context } from '@deepseek-ai/cordis'
 import type { Verdict } from '../engine/types.js'
 import type { ReviewRecord } from '../store/domain.js'
-import type { ReviewCounts, ReviewDetailPayload, ReviewListPayload, ReviewView, RulesPayload } from './api-types.js'
+import { reviewState, type OverviewPayload, type ReviewCounts, type ReviewDetailPayload, type ReviewListPayload, type ReviewStamp, type ReviewView, type RulesPayload } from './api-types.js'
 import { ReviewToolError } from './errors.js'
 import type { ReviewStore } from './store.js'
 
-export type { ReviewCounts, ReviewDetailPayload, ReviewListPayload, ReviewView, RulesPayload } from './api-types.js'
+export type { OverviewPayload, ReviewCounts, ReviewDetailPayload, ReviewListPayload, ReviewStamp, ReviewView, RulesPayload } from './api-types.js'
 
 export const name = 'wsgw-solution-review-api'
 export const inject = ['webServer', 'connection', 'solutionReview']
@@ -16,6 +16,7 @@ export const inject = ['webServer', 'connection', 'solutionReview']
 export const API_PREFIX = '/plugins/wsgw-solution-review/api'
 const MAX_BODY = 64 * 1024
 const PAGE_SIZE = 50
+const OVERVIEW_LIMIT = 2000
 const VERDICTS = new Set(['通过', '建议整改', '不通过'])
 
 interface Route {
@@ -127,17 +128,40 @@ function reviewView(review: ReviewRecord): ReviewView {
   }
 }
 
+const emptyCounts = (): ReviewCounts => ({ total: 0, confirmed: 0, pending: 0, adopted: 0, rejected: 0, rewritten: 0 })
+
+function tally(counts: ReviewCounts, status: string): void {
+  counts.total += 1
+  if (status === 'confirmed' || status === 'pending' || status === 'adopted' || status === 'rejected' || status === 'rewritten') counts[status] += 1
+}
+
 function reviewCounts(store: ReviewStore, reviewId: string): ReviewCounts {
-  const issues = store.issuesOf(reviewId)
-  const count = (status: string): number => issues.filter((i) => i.status === status).length
-  return {
-    total: issues.length,
-    confirmed: count('confirmed'),
-    pending: count('pending'),
-    adopted: count('adopted'),
-    rejected: count('rejected'),
-    rewritten: count('rewritten'),
+  const counts = emptyCounts()
+  for (const issue of store.issuesOf(reviewId)) tally(counts, issue.status)
+  return counts
+}
+
+export function overviewPayload(store: ReviewStore): OverviewPayload {
+  const all = store.listReviews()
+  const reviews = all.slice(0, OVERVIEW_LIMIT)
+  const byReview = new Map<string, ReviewCounts>(reviews.map((r) => [r.reviewId, emptyCounts()]))
+  for (const [, issue] of store.domain.table('issues').entries()) {
+    const counts = byReview.get(issue.reviewId)
+    if (counts) tally(counts, issue.status)
   }
+  const items = reviews.map((review): ReviewStamp => ({
+    reviewId: review.reviewId,
+    title: review.title,
+    createdAt: review.createdAt,
+    ...(review.metrics.finalizedAt ? { finalizedAt: review.metrics.finalizedAt } : {}),
+    state: reviewState(review),
+    aiVerdict: review.aiVerdict,
+    ...(review.aiVerdictAtFinalize ? { aiVerdictAtFinalize: review.aiVerdictAtFinalize } : {}),
+    ...(review.finalVerdict ? { finalVerdict: review.finalVerdict } : {}),
+    ...(review.reviewer ? { reviewer: review.reviewer } : {}),
+    counts: byReview.get(review.reviewId)!,
+  }))
+  return { items, total: all.length, truncated: all.length > reviews.length, generatedAt: new Date().toISOString() }
 }
 
 export function rulesPayload(store: ReviewStore): RulesPayload {
@@ -193,7 +217,7 @@ export function apply(ctx: Context): void {
     }
   }
 
-  // Rules: list + enable/disable/severity/whitelisted parameter writes.
+  // Rules: list + status / severity / suggestion / whitelisted parameter writes and reset to shipped.
   route(ctx, 'exact', `${API_PREFIX}/rules`, wrap(async (req, res) => {
     if (req.method !== 'GET') return methodNotAllowed(res, 'GET')
     sendJson(res, 200, rulesPayload(store))
@@ -207,8 +231,11 @@ export function apply(ctx: Context): void {
     const body = await readJson(req, res)
     if (!body) return
     const action = body.action
-    if (action !== 'disable' && action !== 'enable' && action !== 'set_severity' && action !== 'set_param') {
-      return sendError(res, 400, 'BAD_ACTION', 'action 必须是 disable / enable / set_severity / set_param')
+    if (action !== 'disable' && action !== 'enable' && action !== 'set_severity' && action !== 'set_suggestion' && action !== 'set_param' && action !== 'reset') {
+      return sendError(res, 400, 'BAD_ACTION', 'action 必须是 disable / enable / set_severity / set_suggestion / set_param / reset')
+    }
+    if (action === 'set_suggestion' && typeof body.suggestion !== 'string') {
+      return sendError(res, 400, 'BAD_SUGGESTION', 'set_suggestion 需要 suggestion 字符串')
     }
     if (action === 'set_severity' && body.severity !== 'blocker' && body.severity !== 'major' && body.severity !== 'minor') {
       return sendError(res, 400, 'BAD_SEVERITY', 'severity 必须是 blocker / major / minor')
@@ -221,6 +248,7 @@ export function apply(ctx: Context): void {
       action,
       ruleId,
       ...(typeof body.severity === 'string' ? { severity: body.severity as 'blocker' | 'major' | 'minor' } : {}),
+      ...(typeof body.suggestion === 'string' ? { suggestion: body.suggestion } : {}),
       ...(body.param && typeof body.param === 'object' ? { param: body.param as { key: string; value: unknown } } : {}),
       who: 'dashboard',
     })
@@ -254,6 +282,11 @@ export function apply(ctx: Context): void {
       who: 'dashboard',
     })
     sendJson(res, 200, result)
+  }))
+
+  route(ctx, 'exact', `${API_PREFIX}/overview`, wrap(async (req, res) => {
+    if (req.method !== 'GET') return methodNotAllowed(res, 'GET')
+    sendJson(res, 200, overviewPayload(store))
   }))
 
   route(ctx, 'exact', `${API_PREFIX}/reviews`, wrap(async (req, res) => {

@@ -1,5 +1,5 @@
 // Dashboard API payload shapes (design.md §10), shared by the host routes and the client views.
-import type { ChecklistEntry, Feedback } from '../engine/types.js'
+import type { ChecklistEntry, Feedback, Verdict } from '../engine/types.js'
 import type { IssueRecord, ReviewRecord } from '../store/domain.js'
 import type { RulePackLoadError } from './rules-loader.js'
 import type { RuleView, StatusResult } from './store.js'
@@ -39,4 +39,32 @@ export interface ReviewDetailPayload {
   basis: string
   summary: string
   feedback: Feedback[]
+}
+
+export type ReviewState = 'open' | 'finalized' | 'stale'
+
+/** `stale` = reopened by a decision after finalize: the opinion file on disk no longer matches. */
+export function reviewState(review: Pick<ReviewRecord, 'status' | 'versions'>): ReviewState {
+  if (review.status === 'finalized') return 'finalized'
+  return review.versions.length > 0 ? 'stale' : 'open'
+}
+
+export interface ReviewStamp {
+  reviewId: string
+  title: string
+  createdAt: string
+  finalizedAt?: string
+  state: ReviewState
+  aiVerdict: Verdict
+  aiVerdictAtFinalize?: Verdict
+  finalVerdict?: Verdict
+  reviewer?: string
+  counts: ReviewCounts
+}
+
+export interface OverviewPayload {
+  items: ReviewStamp[]
+  total: number
+  truncated: boolean
+  generatedAt: string
 }
