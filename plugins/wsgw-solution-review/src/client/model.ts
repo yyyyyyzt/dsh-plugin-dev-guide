@@ -99,6 +99,24 @@ export function memoryByRule(memory: DashboardMemory | null): Map<string, Dashbo
   return new Map((memory?.rules ?? []).map((r) => [r.ruleId, r]))
 }
 
+export function countDistinct(texts: string[]): { text: string; times: number }[] {
+  const out = new Map<string, number>()
+  for (const t of texts) out.set(t, (out.get(t) ?? 0) + 1)
+  return [...out].map(([text, times]) => ({ text, times }))
+}
+
+/** Same wording adopted again and again is one exemplar, not many. */
+export function dedupeExemplars<T extends { kind: string; text: string }>(exemplars: T[]): (T & { times: number })[] {
+  const out = new Map<string, T & { times: number }>()
+  for (const e of exemplars) {
+    const key = `${e.kind}\u0000${e.text.trim()}`
+    const seen = out.get(key)
+    if (seen) seen.times += 1
+    else out.set(key, { ...e, times: 1 })
+  }
+  return [...out.values()]
+}
+
 export function openCandidates(memory: DashboardMemory | null): DashboardMemory['candidates'] {
   return (memory?.candidates ?? []).filter((c) => c.status === 'new' || c.status === 'drafted')
 }

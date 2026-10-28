@@ -24,11 +24,11 @@ import {
   type TrendPoint,
 } from './model.js'
 import { ReviewDetailPanel } from './review-detail.js'
-import { C, Chip, Empty, ErrorBar, Pill, S, STATE_COLOR, VerdictPill, brandMix } from './ui.js'
+import { C, Chip, EMPTY_CELL, Empty, ErrorBar, Pill, S, STATE_COLOR, VerdictPill, brandMix } from './ui.js'
 
 export type ChartMode = 'calendar' | 'trend'
 
-const LEVEL_FILL = ['var(--dsw-alias-bg-layer-2)', brandMix(25), brandMix(50), brandMix(75), brandMix(100)] as const
+const LEVEL_FILL = [EMPTY_CELL, brandMix(25), brandMix(50), brandMix(75), brandMix(100)] as const
 const CELL = 11
 const GAP = 3
 const STEP = CELL + GAP
@@ -190,11 +190,22 @@ export function TrendChart({ items, today }: { items: ReviewStamp[]; today: Date
   )
 }
 
-const ROW_GRID = '84px minmax(0, 1fr) auto auto minmax(0, 200px) auto 14px'
+const ROW_GRID = '84px minmax(0, 1fr) auto auto minmax(0, 210px) auto 14px'
+
+function countsTitle(s: ReviewStamp): string {
+  const c = s.counts
+  return `问题 ${c.total}：已确认待复核 ${c.confirmed} · 待人工 ${c.pending} · 采纳 ${c.adopted} · 驳回 ${c.rejected} · 改写 ${c.rewritten}`
+}
 
 function countsText(s: ReviewStamp): string {
   const c = s.counts
-  return `问题 ${c.total} · 采纳 ${c.adopted} / 驳回 ${c.rejected} / 改写 ${c.rewritten} / 待人工 ${c.pending}`
+  if (c.total === 0) return '无问题'
+  const parts: string[] = []
+  if (c.confirmed + c.pending > 0) parts.push(`待复核 ${c.confirmed + c.pending}`)
+  if (c.adopted > 0) parts.push(`采纳 ${c.adopted}`)
+  if (c.rejected > 0) parts.push(`驳回 ${c.rejected}`)
+  if (c.rewritten > 0) parts.push(`改写 ${c.rewritten}`)
+  return parts.join(' · ')
 }
 
 function ReviewRow({ stamp, expanded, onToggle, detail }: { stamp: ReviewStamp; expanded: boolean; onToggle: () => void; detail: ReactNode }): React.ReactElement {
@@ -212,7 +223,7 @@ function ReviewRow({ stamp, expanded, onToggle, detail }: { stamp: ReviewStamp; 
         <span style={{ ...S.ellipsis, fontWeight: 500 }} title={stamp.title}>{stamp.title}</span>
         <VerdictPill verdict={stamp.aiVerdict} prefix="预审 " />
         {stamp.finalVerdict ? <VerdictPill verdict={stamp.finalVerdict} prefix="最终 " /> : <Pill>未定</Pill>}
-        <span style={{ ...S.muted, ...S.ellipsis }} title={countsText(stamp)}>{countsText(stamp)}</span>
+        <span style={{ ...S.muted, ...S.ellipsis }} title={countsTitle(stamp)}>{countsText(stamp)}</span>
         <Pill color={STATE_COLOR[stamp.state]}>{REVIEW_STATE_LABEL[stamp.state]}</Pill>
         <span aria-hidden style={S.muted}>{expanded ? '▾' : '▸'}</span>
       </button>

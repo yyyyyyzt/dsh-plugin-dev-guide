@@ -13,6 +13,8 @@ import {
   canReset,
   candidateActions,
   compareNotice,
+  countDistinct,
+  dedupeExemplars,
   effectiveVerdict,
   evalMetricRows,
   filterRules,
@@ -272,6 +274,13 @@ describe('rules model (T-DSH-03, T-DSH-05, T-DSH-06, T-DSH-07)', () => {
       draft: ['id: INT-907', 'title: 灰度策略', 'dimension: interface', 'severity: minor', 'tier: soft', 'question: q', 'rationale: r', 'suggestion: s'].join('\n'),
     })
     expect(canReset(s.ruleDetail('INT-907'))).toBe(false)
+  })
+
+  it('repeated exemplars and reject reasons collapse into one line with a count', () => {
+    const e = (kind: 'adopt' | 'rewrite', text: string) => ({ ruleId: 'CAP-002', kind, text, reviewId: 'r', at: 'a' })
+    expect(dedupeExemplars([e('adopt', '补充压测'), e('adopt', '补充压测 '), e('rewrite', '补充压测'), e('adopt', '另一条')]).map((x) => [x.kind, x.text.trim(), x.times]))
+      .toEqual([['adopt', '补充压测', 2], ['rewrite', '补充压测', 1], ['adopt', '另一条', 1]])
+    expect(countDistinct(['a', 'b', 'a'])).toEqual([{ text: 'a', times: 2 }, { text: 'b', times: 1 }])
   })
 
   it('candidates expose only legal actions', () => {

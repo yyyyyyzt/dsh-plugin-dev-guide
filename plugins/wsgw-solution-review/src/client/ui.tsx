@@ -21,6 +21,7 @@ export const C = {
 }
 
 export const brandMix = (percent: number): string => `color-mix(in srgb, ${C.brand} ${percent}%, transparent)`
+export const EMPTY_CELL = `color-mix(in srgb, ${C.label} 7%, transparent)`
 
 /** Hover and focus rings need selectors; everything else stays inline. */
 export const SCOPED_CSS = [

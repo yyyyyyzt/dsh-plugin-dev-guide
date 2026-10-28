@@ -17,6 +17,8 @@ import {
   formatDateTime,
   formatRate,
   markFrequentlyRejected,
+  countDistinct,
+  dedupeExemplars,
   memoryByRule,
   openCandidates,
   slidingAdoptRate,
@@ -33,6 +35,12 @@ import {
 import { C, Chip, Empty, ErrorBar, Pill, S, SEVERITY_COLOR } from './ui.js'
 
 const RULE_GRID = '72px minmax(0, 1fr) 64px 56px 64px 48px 96px minmax(0, auto) 14px'
+const AUDIT_FIELD: Record<string, string> = { status: '状态', severity: '级别', suggestion: '整改建议', params: '参数', draft: '草案' }
+const auditValue = (field: string, value: unknown): string => {
+  if (value === undefined || value === null) return '—'
+  if (field === 'status' && typeof value === 'string' && value in RULE_STATUS_LABEL) return RULE_STATUS_LABEL[value as RuleStatus]
+  return typeof value === 'string' ? value : JSON.stringify(value)
+}
 
 function adoptRate(r: RuleView): number | null {
   const decided = r.stats.adopt + r.stats.reject + r.stats.rewrite
@@ -134,7 +142,7 @@ function RuleEditor({ rule, detail, busy, onAct }: { rule: RuleView; detail: Rul
       {d.audit.length > 0 ? (
         <Field label="最近变更">
           {[...d.audit].reverse().map((a, i) => (
-            <span key={i} style={S.muted}>{`${formatDateTime(a.at)} · ${a.who} · ${a.change.field}：${String(a.change.from ?? '—')} → ${String(a.change.to ?? '—')}`}</span>
+            <span key={i} style={S.muted}>{`${formatDateTime(a.at)} · ${a.who} · ${AUDIT_FIELD[a.change.field] ?? a.change.field}：${auditValue(a.change.field, a.change.from)} → ${auditValue(a.change.field, a.change.to)}`}</span>
           ))}
         </Field>
       ) : null}
@@ -145,6 +153,8 @@ function RuleEditor({ rule, detail, busy, onAct }: { rule: RuleView; detail: Rul
 function RuleMemory({ detail, memory }: { detail: RuleDetailPayload; memory: DashboardMemoryRule | undefined }): React.ReactElement {
   const m = detail.detail.memory
   const sliding = slidingAdoptRate(memory?.series ?? [])
+  const exemplars = dedupeExemplars(m.exemplars)
+  const reasons = countDistinct(m.recentRejectReasons)
   return (
     <div style={S.stack}>
       <span style={S.cardTitle}>记忆</span>
@@ -153,9 +163,9 @@ function RuleMemory({ detail, memory }: { detail: RuleDetailPayload; memory: Das
         {sliding.insufficient ? `近 5 次定稿：样本不足（${sliding.sample} 个决定）` : `近 5 次定稿采纳率 ${formatRate(sliding.rate)}`}
       </span>
       {m.warn ? <span style={S.notice}>常被驳回：建议复核措辞或适用范围。</span> : null}
-      {m.exemplars.length === 0 ? <span style={S.muted}>暂无措辞范例。</span> : null}
-      {m.exemplars.map((e, i) => <blockquote key={i} style={S.quote}>{`范例（${e.kind === 'rewrite' ? '改写' : '采纳'}）：${e.text}`}</blockquote>)}
-      {m.recentRejectReasons.map((reason, i) => <span key={i} style={S.muted}>{`驳回原因：${reason}`}</span>)}
+      {exemplars.length === 0 ? <span style={S.muted}>暂无措辞范例。</span> : null}
+      {exemplars.map((e) => <blockquote key={`${e.kind}:${e.text}`} style={S.quote}>{`范例（${e.kind === 'rewrite' ? '改写' : '采纳'}${e.times > 1 ? ` ×${e.times}` : ''}）：${e.text}`}</blockquote>)}
+      {reasons.map((r) => <span key={r.text} style={S.muted}>{`驳回原因${r.times > 1 ? `（×${r.times}）` : ''}：${r.text}`}</span>)}
     </div>
   )
 }
@@ -220,7 +230,19 @@ export function RulesView({ data, memory, filter, onFilter, expanded, detail, bu
           </span>
           <span style={S.muted}>{`${rules.length} / ${data.rules.length} 条 · 规则包 ${data.version}`}</span>
         </div>
-        {rules.length === 0 ? <Empty>当前筛选下没有规则。</Empty> : null}
+        {rules.length === 0 ? <Empty>当前筛选下没有规则。</Empty> : (
+          <div aria-hidden style={{ display: 'grid', gridTemplateColumns: RULE_GRID, gap: 8, padding: '6px 6px', borderBottom: `1px solid ${C.border}`, ...S.muted }}>
+            <span>规则号</span>
+            <span>标题</span>
+            <span>维度</span>
+            <span>层级</span>
+            <span>级别</span>
+            <span>状态</span>
+            <span title="(采纳 + 改写) / 全部决定 · 展示次数">采纳率 · 次</span>
+            <span />
+            <span />
+          </div>
+        )}
         {rules.map((r) => {
           const open = expanded === r.ruleId
           const rate = adoptRate(r)
@@ -240,7 +262,7 @@ export function RulesView({ data, memory, filter, onFilter, expanded, detail, bu
                 <span style={S.muted}>{TIER_LABEL[r.tier]}</span>
                 <Pill color={SEVERITY_COLOR[r.severity]}>{SEVERITY_LABEL[r.severity]}</Pill>
                 <span style={S.muted}>{RULE_STATUS_LABEL[r.status]}</span>
-                <span style={S.muted} title="采纳 + 改写 / 全部决定">{rate === null ? '采纳率 —' : `采纳率 ${formatRate(rate)}（${r.stats.shown}）`}</span>
+                <span style={{ ...S.muted, whiteSpace: 'nowrap' }} title={`展示 ${r.stats.shown} · 采纳 ${r.stats.adopt} · 驳回 ${r.stats.reject} · 改写 ${r.stats.rewrite}`}>{rate === null ? '—' : `${formatRate(rate)} · ${r.stats.shown}`}</span>
                 <span style={S.row}>
                   {r.overridden ? <Pill color={C.warn}>已覆盖</Pill> : null}
                   {markFrequentlyRejected(r.stats) ? <Pill color={C.error}>常被驳回</Pill> : null}
