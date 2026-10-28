@@ -43,6 +43,18 @@ describe('/review', () => {
     const missing = await r.cmd.review('rv_20261019_zzzzzz')
     expect(missing.kind).toBe('error')
   })
+
+  it('hides closed records from the list but still shows one by id (T-DES-18)', async () => {
+    const r = await rig()
+    const { reviewId: old } = await r.store.parse({ source: readFixture('seed.md') })
+    const { reviewId: fresh } = await r.store.parse({ source: readFixture('seed.md'), reuse: false })
+    const list = await r.cmd.review('')
+    expect(list.text).toContain(fresh)
+    expect(list.text).not.toContain(old)
+    const one = await r.cmd.review(old)
+    expect(one.kind).toBe('success')
+    expect(one.text).toContain(fresh)
+  })
 })
 
 describe('/rules', () => {
@@ -58,6 +70,8 @@ describe('/rules', () => {
     expect(cap.text).not.toContain('SEC-001')
     const bad = await r.cmd.rules('nothing-here')
     expect(bad.kind).toBe('error')
+    expect(all.text).toMatch(/严重|一般|轻微/)
+    expect(all.text).not.toMatch(/blocker|major|minor/)
   })
 })
 

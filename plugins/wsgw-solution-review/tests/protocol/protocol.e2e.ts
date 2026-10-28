@@ -85,11 +85,12 @@ async function parseAndCheck(r: ProtocolRig): Promise<{ reviewId: string; check:
 }
 
 const severityRank: Record<string, number> = { blocker: 0, major: 1, minor: 2 }
+const severityName: Record<string, string> = { blocker: '严重', major: '一般', minor: '轻微' }
 
 interface Question {
   issueId: string
+  header: string
   question: string
-  detail: string
   options: string[]
   status: string
 }
@@ -110,11 +111,11 @@ function reviewBatches(issues: any[], size = 5): Batch[] {
   for (let i = 0; i < sorted.length; i += size) chunks.push(sorted.slice(i, i + size))
   return chunks.map((chunk, i) => ({
     header: `复核 第 ${i + 1}/${chunks.length} 批`,
-    questions: chunk.map((issue) => ({
+    questions: chunk.map((issue, j) => ({
       issueId: issue.issueId,
-      question: `${issue.ruleId} ${issue.title}（${issue.severity}）`,
-      detail: `发现：${issue.finding}\n证据：${issue.evidence.length ? issue.evidence.map((e: any) => e.kind === 'absence' ? `absence·非引文（${e.quote}）` : `「${e.quote}」`).join('；') : '无'}\n建议：${issue.suggestion}`,
-      options: issue.status === 'pending' ? ['确认为问题', '不是问题'] : ['采纳（推荐）', '驳回', '改写'],
+      header: `第 ${i * size + j + 1} 条 · ${severityName[issue.severity]}`,
+      question: `${issue.finding}，要改吗？\n原文：${issue.evidence.length ? issue.evidence.map((e: any) => e.kind === 'absence' ? `原文没提到（${e.quote}）` : `「${e.quote}」`).join('；') : '无'}\n建议改成：${issue.suggestion}`,
+      options: issue.status === 'pending' ? ['要改', '不用改'] : ['要改，按这个建议（推荐）', '不用改', '要改，但我换个说法'],
       status: issue.status,
     })),
   }))
@@ -180,13 +181,14 @@ async function runCanonical(): Promise<{ r: ProtocolRig; reviewId: string; check
     expect(batch.questions.length).toBeLessThanOrEqual(5)
     for (const q of batch.questions) {
       if (q.issueId === rejectId) {
-        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '驳回', reason: '该风险由平台统一控制' })
+        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '不用改', reason: '该风险由平台统一控制' })
       } else if (q.issueId === rewriteId) {
-        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '改成：建议补充压测报告与回滚方案' })
+        expect(await r.code('review_decide', { reviewId, issueId: q.issueId, answer: '要改，但我换个说法' })).toBe('BAD_ACTION')
+        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '要改，但我换个说法：建议补充压测报告与回滚方案' })
       } else if (q.status === 'pending') {
-        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '确认为问题' })
+        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '要改' })
       } else {
-        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '采纳（推荐）' })
+        await r.call('review_decide', { reviewId, issueId: q.issueId, answer: '要改，按这个建议（推荐）' })
       }
     }
   }
@@ -262,11 +264,13 @@ describe('review batches (T-REQ-11, T-PRO-03)', () => {
     expect(batches.map((b) => b.questions.length)).toEqual([5, 5, 1])
     for (const batch of batches) {
       for (const q of batch.questions) {
+        expect(q.question).toContain('原文：')
+        expect(q.question).toContain('建议改成：')
+        expect(`${q.header}${q.question}`).not.toMatch(/blocker|major|minor/)
         if (q.status === 'pending') {
-          expect(q.options).toEqual(['确认为问题', '不是问题'])
-          expect(q.detail).toContain('证据：')
+          expect(q.options).toEqual(['要改', '不用改'])
         } else {
-          expect(q.options).toEqual(['采纳（推荐）', '驳回', '改写'])
+          expect(q.options).toEqual(['要改，按这个建议（推荐）', '不用改', '要改，但我换个说法'])
         }
       }
     }

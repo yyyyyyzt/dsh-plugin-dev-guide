@@ -143,13 +143,14 @@ describe('review_parse (T-REQ-02, T-REQ-03)', () => {
     expect(r.store.domain.table('reviews').size).toBe(1)
   })
 
-  it('same docHash with reuse=false → creates a new reviewId and keeps the old record', async () => {
+  it('same docHash with reuse=false → creates a new reviewId; the undecided old record is kept but superseded', async () => {
     const r = await rig()
     const first = await parsed(r)
     const again = await r.call('review_parse', { source: { kind: 'inline', value: readFixture('seed.md') }, reuse: false })
     expect(again.reviewId).not.toBe(first)
+    expect(again.superseded).toEqual([first])
     expect(r.store.domain.table('reviews').size).toBe(2)
-    expect(r.store.domain.table('reviews').get(first)).toBeDefined()
+    expect(r.store.domain.table('reviews').get(first)).toMatchObject({ status: 'superseded', supersededBy: again.reviewId })
   })
 
   it('reviewId format rv_<yyyymmdd>_<base32-6>', async () => {
@@ -813,5 +814,224 @@ describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () =
     expect(await r.code('memory_recall', { ruleId: 'ZZZ-000' })).toBe('RULE_NOT_FOUND')
     const byDim = await r.call('memory_recall', { dimension: 'capacity' })
     expect(byDim.rules.length).toBeGreaterThan(0)
+  })
+})
+
+describe('one open record per solution (T-DES-17)', () => {
+  const seed = () => readFixture('seed.md')
+  const revised = () => `${seed()}\n\n## 补充说明\n\n本次修订补充了压测计划。\n`
+
+  it('a copy that differs only in BOM, CRLF and trailing spaces reuses the same record', async () => {
+    const r = await rig()
+    const first = await parsed(r)
+    const noisy = `\uFEFF${seed().split('\n').map((l) => `${l}  `).join('\r\n')}\r\n\r\n`
+    const again = await r.call('review_parse', { source: { kind: 'inline', value: noisy } })
+    expect(again.existingReviewId).toBe(first)
+    expect(r.store.domain.table('reviews').size).toBe(1)
+  })
+
+  it('a revised version with the same title supersedes the undecided open record', async () => {
+    const r = await rig()
+    const first = await parsed(r)
+    const next = await r.call('review_parse', { source: { kind: 'inline', value: revised() } })
+    expect(next.existingReviewId).toBeUndefined()
+    expect(next.superseded).toEqual([first])
+    const old = r.store.domain.table('reviews').get(first)!
+    expect(old).toMatchObject({ status: 'superseded', supersededBy: next.reviewId })
+    expect(old.closedReason).toContain(next.reviewId)
+    expect(old.closedAt).toBeDefined()
+    expect(r.render('review_parse', {}, next)).toContain(first)
+  })
+
+  it('the same source path supersedes even when the title changed', async () => {
+    const r = await rig()
+    const a = await r.store.parse({ source: seed(), sourcePath: 'docs/plan.md' })
+    const b = await r.store.parse({ source: seed().replace('# 网上国网余额查询能力', '# 修订版 网上国网余额查询能力'), sourcePath: 'docs/plan.md' })
+    expect(b.superseded).toEqual([a.reviewId])
+  })
+
+  it('an open record that already has expert decisions is kept; finalized records are kept', async () => {
+    const r = await rig()
+    const { reviewId } = await checked(r)
+    await r.call('review_decide', { reviewId, action: 'adopt', issueId: r.store.issuesOf(reviewId)[0]!.issueId })
+    const next = await r.call('review_parse', { source: { kind: 'inline', value: revised() } })
+    expect(next.superseded ?? []).toEqual([])
+    expect(r.store.domain.table('reviews').get(reviewId)?.status).toBe('open')
+  })
+
+  it('untitled solutions are not grouped by title', async () => {
+    const r = await rig()
+    const a = await r.store.parse({ source: '正文一，没有标题。' })
+    const b = await r.store.parse({ source: '正文二，也没有标题。' })
+    expect(b.superseded ?? []).toEqual([])
+    expect(r.store.domain.table('reviews').get(a.reviewId)?.status).toBe('open')
+  })
+
+  it('startup collapse folds existing duplicates into one active record (the reported 3-records case)', async () => {
+    const r = await rig()
+    const { reviewId: kept } = await checked(r)
+    await r.call('review_decide', { reviewId: kept, action: 'adopt_rest' })
+    const reviews = r.store.domain.table('reviews')
+    const base = reviews.get(kept)!
+    const dupA = 'rv_20261019_dupaaa'
+    const dupB = 'rv_20261019_dupbbb'
+    await reviews.put(dupA, { ...structuredClone(base), reviewId: dupA, createdAt: '2026-10-19T08:00:01.000Z', status: 'open' })
+    await reviews.put(dupB, { ...structuredClone(base), reviewId: dupB, source: `${base.source}\r\n`, createdAt: '2026-10-19T08:00:02.000Z', status: 'open' })
+    const closed = await r.store.supersedeStale()
+    expect(closed.sort()).toEqual([dupA, dupB])
+    expect(reviews.get(dupA)).toMatchObject({ status: 'superseded', supersededBy: kept })
+    expect(reviews.get(dupB)).toMatchObject({ status: 'superseded', supersededBy: kept })
+    expect(reviews.get(kept)?.status).toBe('open')
+    expect(await r.store.supersedeStale()).toEqual([])
+  })
+
+  it('startup collapse keeps the newest undecided record when its content is a new version', async () => {
+    const r = await rig()
+    const { reviewId: decided } = await checked(r)
+    await r.call('review_decide', { reviewId: decided, action: 'adopt_rest' })
+    const reviews = r.store.domain.table('reviews')
+    const fresh = 'rv_20261019_newver'
+    await reviews.put(fresh, { ...structuredClone(reviews.get(decided)!), reviewId: fresh, source: revised(), createdAt: '2026-10-19T09:00:00.000Z' })
+    expect(await r.store.supersedeStale()).toEqual([])
+    expect(reviews.get(fresh)?.status).toBe('open')
+  })
+})
+
+describe('closed records (T-DES-18)', () => {
+  it('discard closes the review with a reason; every write then fails with REVIEW_CLOSED', async () => {
+    const r = await rig({ defaultReviewer: '张三' })
+    const { reviewId } = await checked(r)
+    const issueId = r.store.issuesOf(reviewId)[0]!.issueId
+    const out = await r.call('review_decide', { reviewId, action: 'discard', reason: '重复记录' })
+    expect(out.status).toBe('discarded')
+    expect(r.store.domain.table('reviews').get(reviewId)).toMatchObject({ status: 'discarded', closedReason: '重复记录' })
+    expect(r.render('review_decide', { reviewId, action: 'discard' }, out)).toContain('已作废')
+    expect(await r.code('review_check', { reviewId })).toBe('REVIEW_CLOSED')
+    expect(await r.code('review_record_issue', { reviewId, finding: 'x', suggestion: 'y', evidence: [{ quote: '通过支付宝小程序' }] })).toBe('REVIEW_CLOSED')
+    expect(await r.code('review_decide', { reviewId, action: 'adopt', issueId })).toBe('REVIEW_CLOSED')
+    expect(await r.code('review_decide', { reviewId, action: 'discard' })).toBe('REVIEW_CLOSED')
+    expect(await r.code('review_finalize', { reviewId })).toBe('REVIEW_CLOSED')
+    expect((await r.call('review_status', { reviewId })).status).toBe('discarded')
+  })
+
+  it('REVIEW_CLOSED on a superseded record names the replacement', async () => {
+    const r = await rig()
+    const first = await parsed(r)
+    const next = await r.call('review_parse', { source: { kind: 'inline', value: readFixture('seed.md') }, reuse: false })
+    try {
+      await r.call('review_check', { reviewId: first })
+      throw new Error('expected REVIEW_CLOSED')
+    } catch (e) {
+      expect((e as ReviewToolError).code).toBe('REVIEW_CLOSED')
+      expect((e as Error).message).toContain(next.reviewId)
+    }
+  })
+
+  it('a closed record is never reused by review_parse', async () => {
+    const r = await rig()
+    const first = await parsed(r)
+    await r.call('review_decide', { reviewId: first, action: 'discard' })
+    const again = await r.call('review_parse', { source: { kind: 'inline', value: readFixture('seed.md') } })
+    expect(again.existingReviewId).toBeUndefined()
+    expect(again.reviewId).not.toBe(first)
+  })
+
+  it('discarding a finalized review removes it from rule stats and exemplars', async () => {
+    const r = await rig({ defaultReviewer: '张三' })
+    const { reviewId } = await checked(r)
+    const ruleId = r.store.issuesOf(reviewId)[0]!.ruleId!
+    await r.call('review_decide', { reviewId, action: 'adopt_rest' })
+    await r.call('review_decide', { reviewId, action: 'set_final_verdict', finalVerdict: '建议整改' })
+    await r.call('review_finalize', { reviewId })
+    expect(r.store.domain.table('rule_overrides').get(ruleId)?.stats.shown).toBeGreaterThan(0)
+    await r.call('review_decide', { reviewId, action: 'discard', reason: '测试数据' })
+    expect(r.store.domain.table('rule_overrides').get(ruleId)?.stats.shown ?? 0).toBe(0)
+    expect([...r.store.domain.table('exemplars').entries()].filter(([, e]) => e.reviewId === reviewId)).toEqual([])
+  })
+})
+
+describe('per-issue severity on adopt / rewrite (T-DES-19)', () => {
+  it('adopt with severity changes only this issue, records severityFrom and recomputes the verdict', async () => {
+    const r = await rig()
+    const { reviewId } = await checked(r)
+    const [target, ...others] = r.store.issuesOf(reviewId)
+    for (const o of others) await r.call('review_decide', { reviewId, action: 'reject', issueId: o.issueId })
+    const original = target!.severity
+    const lower = await r.call('review_decide', { reviewId, action: 'adopt', issueId: target!.issueId, severity: 'minor' })
+    expect(lower.aiVerdict).toBe('通过')
+    expect(r.store.domain.table('issues').get(target!.issueId)).toMatchObject({ status: 'adopted', severity: 'minor', severityFrom: original })
+    expect(r.store.domain.table('rule_overrides').get(target!.ruleId!)?.severity).toBeUndefined()
+    const higher = await r.call('review_decide', { reviewId, action: 'adopt', issueId: target!.issueId, severity: 'blocker' })
+    expect(higher.aiVerdict).toBe('不通过')
+    expect(r.store.domain.table('issues').get(target!.issueId)?.severityFrom).toBe(original)
+    await r.call('review_decide', { reviewId, action: 'adopt', issueId: target!.issueId, severity: original })
+    expect(r.store.domain.table('issues').get(target!.issueId)?.severityFrom).toBeUndefined()
+  })
+
+  it('a colloquial answer carries the severity: 「降为 minor 后采纳」/「要改，但算轻微」', async () => {
+    const r = await rig()
+    const { reviewId } = await checked(r)
+    const [a, b] = r.store.issuesOf(reviewId)
+    await r.call('review_decide', { reviewId, issueId: a!.issueId, answer: '降为 minor 后采纳' })
+    await r.call('review_decide', { reviewId, issueId: b!.issueId, answer: '要改，但我换个说法：补充高峰期压测报告，写明目标 TPS', severity: 'minor' })
+    expect(r.store.domain.table('issues').get(a!.issueId)).toMatchObject({ status: 'adopted', severity: 'minor' })
+    expect(r.store.domain.table('issues').get(b!.issueId)).toMatchObject({ status: 'rewritten', severity: 'minor', rewriteText: '补充高峰期压测报告，写明目标 TPS' })
+  })
+})
+
+describe('colloquial answers (T-PRO-13)', () => {
+  it('maps spoken replies to decisions, reasons and severities', () => {
+    expect(normalizeAnswer('要改')).toEqual({ action: 'adopt' })
+    expect(normalizeAnswer('要改，按这个建议（推荐）')).toEqual({ action: 'adopt' })
+    expect(normalizeAnswer('是问题')).toEqual({ action: 'adopt' })
+    expect(normalizeAnswer('不用改')).toEqual({ action: 'reject' })
+    expect(normalizeAnswer('不用改，3.2 写了')).toEqual({ action: 'reject', reason: '3.2 写了' })
+    expect(normalizeAnswer('不算问题。平台统一做')).toEqual({ action: 'reject', reason: '平台统一做' })
+    expect(normalizeAnswer('算轻微')).toEqual({ action: 'adopt', severity: 'minor' })
+    expect(normalizeAnswer('降为 minor 后采纳')).toEqual({ action: 'adopt', severity: 'minor' })
+    expect(normalizeAnswer('降成轻微再采纳')).toEqual({ action: 'adopt', severity: 'minor' })
+    expect(normalizeAnswer('要改，但算轻微')).toEqual({ action: 'adopt', severity: 'minor' })
+    expect(normalizeAnswer('同意，升为严重')).toEqual({ action: 'adopt', severity: 'blocker' })
+    expect(normalizeAnswer('要改，算一般')).toEqual({ action: 'adopt', severity: 'major' })
+    expect(normalizeAnswer('要改，但我换个说法：补充高峰期压测报告')).toEqual({ action: 'rewrite', text: '补充高峰期压测报告' })
+    expect(normalizeAnswer('我换个说法：补充压测报告')).toEqual({ action: 'rewrite', text: '补充压测报告' })
+    expect(normalizeAnswer('要改，但我换个说法')).toEqual({ action: 'rewrite' })
+    expect(normalizeAnswer('改写')).toEqual({ action: 'rewrite' })
+    expect(normalizeAnswer('换个说法')).toEqual({ action: 'rewrite' })
+    expect(normalizeAnswer('算了，写清楚回滚步骤')).toEqual({ action: 'rewrite', text: '算了，写清楚回滚步骤' })
+    expect(normalizeAnswer('要改成全链路压测')).toEqual({ action: 'rewrite', text: '要改成全链路压测' })
+  })
+
+  it('a bare 「要改，但我换个说法」 writes nothing and asks the agent to follow up', async () => {
+    const r = await rig()
+    const { reviewId } = await checked(r)
+    const issue = r.store.issuesOf(reviewId)[0]!
+    try {
+      await r.call('review_decide', { reviewId, issueId: issue.issueId, answer: '要改，但我换个说法' })
+      throw new Error('expected BAD_ACTION')
+    } catch (e) {
+      expect((e as ReviewToolError).code).toBe('BAD_ACTION')
+      expect((e as Error).message).toContain('您想怎么写')
+    }
+    expect(r.store.domain.table('issues').get(issue.issueId)?.status).toBe(issue.status)
+    expect(r.store.feedbackOf(reviewId)).toEqual([])
+  })
+})
+
+describe('Chinese level names in tool text (T-DES-20)', () => {
+  it('status summary, basis and rendered tool text use 严重 / 一般 / 轻微', async () => {
+    const r = await rig()
+    const { reviewId, check } = await checked(r)
+    expect(check.basis).not.toMatch(/blocker|major|minor/)
+    const out = await r.call('review_status', { reviewId })
+    expect(out.summary).toMatch(/严重 \d+ 条/)
+    expect(out.summary).not.toMatch(/blocker|major|minor/)
+    for (const [name, args, value] of [
+      ['review_status', { reviewId }, out],
+      ['review_check', { reviewId }, check],
+      ['rules_list', {}, await r.call('rules_list', {})],
+    ] as const) {
+      expect(r.render(name, args, value), name).not.toMatch(/blocker|major|minor/)
+    }
   })
 })

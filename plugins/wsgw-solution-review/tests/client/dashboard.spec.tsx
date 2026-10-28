@@ -464,6 +464,80 @@ describe('rules tab (T-DSH-02, T-DSH-03, T-DSH-05)', () => {
   })
 })
 
+describe('closed records and plain-language labels (T-DSH-18, T-DSH-19)', () => {
+  it('closed stamps stay out of KPIs, calendar, trend, the assistant and the default list', () => {
+    const live = stamp({ state: 'open' })
+    const closed = stamp({ state: 'closed', closedReason: '被 rv_20261028_aaaaaa 取代', finalizedAt: local(2026, 10, 28, 12) })
+    const items = [live, closed]
+    expect(overviewKpis(items, TODAY)).toMatchObject({ total: 1, last30: 1, pending: 1 })
+    expect(buildCalendar(items, TODAY).total).toBe(1)
+    expect(trendSeries(items, TODAY).at(-1)).toMatchObject({ created: 1, finalized: 0 })
+    expect(assistantQueue(items)).toEqual([live])
+    expect(filterStamps(items, {})).toEqual([live])
+    expect(filterStamps(items, { state: 'pending' })).toEqual([live])
+    expect(filterStamps(items, { state: 'closed' })).toEqual([closed])
+    expect(reviewState({ status: 'superseded', versions: [] })).toBe('closed')
+    expect(reviewState({ status: 'discarded', versions: [{ version: 1, path: 'p', at: 'a' }] })).toBe('closed')
+  })
+
+  it('the 已作废 chip shows only when closed records exist; closed rows are hidden by default', async () => {
+    const s = await store()
+    await s.parse({ source: readFixture('seed.md') })
+    const none = html(<ReviewsView {...viewDefaults} data={overviewPayload(s)} />)
+    expect(none).not.toContain('data-state-filter="closed"')
+    await s.parse({ source: readFixture('seed.md'), reuse: false })
+    const data = overviewPayload(s)
+    const markup = html(<ReviewsView {...viewDefaults} data={data} />)
+    expect(markup).toContain('data-state-filter="closed"')
+    expect(count(markup, 'data-review-row')).toBe(1)
+    expect(markup).toContain('累计审查')
+    const closedOnly = html(<ReviewsView {...viewDefaults} data={data} filter={{ state: 'closed' }} />)
+    expect(count(closedOnly, 'data-review-row')).toBe(1)
+    expect(closedOnly).toContain('已作废')
+  })
+
+  it('a closed review is read-only and says why; an active one offers a two-step discard', async () => {
+    const s = await store()
+    const first = (await s.parse({ source: readFixture('seed.md') })).reviewId
+    await s.check(first)
+    const active = html(<ReviewDetailView data={reviewDetailPayload(s, first)} busy={false} onDecide={noop} onReviewer={noop} onVerdict={noop} onDiscard={noop} />)
+    expect(active).toContain('data-discard')
+    expect(active).toContain('作废这条记录')
+    const second = (await s.parse({ source: readFixture('seed.md'), reuse: false })).reviewId
+    const closed = html(<ReviewDetailView data={reviewDetailPayload(s, first)} busy={false} onDecide={noop} onReviewer={noop} onVerdict={noop} onDiscard={noop} />)
+    expect(closed).toContain(`已被 ${second} 取代`)
+    expect(closed).not.toContain('data-decide=')
+    expect(closed).not.toContain('data-discard')
+    expect(closed).not.toContain('aria-label="审核人"')
+  })
+
+  it('issues show Chinese levels, proposer and gate reasons', async () => {
+    const s = await store()
+    const { reviewId } = await s.parse({ source: readFixture('seed.md') })
+    await s.check(reviewId)
+    await s.recordIssue(reviewId, { finding: '没写灰度怎么做', suggestion: '在“上线计划”一节写清灰度比例和回退条件', evidence: [{ quote: '通过支付宝小程序' }] })
+    const markup = html(<ReviewDetailView data={reviewDetailPayload(s, reviewId)} busy={false} onDecide={noop} onReviewer={noop} onVerdict={noop} />)
+    expect(markup).toContain('没有对应规则')
+    expect(markup).not.toContain('NO_RULE')
+    expect(markup).toMatch(/严重|一般|轻微/)
+    expect(markup).not.toMatch(/>(blocker|major|minor)</)
+    expect(markup).toContain('程序检查')
+  })
+
+  it('rules read 严重 / 一般 / 轻微 and 程序检查 / AI 辅助 / 人工判断 with a legend; no source line or edit hint', async () => {
+    const s = await store({ minorThreshold: 4 })
+    const rulesDefaults = { filter: {}, onFilter: noop, busy: null, onToggle: noop, onAct: noop, onCandidate: noop }
+    const markup = html(<RulesView {...rulesDefaults} data={rulesPayload(s)} memory={s.dashboardMemory()} expanded="CAP-002" detail={s.ruleDetail('CAP-002')} />)
+    expect(markup).toContain('data-severity-legend')
+    expect(markup).toContain('累计 4 条才建议整改')
+    for (const word of ['严重', '一般', '轻微', '程序检查', 'AI 辅助', '人工判断']) expect(markup).toContain(word)
+    expect(markup).not.toMatch(/>(blocker|major|minor)</)
+    expect(markup).not.toContain('来源：')
+    expect(markup).not.toContain('legacy:')
+    expect(markup).not.toContain('不在看板')
+  })
+})
+
 describe('assistant and eval (T-DSH-02, T-DSH-17)', () => {
   it('assistant: empty state with an open-overview button; a picker when more than one review is pending', () => {
     const empty = html(<AssistantView queue={[]} selected={null} onSelect={noop} detail={null} onOpenOverview={noop} onRefresh={noop} />)

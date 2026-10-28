@@ -343,6 +343,35 @@ describe('route policy (T-REQ-19, T-DES-11, NFR-05)', () => {
     expect((await http.call('POST', `${reviewApi.API_PREFIX}/overview`, { body: {} })).status).toBe(405)
   })
 
+  it('POST /reviews/:id/discard closes a review; overview marks it closed; detail explains why (T-DES-18)', async () => {
+    const o = await openStore()
+    opened.push(o)
+    const http = install(o.store)
+    const first = await parsed(o.store)
+    const second = (await o.store.parse({ source: readFixture('seed.md'), reuse: false })).reviewId
+    const discarded = await http.call('POST', `${reviewApi.API_PREFIX}/reviews/${second}/discard`, { body: { reason: '测试记录' } })
+    expect(discarded.status).toBe(200)
+    expect(discarded.json.status).toBe('discarded')
+    const again = await http.call('POST', `${reviewApi.API_PREFIX}/reviews/${second}/discard`, { body: {} })
+    expect(again.status).toBe(400)
+    expect(again.json.error).toBe('REVIEW_CLOSED')
+
+    const overview = await http.call('GET', `${reviewApi.API_PREFIX}/overview`)
+    const states = Object.fromEntries(overview.json.items.map((s: any) => [s.reviewId, s]))
+    expect(states[first]).toMatchObject({ state: 'closed', closedReason: expect.stringContaining(second) })
+    expect(states[second]).toMatchObject({ state: 'closed', closedReason: '测试记录' })
+
+    const detail = await http.call('GET', `${reviewApi.API_PREFIX}/reviews/${first}`)
+    expect(detail.json.review).toMatchObject({ status: 'superseded', supersededBy: second, closedAt: expect.any(String) })
+  })
+
+  it('GET /rules carries the minor threshold for the severity legend', async () => {
+    const o = await openStore({ minorThreshold: 4 })
+    opened.push(o)
+    const http = install(o.store)
+    expect((await http.call('GET', `${reviewApi.API_PREFIX}/rules`)).json.minorThreshold).toBe(4)
+  })
+
   it('PATCH /rules/:id set_suggestion overrides the suggestion; reset restores shipped values', async () => {
     const o = await openStore()
     opened.push(o)

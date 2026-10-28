@@ -27,6 +27,15 @@ describe('bundled skill', () => {
     expect(raw.startsWith('---\n')).toBe(true)
   })
 
+  it('body equals review-protocol.md §3 and speaks plain Chinese levels (T-PRO-01)', () => {
+    const doc = readFileSync(join(rulesDir, '..', 'docs', 'review-protocol.md'), 'utf8')
+    const section = /## 3\. skill SOP[\s\S]*?```\n([\s\S]*?)```/u.exec(doc)?.[1]
+    expect(section).toBeDefined()
+    expect(bundledSkill().content.trim()).toBe(section!.trim())
+    expect(bundledSkill().content).toContain('要改，按这个建议（推荐）')
+    expect(bundledSkill().content).not.toMatch(/blocker|major|minor →|采纳（推荐）」「驳回」「改写/)
+  })
+
   it('is discoverable through ctx.skills once the host plugin registers it', async () => {
     const ctx = new Context()
     contexts.push(ctx)

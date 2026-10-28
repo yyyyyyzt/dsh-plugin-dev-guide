@@ -56,10 +56,14 @@ describe('computeVerdict (T-DES-05)', () => {
     expect(r.counts).toEqual({ blocker: 1, major: 1, minor: 1 })
   })
 
-  it('basis mentions the deciding factor', () => {
-    expect(computeVerdict([i('blocker')], cfg).basis).toMatch(/blocker/)
-    expect(computeVerdict([i('minor'), i('minor'), i('minor')], cfg).basis).toMatch(/minor/)
+  it('basis mentions the deciding factor in Chinese level names (T-DES-20)', () => {
+    expect(computeVerdict([i('blocker')], cfg).basis).toMatch(/严重/)
+    expect(computeVerdict([i('major')], cfg).basis).toMatch(/一般/)
+    expect(computeVerdict([i('minor'), i('minor'), i('minor')], cfg).basis).toMatch(/轻微/)
     expect(computeVerdict([i('minor'), i('minor'), i('minor')], cfg).basis).toMatch(/3/)
+    for (const issues of [[], [i('blocker')], [i('major')], [i('minor')], [i('minor'), i('minor'), i('minor')]]) {
+      expect(computeVerdict(issues, cfg).basis).not.toMatch(/blocker|major|minor|soft/)
+    }
   })
 
   it('respects a custom minorThreshold', () => {
