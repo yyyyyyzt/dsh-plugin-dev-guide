@@ -1,14 +1,16 @@
 // Dashboard data model: payload types come from the host builders, so the client cannot drift from the API.
 import type { Dimension, IssueOrigin, IssueStatus, RuleStats, Severity, Tier, Verdict, ChecklistStatus, RuleStatus } from '../engine/types.js'
-import type { ReviewDetailPayload, ReviewListPayload, RulesPayload, ReviewView } from '../host/api-types.js'
+import type { OverviewPayload, ReviewDetailPayload, RulesPayload, ReviewStamp, ReviewState, ReviewView } from '../host/api-types.js'
 import type { DashboardEvalRun, DashboardMemory, DashboardMemoryRule, RuleDetailPayload, RuleView, SlidingAdoptPoint } from '../host/store.js'
 import type { RuleCandidateRecord } from '../store/domain.js'
 
-export type { DashboardEvalRun, DashboardMemory, DashboardMemoryRule, ReviewDetailPayload, ReviewListPayload, ReviewView, RuleDetailPayload, RulesPayload, RuleView }
+export { reviewState } from '../host/api-types.js'
+export type { DashboardEvalRun, DashboardMemory, DashboardMemoryRule, OverviewPayload, ReviewDetailPayload, ReviewStamp, ReviewState, ReviewView, RuleDetailPayload, RulesPayload, RuleView }
 
 export const API_PREFIX = '/plugins/wsgw-solution-review/api'
 export const PAGE_SIZE = 50
 export const MAX_COMPARE = 7
+export const SUGGESTION_MAX = 500
 
 export interface EvalRunsPayload {
   runs: DashboardEvalRun[]
@@ -18,10 +20,17 @@ export interface RuleFilter {
   dimension?: Dimension | undefined
   tier?: Tier | undefined
   status?: RuleStatus | undefined
+  query?: string | undefined
+  overriddenOnly?: boolean | undefined
 }
 
 export type DecideBody = { action: 'adopt' } | { action: 'reject'; reason?: string } | { action: 'rewrite'; text: string }
-export type RuleAction = { action: 'disable' } | { action: 'enable' } | { action: 'set_severity'; severity: Severity }
+export type RuleAction =
+  | { action: 'disable' }
+  | { action: 'enable' }
+  | { action: 'set_severity'; severity: Severity }
+  | { action: 'set_suggestion'; suggestion: string }
+  | { action: 'reset' }
 export type CandidateAction = 'accept_draft' | 'dismiss'
 
 export const DIMENSION_LABEL: Record<Dimension, string> = {
@@ -64,9 +73,12 @@ export const REVIEW_STATE_LABEL: Record<ReviewState, string> = { open: '进行�
 export const VERDICTS: readonly Verdict[] = ['通过', '建议整改', '不通过']
 
 export function filterRules(rules: RuleView[], filter: RuleFilter): RuleView[] {
+  const query = filter.query?.trim().toLowerCase() ?? ''
   return rules.filter((r) => (!filter.dimension || r.dimension === filter.dimension)
     && (!filter.tier || r.tier === filter.tier)
-    && (!filter.status || r.status === filter.status))
+    && (!filter.status || r.status === filter.status)
+    && (!filter.overriddenOnly || r.overridden)
+    && (!query || r.ruleId.toLowerCase().includes(query) || r.title.toLowerCase().includes(query)))
 }
 
 /** Same defaults as memory_recall.warn (rejectWarnRatio 0.6, rejectWarnMinSamples 5); the browser does not read Host config. */
@@ -83,10 +95,24 @@ export function slidingAdoptRate(series: SlidingAdoptPoint[]): { rate: number | 
   return { rate: decided === 0 ? null : adopted / decided, sample: decided, insufficient: decided < 5 }
 }
 
-export function memoryRulesWithRecords(rules: DashboardMemoryRule[]): DashboardMemoryRule[] {
-  return rules
-    .filter((r) => r.stats.shown > 0 || r.exemplars.length > 0)
-    .sort((a, b) => b.stats.shown - a.stats.shown)
+export function memoryByRule(memory: DashboardMemory | null): Map<string, DashboardMemoryRule> {
+  return new Map((memory?.rules ?? []).map((r) => [r.ruleId, r]))
+}
+
+export function openCandidates(memory: DashboardMemory | null): DashboardMemory['candidates'] {
+  return (memory?.candidates ?? []).filter((c) => c.status === 'new' || c.status === 'drafted')
+}
+
+export function validateSuggestion(text: string): string | null {
+  const trimmed = text.trim()
+  if (!trimmed) return '整改建议不能为空'
+  if (trimmed.length > SUGGESTION_MAX) return `整改建议最长 ${SUGGESTION_MAX} 字`
+  return null
+}
+
+/** Reset only makes sense for a shipped rule that currently carries a learned-layer override. */
+export function canReset(detail: RuleDetailPayload): boolean {
+  return detail.detail.shipped !== undefined && detail.detail.override !== undefined
 }
 
 export function candidateActions(candidate: Pick<RuleCandidateRecord, 'status' | 'draftRuleId'>): CandidateAction[] {
@@ -122,15 +148,189 @@ export function evalMetricRows(runs: DashboardEvalRun[]): { metric: string; valu
   }))
 }
 
-export type ReviewState = 'open' | 'finalized' | 'stale'
-
-export function reviewState(review: Pick<ReviewView, 'status' | 'versions'>): ReviewState {
-  if (review.status === 'finalized') return 'finalized'
-  return review.versions.length > 0 ? 'stale' : 'open'
-}
-
 export function formatRate(rate: number | null): string {
   return rate === null ? '—' : `${Math.round(rate * 100)}%`
+}
+
+// ---------- overview: local-day buckets, calendar, trend, KPIs, filters ----------
+
+const pad = (n: number): string => String(n).padStart(2, '0')
+
+export function dayKeyOf(date: Date): string {
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+/** The browser-local calendar day of an ISO timestamp (the host only stores UTC instants). */
+export function localDayKey(iso: string): string {
+  return dayKeyOf(new Date(iso))
+}
+
+function dateOfKey(key: string): Date {
+  const [y, m, d] = key.split('-').map(Number)
+  return new Date(y!, m! - 1, d!)
+}
+
+function addDays(date: Date, days: number): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days)
+}
+
+export function formatDay(key: string): string {
+  const date = dateOfKey(key)
+  return `${date.getMonth() + 1}月${date.getDate()}日`
+}
+
+export function formatShortDay(key: string): string {
+  const date = dateOfKey(key)
+  return `${date.getMonth() + 1}/${date.getDate()}`
+}
+
+export function formatDateTime(iso: string): string {
+  const date = new Date(iso)
+  return `${date.getMonth() + 1}/${date.getDate()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+export interface CalendarCell {
+  date: string
+  count: number
+  finalized: number
+  level: 0 | 1 | 2 | 3 | 4
+  future: boolean
+}
+
+export interface Calendar {
+  /** Columns oldest → newest; each column is Monday … Sunday. */
+  weeks: CalendarCell[][]
+  max: number
+  total: number
+  months: { index: number; label: string }[]
+}
+
+export function heatLevel(count: number, max: number): CalendarCell['level'] {
+  if (count <= 0 || max <= 0) return 0
+  return Math.min(4, Math.max(1, Math.ceil((count / max) * 4))) as CalendarCell['level']
+}
+
+function bucket(items: ReviewStamp[], key: (s: ReviewStamp) => string | undefined): Map<string, ReviewStamp[]> {
+  const out = new Map<string, ReviewStamp[]>()
+  for (const item of items) {
+    const day = key(item)
+    if (day === undefined) continue
+    const list = out.get(day)
+    if (list) list.push(item)
+    else out.set(day, [item])
+  }
+  return out
+}
+
+export function buildCalendar(items: ReviewStamp[], today: Date, weeks = 53): Calendar {
+  const byDay = bucket(items, (s) => localDayKey(s.createdAt))
+  const todayKey = dayKeyOf(today)
+  const monday = addDays(today, -((today.getDay() + 6) % 7))
+  const start = addDays(monday, -7 * (weeks - 1))
+  const raw: { date: string; count: number; finalized: number; future: boolean }[][] = []
+  for (let w = 0; w < weeks; w += 1) {
+    const column = []
+    for (let d = 0; d < 7; d += 1) {
+      const date = dayKeyOf(addDays(start, w * 7 + d))
+      const future = date > todayKey
+      const list = future ? [] : byDay.get(date) ?? []
+      column.push({ date, count: list.length, finalized: list.filter((s) => s.state === 'finalized').length, future })
+    }
+    raw.push(column)
+  }
+  const cells = raw.flat()
+  const max = cells.reduce((m, c) => Math.max(m, c.count), 0)
+  const total = cells.reduce((n, c) => n + c.count, 0)
+  const months: Calendar['months'] = []
+  for (let i = 1; i < raw.length; i += 1) {
+    const month = dateOfKey(raw[i]![0]!.date).getMonth()
+    if (month !== dateOfKey(raw[i - 1]![0]!.date).getMonth()) months.push({ index: i, label: `${month + 1}月` })
+  }
+  return { weeks: raw.map((col) => col.map((c) => ({ ...c, level: heatLevel(c.count, max) }))), max, total, months }
+}
+
+export interface TrendPoint {
+  date: string
+  created: number
+  finalized: number
+}
+
+export function trendSeries(items: ReviewStamp[], today: Date, days = 30): TrendPoint[] {
+  const created = bucket(items, (s) => localDayKey(s.createdAt))
+  const finalized = bucket(items, (s) => (s.finalizedAt ? localDayKey(s.finalizedAt) : undefined))
+  return Array.from({ length: days }, (_, i) => {
+    const date = dayKeyOf(addDays(today, i - days + 1))
+    return { date, created: created.get(date)?.length ?? 0, finalized: finalized.get(date)?.length ?? 0 }
+  })
+}
+
+export interface OverviewKpis {
+  total: number
+  last30: number
+  pending: number
+  stale: number
+  adoptRate: number | null
+  decided: number
+  agreement: number | null
+  agreementSample: number
+}
+
+export function overviewKpis(items: ReviewStamp[], today: Date): OverviewKpis {
+  const since = dayKeyOf(addDays(today, -29))
+  let adopted = 0
+  let decided = 0
+  let agree = 0
+  let sample = 0
+  for (const s of items) {
+    adopted += s.counts.adopted + s.counts.rewritten
+    decided += s.counts.adopted + s.counts.rewritten + s.counts.rejected
+    if (s.state === 'finalized' && s.finalVerdict !== undefined && s.aiVerdictAtFinalize !== undefined) {
+      sample += 1
+      if (s.finalVerdict === s.aiVerdictAtFinalize) agree += 1
+    }
+  }
+  return {
+    total: items.length,
+    last30: items.filter((s) => localDayKey(s.createdAt) >= since).length,
+    pending: items.filter((s) => s.state !== 'finalized').length,
+    stale: items.filter((s) => s.state === 'stale').length,
+    adoptRate: decided === 0 ? null : adopted / decided,
+    decided,
+    agreement: sample === 0 ? null : agree / sample,
+    agreementSample: sample,
+  }
+}
+
+export type StateFilter = ReviewState | 'pending'
+
+export interface ReviewFilter {
+  state?: StateFilter | undefined
+  verdict?: Verdict | undefined
+  query?: string | undefined
+  day?: string | undefined
+}
+
+export const STATE_FILTERS: [StateFilter | undefined, string][] = [
+  [undefined, '全部'], ['pending', '待处理'], ['open', '进行中'], ['stale', '需重新定稿'], ['finalized', '已定稿'],
+]
+
+export function effectiveVerdict(stamp: Pick<ReviewStamp, 'aiVerdict' | 'finalVerdict'>): Verdict {
+  return stamp.finalVerdict ?? stamp.aiVerdict
+}
+
+export function filterStamps(items: ReviewStamp[], filter: ReviewFilter): ReviewStamp[] {
+  const query = filter.query?.trim().toLowerCase() ?? ''
+  return items.filter((s) => {
+    if (filter.state === 'pending' ? s.state === 'finalized' : filter.state && s.state !== filter.state) return false
+    if (filter.verdict && effectiveVerdict(s) !== filter.verdict) return false
+    if (filter.day && localDayKey(s.createdAt) !== filter.day) return false
+    if (query && ![s.title, s.reviewId, s.reviewer ?? ''].some((v) => v.toLowerCase().includes(query))) return false
+    return true
+  })
+}
+
+export function assistantQueue(items: ReviewStamp[]): ReviewStamp[] {
+  return items.filter((s) => s.state !== 'finalized').sort((a, b) => (a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0))
 }
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>

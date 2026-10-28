@@ -325,13 +325,14 @@ describe('reviews tab (T-DSH-02, T-DSH-13, T-DSH-14, T-DSH-15, T-DSH-16)', () =>
     expect(count(markup, 'data-heat-cell')).toBe(53 * 7)
     expect(count(markup, 'data-level="0"')).toBe(53 * 7)
     expect(markup).toContain('还没有审查记录')
-    expect(markup).toContain('role="img"')
+    expect(markup).toContain('role="group" aria-label="近 53 周每日发起的审查数，共 0 份')
   })
 
   it('trend mode draws the created and finalized lines', async () => {
     const markup = html(<ReviewsView {...viewDefaults} chart="trend" data={overviewPayload(await store())} />)
     expect(markup).toContain('data-trend-line="created"')
     expect(markup).toContain('data-trend-line="finalized"')
+    expect(markup).toContain('role="img" aria-label="近 30 天：发起 0 份，定稿 0 份"')
     expect(markup).not.toContain('data-heat-cell')
   })
 
