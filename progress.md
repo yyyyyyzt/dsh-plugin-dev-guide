@@ -234,6 +234,6 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 
 分发：其他机器（含 Windows 桌面版）用 GitHub 发布 tag 安装，见 `plugins/wsgw-solution-review/docs/design.md` §16 与插件 README；npm 发布仍推迟。
 
-论文侧（S6 🟡，2026-10-29）：`paper/innovation-notes.md` v0.2 + §10 复审；英文初稿 `paper/draft-en.md`（Frontiers in Computer Science Original Research 结构，文内 `<!-- DRAFT STATUS -->` 块记录版本、改投 Technology and Code 的改法与脱敏约定）。S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。待办按先后：① 用户拍板 Q11（期刊切换 / ESCI 认定 / 试点最低线），确认后同步 `AGENTS.md` §5.4；② S5 评测跑出 `eval_runs` 后填 §4.3 与图 8 消融部分；③ 真实试点累计 ≥30 份定稿审查后填 §4.4–4.5、图 7–8、摘要与结论中的 `[[TBD]]`；④ 补 §3.9 模型名与版本、伦理 / 同意措辞、作者与 CRediT、Generative AI 声明、数据仓库 DOI（公开仓库名含产品缩写，需决定是否从中性命名的镜像发布）；⑤ 2024 年以前的参考文献逐条核对卷期页码 DOI；⑥ 绘图 1–5（引入路线、可验证性谱与三层、审查流水线、复核即反馈、插件架构）与看板脱敏截图（图 6）。
+论文侧（S6 🟡，2026-10-29）：`paper/innovation-notes.md` v0.2 + §10 复审；英文初稿 `paper/draft-en.md`（Frontiers in Computer Science Original Research 结构，文内 `<!-- DRAFT STATUS -->` 块记录版本、改投 Technology and Code 的改法与脱敏约定）。S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。待办按先后：① 用户拍板 Q11（期刊切换 / ESCI 认定 / 试点最低线），确认后同步 `AGENTS.md` §5.4；② S5 评测跑出 `eval_runs` 后填 §4.3 与图 7 消融部分；③ 真实试点累计 ≥30 份定稿审查后填 §4.4–4.5、图 7–8、摘要与结论中的 `[[TBD]]`；④ 补 §3.9 模型名与版本、伦理 / 同意措辞、作者与 CRediT、Generative AI 声明、数据仓库 DOI（公开仓库名含产品缩写，需决定是否从中性命名的镜像发布）；⑤ 2024 年以前的参考文献逐条核对卷期页码 DOI；⑥ 绘图 1–5（引入路线、可验证性谱与三层、审查流水线、复核即反馈、插件架构）与看板脱敏截图（图 6）。
 
 环境备注：本机 Node 需 ≥ 22.19（已用 nvm 装 v22.23.3）；`DSH_HOME` 可指向任意目录做隔离验证。
