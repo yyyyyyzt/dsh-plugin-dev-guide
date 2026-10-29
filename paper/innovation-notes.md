@@ -250,3 +250,17 @@
 - 是否正式把目标期刊从 *Computers* 切到 *Frontiers in Computer Science*（切则同步改 `AGENTS.md` §5.4 与 `progress.md` S6 行）。默认：**两刊并列候选，按 10.3 末段的数据到位程度决定**。
 - 单位对 ESCI 期刊的认定口径（两刊都受影响）。
 - 试点开始时间；≥ 30 份是初稿能投的最低线。
+
+### 10.7 2026-10-29 补充：毕业要求为「三大检索（SCI / EI / CPCI）证明」时的修正
+
+用户当日补充：需在 2 个月内拿到三大检索任一库的证明用于毕业。按 Elsevier 官方 Compendex 源列表（`COMPENDEX_Source-list-082026.xlsx`，SERIALS 页 2026-08-07 更新，经高校科研处镜像下载后按 ISSN 核对）：
+
+| 刊 | SCIE | ESCI | EI Compendex | 对「三大检索」的意义 |
+|---|---|---|---|---|
+| *Frontiers in Computer Science*（2624-9898） | 否 | 是 | **否**（不在源列表，也不在 DISCONTINUED） | **两头都不算**，毕业用途下出局 |
+| MDPI *Computers*（2073-431X） | 否 | 是 | **是** | 算 **EI 期刊**；官网 2026 上半年中位数：首次决定 15.4 天、录用到见刊 3.9 天；APC CHF 1800 |
+| MDPI *Applied Sciences* / *Electronics* | 是 | — | 是 | SCIE + EI 双算；首次决定中位数 15 / 14.8 天；APC CHF 2400 |
+| *IEEE Access*（2169-3536） | 是 | — | 是 | SCIE + EI；官方：平均 4 周出二元决定、4–6 周见刊、录用率约 20%、APC USD 2160；不在 2026 中科院 37 本「Under Review」名单 |
+| *Journal of Artificial Intelligence and Technology*（JAIT，2766-8649，ISTP Press，主编 Yinong Chen / ASU） | 否 | 否 | **是**（2026-05-20 起；已在 08 月源列表） | 算 EI 期刊；Scopus（CiteScore 2025 10.1，SJR 0.722）；官网：首次决定 59 天、录用到见刊 12 天、录用率 25%、APC USD 1200、8–12 页双栏 Word 模板。EI 收录很新，投前请图书馆在 Engineering Village 按 ISSN 27668649 确认 2026 年文章已可检索 |
+
+因此 §10.3「候选改为 *Frontiers*」**只在毕业要求不含三大检索时成立**；若含，则回到 *Computers*（EI）或 SCIE + EI 的 *Applied Sciences* / *Electronics* / *IEEE Access*。会议路线（含 ICSE 2027 工作坊 AGENT，截稿 2026-11-13、通知 12-11、IEEE 出版）2 个月内只能拿到录用通知，EI 检索要到 2027 年中。时间线判断与路径见 `progress.md` Q11。

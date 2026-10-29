@@ -147,6 +147,7 @@
 | 2026-10-28 | 级别与判定方式统一用中文业务名：严重 / 一般 / 轻微、程序检查 / AI 辅助 / 人工判断（工具文字输出、看板、话术）；数据与参数仍是英文值；规则页去掉「来源」行与「不在看板修改」提示，改为一行级别说明 | 用户：「major、minor 没人能理解」「冗余提示删掉」。不改 schema，只改呈现 |
 | 2026-10-28 | 同一方案只留一条进行中记录：`contentKey`（去 BOM / 统一换行 / 去行尾空白）判重；新建时把同 contentKey / 路径 / 标题的「进行中且无决定」旧记录标 `superseded`；启动时收拢存量；新增 `discarded`（对话或看板作废）。已关闭记录保留、默认隐藏、不计数；schema 只放宽，`version` 不变 | 用户实测同一文件出现 3 条记录（1 条定稿 + 2 条进行中、都在 16:47）：原哈希按原始字节算，粘贴 / 路径 / 转换的空白差异即成新记录；协议又让「重开」保留旧记录。只做软关闭不物理删除：记录是审计与论文数据 |
 | 2026-10-29 | 论文候选期刊改为 *Frontiers in Computer Science*（Software 栏目；WoS **ESCI** 非 SCIE、IF 3.4、JCR Q3、中科院 2025 升级版 4 区 / 2026-03 新锐 3 区），MDPI *Computers*（同为 ESCI，IF 5.2、JCR Q2）降为备选；文章类型按数据量定：≥30 份真实定稿审查投 Original Research，不足则 Technology and Code；叙事改动：编译器隐喻降为框架视角、RSI 只进讨论、RQ1–RQ4 对应四性质、标题不提「编译」；v0.2 创新点判定为「够用但需真实试点数据」，补充低成本方向 D1–D7（首选 D1 规则可验证性审计：28 条仅 10 条 hard、4 条 blocker 全为 hybrid）。`AGENTS.md` §5.4 待用户确认后同步 | 用户 2026-10-29 要求复审创新点是否够 SCI 3/4 区、是否合该刊风格并写英文初稿；结论与依据见 `paper/innovation-notes.md` §10，初稿见 `paper/draft-en.md` |
+| 2026-10-29 | 同日用户补充「2 个月内需三大检索证明用于毕业」：核对官方 Compendex 源列表后，*Frontiers in Computer Science* 不算 EI 也不算 SCIE，撤回其作为候选；期刊按学校口径在 *Computers*（EI）与 *IEEE Access* / *Applied Sciences* / *Electronics*（SCIE + EI）之间选；JAIT 可算 EI 期刊但审稿 59 天不适合 2 个月目标；ICSE 2027 工作坊（11-13 截稿）只能拿录用通知 | 证据 `/opt/cursor/artifacts/compendex-check.log`；细节 `paper/innovation-notes.md` §10.7 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -162,7 +163,7 @@
 | Q8 | 正式公文模板样例 | 若有正式红头/表单模板，提供样例后在 `review-protocol.md` §6 增加模板变体；默认沿用历史意见格式 | ⬜ 不阻塞 |
 | Q9 | 专家身份 | 局域网多人使用时如何区分专家：默认每个会话首次复核前用 `ask_user_question` 问一次姓名/工号并写入 `reviews.reviewer`；不自建账号体系 | ⬜ 不阻塞，按默认 |
 | Q10 | S3c 真机种子审查 | 2026-10-23 已跑通：`rv_20261023_xnhfjz`，10 条、全部采纳、`finalVerdict=不通过`、意见文件已生成；使用 `DEEPSEEK_API_KEY` 走 headless，无需 web 登录 | ✅ |
-| Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code | ⬜ 不阻塞，按默认 |
+| Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code。**2026-10-29 补充**（用户：2 个月内需三大检索任一库证明用于毕业）：按 2026-08 官方 Compendex 源列表核对，*Frontiers in Computer Science* 不在 EI 且仅 ESCI → 毕业用途出局；*Computers* 在 EI；JAIT 在 EI（2026-05 起）但首次决定 59 天。默认改为：若需 EI → *Computers*；若需 SCIE → *IEEE Access* / *Applied Sciences* / *Electronics*；会议只能 2 个月内拿录用通知。待用户确认学校口径（检索证明 vs 录用通知）后定稿，见 `paper/innovation-notes.md` §10.7 | ⬜ 待用户确认口径 |
 
 ## 5. 推迟 / 拒绝
 
