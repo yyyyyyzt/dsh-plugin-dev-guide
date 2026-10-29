@@ -1,7 +1,7 @@
-# 论文创新点笔记 v0.2（重写）
+# 论文创新点笔记 v0.2（重写）+ v0.3 复审附录
 
 > 状态：2026-10-19 重写。v0.1 把论文讲成「校验器 + 门禁提升精确率」的工程改进，用户否决：在 AI 已开始做递归自我改进（RSI）研究的时代，再讲召回率提升不合适。本版把重心放到**问题定义与叙事**；方法允许是 a + b + c 的组合与微改。代码实现（`docs/`、`src/`）与论文叙事分离：本文只约束论文，不反向约束开发范围，除 §9 列出的几个轻量数据点。
-> 目标期刊：**MDPI *Computers***（按先例 ReqPlan-Eval, *Computers* 15(9):608, 2026：组件级评测 + 诚实限制陈述的写法）。
+> 目标期刊：**MDPI *Computers***（按先例 ReqPlan-Eval, *Computers* 15(9):608, 2026：组件级评测 + 诚实限制陈述的写法）。**2026-10-29 复审（§10）：候选目标改为 *Frontiers in Computer Science*（Software 栏目），*Computers* 降为备选；是否切换待用户确认。** 英文初稿见 `paper/draft-en.md`。
 > 用户决定（2026-10-19）：① 论文全部脱敏，产品统一称「能源互联网平台」；② 投 *Computers*；③ 试点预计上百份真实审查；④ 不做第二模型复跑（不影响开发时再议）。
 
 ---
@@ -175,6 +175,78 @@
 
 待决（不阻塞开发）：
 
-1. 论文标题方向二选一：A「Review Knowledge as a Compiled, Typed Asset: …」（概念先行）/ B「From Prompts to Compiled Review Knowledge: A Human-Gated Approach …」（叙事先行）。
-2. 是否把「有界自我改进」写进摘要（更抓眼，但审稿风险略高）还是只放讨论。
+1. 论文标题方向二选一：A「Review Knowledge as a Compiled, Typed Asset: …」（概念先行）/ B「From Prompts to Compiled Review Knowledge: A Human-Gated Approach …」（叙事先行）。→ §10.4 给出 v0.3 的选择。
+2. 是否把「有界自我改进」写进摘要（更抓眼，但审稿风险略高）还是只放讨论。→ §10.4：只放讨论。
 3. 试点开始时间与数据导出口径（看板「评测」页将直接导出 §5 所需序列）。
+
+---
+
+## 10. 2026-10-29 复审：创新点够不够、换投 *Frontiers in Computer Science* 行不行
+
+> 触发：用户要求「重新审查创新点是否足够（微创新 / 有故事即可，目标 SCI 3、4 区）、是否符合 *Frontiers in Computer Science* 风格、没问题就写英文初稿」。本节是复审结论；英文初稿在 `paper/draft-en.md`。核验方法：期刊官网（about / sections / article-types / author-guidelines）、分区聚合站（ablesci / justscience / ais）、每条关键相关工作逐一检索确认存在与出处。
+
+### 10.1 创新点复审结论
+
+**够，但有三个前提。** v0.2 的「问题定义（审查知识引入问题）+ 可验证性类型系统（C1）+ 对话即编译 / 有界生长（C2）+ 插件原生实现（C3）」对 ESCI / 中科院 3–4 区的软件工程类期刊是成立的微创新组合：每个组件都有出处（确定性校验器 = requirements smells / 检查表审读；逐字引文门禁 = verifiable-by-construction；反馈飞轮 = BitsAI-CR / CodeRabbit 实证），但「类型决定决策权限 + 候选区间约束 + 人类独占的 tier 提升权」这个组织方式在最近邻（PolicyGuard 2026、BitsAI-CR 2025、ReqPlan-Eval 2026）中都没有。三个前提：
+
+1. **必须有真实使用数据。** Software 栏目的范围声明明文写着：「merely describe the application of existing technology to new contexts without offering novel research insights will not be accepted」。只有合成集 + 一次真机冒烟（`rv_20261023_xnhfjz`，10 条全采纳）不够。最低线：≥ 30 份定稿的真实审查（可报告采纳率、按 tier 的驳回率、ai/final 结论 kappa）；理想：用户所说的上百份，可做时间序列。
+2. **编译器隐喻降级为「框架视角」，形式对象上位。** 审稿人（Shepperd 一系是实证软件工程背景）对隐喻不买账。正文贡献写成四条可检验性质 (i)–(iv) + 类型系统的静态不变量（`parseRulePack` 的拒绝规则）+ 四种专家动作到知识层变更的精确映射；「编译 / IR / lint」只在 3.x 一小节与讨论里作类比。RSI 只在讨论里一段，摘要不提。
+3. **评测先回答「机制对不对」再回答「学没学到」。** 合成集只做 (ii) 的消融与 (i) 的证据有效率；(iii)(iv) 全部来自在线集与模拟专家实验。不要用准确率单指标；按 tier 分组的驳回率是类型系统有区分力的直接证据，要放在结果第一张图。
+
+**v0.2 里应删或弱化的点**：「与 RSI 对话」写进贡献（删，只留讨论）；「上百份」作为已有事实（改为试点规模目标，结果用占位符）；「旧版 vs 新版复杂度对比」作为结果（旧版已删、无法复现，降为动机叙事，不进结果表）。
+
+### 10.2 还能加的微创新方向（成本低、与现有代码对齐，按性价比排序）
+
+| # | 方向 | 为什么算创新点 | 代码 / 数据成本 | 建议 |
+|---|---|---|---|---|
+| D1 | **规则可验证性审计**作为实证发现：旧 24 条按可验证性逐条分型得 6 / 13 / 5，加模板结构规则后 10 / 13 / 5；**4 条 blocker 全部是 hybrid**（最要命的要求恰恰最不可程序验证） | 量化地解释了为什么关键词匹配不可能实现 ~64% 的专家规则；为 hybrid 层存在给出数据理由 | 零（已有） | 进结果 4.1，配一张 tier × severity 表 |
+| D2 | **负证据所有权**（absence 只能由校验器断言；LLM 的「未提及…」一律拒绝、展示时标「非引文」） | 文献里的引文门禁只管「引文在不在原文」，没人处理「缺失」这类不可引用的证据；命名后是一个可引用的小概念 | 零；报告 `ABSENCE_NOT_ALLOWED` 的命中数 | 进方法 3.4 + 结果（门禁原因分布） |
+| D3 | **候选区间约束判断**（`OUT_OF_CANDIDATES`）：LLM 的证据必须落在校验器划定的片段内 | 把「LLM 能否可靠判断」变成「在这个片段上能否判断」；可量化「若不约束，LLM 会引到区间外多少次」 | 零；S−verifier 消融已在计划 | 进方法 3.4 + 消融表 |
+| D4 | **专家决定即标签**的评测口径（adopt = TP、reject = FP、add = FN、pending 确认单列）与 BitsAI-CR 的 outdated rate 对比 | 对「在环审查系统怎么评」是一个方法学小贡献；无需单独标注 | 零 | 进 3.9 + 讨论 |
+| D5 | **模拟专家 lint 实验**：故意调坏一条规则参数 → 需要多少次审查触发驳回率告警 → 审计回滚 | 直接支撑性质 (iv)「有界、可回滚」；别人没做 | 一个脚本（S5 已计划） | 进结果 4.5 |
+| D6 | **第二个规则包**（P1「按文档类型 / 变更类型决定适用范围」）：换 YAML 不换代码 | 回应「单场景」质疑；证明规则包是数据 | 中（P1 开发） | 若投稿前完成则加一小节，否则写进限制 |
+| D7 | 定位到「**技术方案 / 设计文档**预审」而非代码审查 | LLM 代码审查已很拥挤；受监管企业的设计文档审查文献稀少，可借需求工程（smells、29148 可验证性）搭桥 | 零 | 引言与相关工作的组织方式 |
+
+不加：第二模型复跑（用户已决）、向量检索、细粒度权限、Word 生成。
+
+### 10.3 期刊适配：*Frontiers in Computer Science*
+
+核验事实（2026-10-29）：
+
+| 项 | 事实 | 对我们的含义 |
+|---|---|---|
+| 收录 | Web of Science **ESCI**（不是 SCIE）、Scopus、DOAJ、Inspec、dblp | 若单位认定「SCI」仅指 SCIE，此刊**不算**；MDPI *Computers* 同为 ESCI，问题相同。投稿前先确认单位口径 |
+| 影响因子 / 分区 | IF 3.4（JCR 2025，2026-06 发布）、CiteScore 6.2；JCR Q3（Computer Science, Interdisciplinary Applications，94/185）；中科院 2025 升级版 **4 区**；2026-03 新锐分区 **3 区**；不在预警名单 | 满足「3、4 区」目标。对比 *Computers*：IF 5.2、JCR Q2、中科院 2025 4 区、新锐 3 区 —— 指标上 *Computers* 更高 |
+| 栏目 | **Software**（Specialty Chief Editor: Martin Shepperd, Brunel）；范围含「Artificial Intelligence in Software Engineering」「Software Testing & Quality Assurance」「Empirical Software Engineering」「Human-Centric Software Engineering」 | 对口。注意桌面拒稿条款：纯「现有技术用于新场景、无研究洞见」不收 |
+| 文章类型 | **Original Research**（≤ 12,000 词；Abstract / Introduction / Materials and Methods / Results / Discussion）或 **Technology and Code**（≤ 12,000 词；Abstract / Introduction / Method 含代码描述 / Results 含使用示例与限制 / Discussion 含可扩展性与限制；必须给仓库链接、OS、语言、许可） | 有 ≥ 30 份真实审查 → Original Research；只有合成集 + 小样本 → Technology and Code（开源插件天然对口）。两者字数上限相同，初稿按 Original Research 写，章节名可一对一改成 T&C |
+| 格式 | 摘要单段（建议 IMRaD 结构、≤ 350 词）；关键词 5–8；标题避免「Towards / A description of / 问句」；最多 5 级标题；图最多 15；参考文献 **Frontiers Harvard（作者–年份）**；必备声明：Data availability、Ethics（涉及专家参与）、Author contributions、Funding、Conflict of interest、**Generative AI statement**（用 LLM 写作/润色必须披露型号与版本） | 与 *Computers*（Vancouver 编号、ACS 风格）主要差在引用格式与必备声明 |
+| 审稿 | 单盲；Frontiers 协作审稿论坛；社区称平均约 13 周 | — |
+| 近期同类 | Hemmat et al. 2025（LLM 在需求工程的系统综述，fcomp.2025.1519437）；Dolcetti & Iotti 2025（LLM 与代码验证双视角综述，fcomp.2025.1655469）；Research Topic「Machine learning for software engineering」「Human-centered approaches in modern software engineering」有 editorial | 引言可引这两篇把问题接到本刊语境；留意是否有开放的 Research Topic 可投 |
+
+结论：**风格与范围匹配**。相对 *Computers* 的取舍：*Computers* 当前指标更高（IF 5.2 / Q2）且有 ReqPlan-Eval 先例；*Frontiers* 的 Software 栏目主编是实证 SE 背景、对「系统 + 评测 + 诚实限制」友好，且 Technology and Code 类型给开源插件一个正式归宿。两刊同为 ESCI，分区同档；建议以「数据到位程度」而非期刊本身决定：真实审查 ≥ 30 份 → 任一刊 Original Research 均可；不足 → *Frontiers* Technology and Code 更稳。
+
+### 10.4 对叙事的修改（v0.3，已体现在 `draft-en.md`）
+
+- 标题（待决 1 的选择）：走「陈述主结论」路线，而非概念口号：*Verifiability-typed review knowledge with human-gated evolution for LLM-assisted preliminary review of technical solution proposals*。备选短标题：*Authority follows verifiability: human-gated review knowledge for LLM-assisted document review*。
+- 摘要不提 RSI / 编译器；用「knowledge ingestion problem → four properties → typed rules + evidence gate + deterministic policy + review-as-feedback → plugin → evaluation」一条线。
+- 研究问题固定为四条，与性质 (i)–(iv) 一一对应：RQ1 可审计性（证据有效率、三级可回溯）；RQ2 权限随可验证性（按 tier 驳回率、消融）；RQ3 可生长（知识增量、采纳率趋势）；RQ4 有界生长（审计覆盖、告警触发、回滚）。结论权（kappa）并入 RQ2。
+- 相关工作按「知识如何进入系统」组织（保留 v0.2 §4 表），新增需求工程一支（smells / 29148 可验证性 / 检查表审读）作为 C1 的学术根。
+- 系统章节逐组件标出处（组合非新颖），并写明 `parseRulePack` 的静态不变量清单作为「可执行的类型定义」。
+- 讨论：与 PolicyGuard 的对称 / 非对称权限对比；与 BitsAI-CR 飞轮的「学习发生在哪一层」对比；一段「有界、人类门控的知识演化」与自我改进 agent 文献对话；宿主约束如何塑造设计；威胁与限制（单场景单单位、合成同源、模型依赖、无第二模型、专家可能橡皮图章）。
+- 脱敏：正文称「an energy-internet online service platform (OSP) of a large utility」；插件在文中称 *SolutionReview*；仓库链接与 DOI 投稿时补（占位）。
+
+### 10.5 初稿中的占位符与两条投稿路径
+
+`draft-en.md` 用 `[[TBD: …]]` 标出全部待填项，分三类：
+
+1. **数据**：合成集消融（B0 / B1 / S-full / S−gate / S−verifier / S−policy）的 P / R / F1 与 CI；在线集的 n、采纳 / 驳回 / 改写 / 新增计数、按 tier 驳回率、kappa、时序曲线；模拟专家 lint 实验；成本（工具调用数、耗时、token）。来源：S5 的 `eval_runs` 与看板「评测」页导出。
+2. **图**：图 1–8 只给内容说明，待 S5 后用脚本生成。
+3. **行政**：作者 / 单位 / 署名、伦理声明口径、仓库 DOI、Generative AI statement 的模型版本。
+
+路径 A（数据充分）：填满 4.3–4.6 → Original Research → *Frontiers* 或 *Computers*。路径 B（数据不足）：4.4–4.5 改为「pilot observations」小节 + 限制里明示 → Technology and Code → *Frontiers*。两条路径共用 1–3 章与 5–6 章，不需重写。
+
+### 10.6 待决事项更新
+
+- 是否正式把目标期刊从 *Computers* 切到 *Frontiers in Computer Science*（切则同步改 `AGENTS.md` §5.4 与 `progress.md` S6 行）。默认：**两刊并列候选，按 10.3 末段的数据到位程度决定**。
+- 单位对 ESCI 期刊的认定口径（两刊都受影响）。
+- 试点开始时间；≥ 30 份是初稿能投的最低线。
