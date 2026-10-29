@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-28　|　当前步骤：**S4 看板 V2 + 第二轮反馈（口语化复核、中文级别、同一方案只留一条记录）已实现并发布 `wsgw-solution-review-v0.1.0-dev.1`；待用户本机 GUI 冒烟，清单见 §7**
+> 更新：2026-10-29　|　当前步骤：**S4 看板 V2 + 第二轮反馈（口语化复核、中文级别、同一方案只留一条记录）已实现并发布 `wsgw-solution-review-v0.1.0-dev.1`；待用户本机 GUI 冒烟，清单见 §7。论文侧 2026-10-29 完成创新点复审 v0.3 与英文初稿（S6 🟡），结果章节待 S5 数据**
 
 ## 1. 步骤总览
 
@@ -17,7 +17,7 @@
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ✅ 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）；同日真机 `rv_20261023_xnhfjz`：10 条问题、全部采纳、finalized、意见 `reviews/rv_20261023_xnhfjz.md` |
 | S4 | 看板 V2（`dashboard.md` V2.0）：左侧栏主面板（审查 / 规则 / 评测）+ 右侧栏复核助手 + 可写 API（规则含建议 / 恢复出厂、候选、复核）；设置卡片推迟 | bundle 校验脚本通过；主面板可看审查量、展开复核、编辑规则；录屏 | 🟡 2026-10-28：V2 完成，`pnpm test` 355 passed / 15 todo；`build` / `check:bundle` 通过（76,607 bytes）；headless 真机 API + Chrome 无头浏览器走查（§6）。V1（右栏四页，2026-10-27）已被替换。剩余：用户本机 GUI 冒烟（§7 清单）与录屏 |
 | S5 | 数据迁移与评测：24 条规则重写入新 schema；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
-| S6 | 论文：大纲 → 实验 → 稿件（MDPI *Computers* 模板） | 稿件初稿 + 图表 + 可复现包 | ⬜ |
+| S6 | 论文：大纲 → 实验 → 稿件（候选 *Frontiers in Computer Science* Software 栏目，备选 MDPI *Computers*；正式切换待用户确认，见 Q11） | 稿件初稿 + 图表 + 可复现包 | 🟡 2026-10-29 创新点复审 v0.3（`paper/innovation-notes.md` §10）+ 英文初稿 `paper/draft-en.md`（Frontiers Original Research 结构；§1–3、§5–6 成文，§4.3–4.5 结果与 8 幅图为 `[[TBD]]` 占位，待 S5 评测与 ≥30 份真实试点数据） |
 
 ## 2. 各步骤交付清单
 
@@ -146,6 +146,7 @@
 | 2026-10-28 | `review_decide` 的 `adopt` / `rewrite` 可带 `severity` 只调这一条问题（记 `severityFrom`），归一化识别「算轻微」「降为 minor 后采纳」；改规则级别仍走 `rules_propose`，要专家明说「以后 / 这类」 | 专家对单个方案的判断不应顺带改全局规则；也不应被要求去「规则层另行调整」 |
 | 2026-10-28 | 级别与判定方式统一用中文业务名：严重 / 一般 / 轻微、程序检查 / AI 辅助 / 人工判断（工具文字输出、看板、话术）；数据与参数仍是英文值；规则页去掉「来源」行与「不在看板修改」提示，改为一行级别说明 | 用户：「major、minor 没人能理解」「冗余提示删掉」。不改 schema，只改呈现 |
 | 2026-10-28 | 同一方案只留一条进行中记录：`contentKey`（去 BOM / 统一换行 / 去行尾空白）判重；新建时把同 contentKey / 路径 / 标题的「进行中且无决定」旧记录标 `superseded`；启动时收拢存量；新增 `discarded`（对话或看板作废）。已关闭记录保留、默认隐藏、不计数；schema 只放宽，`version` 不变 | 用户实测同一文件出现 3 条记录（1 条定稿 + 2 条进行中、都在 16:47）：原哈希按原始字节算，粘贴 / 路径 / 转换的空白差异即成新记录；协议又让「重开」保留旧记录。只做软关闭不物理删除：记录是审计与论文数据 |
+| 2026-10-29 | 论文候选期刊改为 *Frontiers in Computer Science*（Software 栏目；WoS **ESCI** 非 SCIE、IF 3.4、JCR Q3、中科院 2025 升级版 4 区 / 2026-03 新锐 3 区），MDPI *Computers*（同为 ESCI，IF 5.2、JCR Q2）降为备选；文章类型按数据量定：≥30 份真实定稿审查投 Original Research，不足则 Technology and Code；叙事改动：编译器隐喻降为框架视角、RSI 只进讨论、RQ1–RQ4 对应四性质、标题不提「编译」；v0.2 创新点判定为「够用但需真实试点数据」，补充低成本方向 D1–D7（首选 D1 规则可验证性审计：28 条仅 10 条 hard、4 条 blocker 全为 hybrid）。`AGENTS.md` §5.4 待用户确认后同步 | 用户 2026-10-29 要求复审创新点是否够 SCI 3/4 区、是否合该刊风格并写英文初稿；结论与依据见 `paper/innovation-notes.md` §10，初稿见 `paper/draft-en.md` |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -161,6 +162,7 @@
 | Q8 | 正式公文模板样例 | 若有正式红头/表单模板，提供样例后在 `review-protocol.md` §6 增加模板变体；默认沿用历史意见格式 | ⬜ 不阻塞 |
 | Q9 | 专家身份 | 局域网多人使用时如何区分专家：默认每个会话首次复核前用 `ask_user_question` 问一次姓名/工号并写入 `reviews.reviewer`；不自建账号体系 | ⬜ 不阻塞，按默认 |
 | Q10 | S3c 真机种子审查 | 2026-10-23 已跑通：`rv_20261023_xnhfjz`，10 条、全部采纳、`finalVerdict=不通过`、意见文件已生成；使用 `DEEPSEEK_API_KEY` 走 headless，无需 web 登录 | ✅ |
+| Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code | ⬜ 不阻塞，按默认 |
 
 ## 5. 推迟 / 拒绝
 
@@ -194,6 +196,7 @@
 | 分发（2026-10-28） | 提交 `3e81552` docs → `2a8915d` test（红灯：`scripts/release.mjs` 缺失）→ `ff7985e` feat → `185986c` 修正。`pnpm typecheck` 通过；`pnpm test` → `Tests 361 passed | 15 todo (376)`（`tests/host/release.spec.ts` 6：清单去 `scripts` / `devDependencies`、无 `prepare`、`exports` 均被 `files` 覆盖、tag 名、GitHub 安装地址、非 GitHub 拒绝）。`pnpm run release` → tag `wsgw-solution-review-v0.1.0-dev.0` → 提交 `94002e6`（无父提交），已推送。隔离 `DSH_HOME` 真机（`/opt/cursor/artifacts/github-release-install.log`）：tag 地址安装 65 个依赖、无构建；git 不可用时 sha 地址安装成功、tag 地址失败（pnpm 需 `git ls-remote` 解析 tag）；启动后 client 200 / 79,579 bytes、`/overview` 200、规则 28 条、preset 行存在。Windows 桌面版插件页安装待用户验证 |
 | 第二轮反馈（2026-10-28） | 提交 `e06202d` / `4534cc5` docs → `6e1fbeb` test（红灯 30 条：去重 / 作废 / `REVIEW_CLOSED` / 单条调级别 / 口语答复归一化 / 中文级别 / 看板已作废与规则说明条）→ `f06e587` test 校正（回放 `review_decide` 计 15 次含一次「只说换个说法」被拒、同标题夹具改名、`/review` 状态中文）→ `1054178` feat → `cccca99` 版本 0.1.0-dev.1。`pnpm typecheck` / `pnpm build` / `pnpm run check:bundle` 通过（80,614 bytes，仅外部化 `react`）；`pnpm test` → `Tests 386 passed | 15 todo (401)`。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：在存储里放两条与已有记录同文的「进行中、无决定」副本（其一为 CRLF 换行）后重启 → 两条均 `closed`「被 rv_… 取代」；`POST /reviews/:id/discard` 200、重复作废 400 `REVIEW_CLOSED`；对已取代记录写入 400 并提示新编号；`GET /rules` 带 `minorThreshold`。发布：`pnpm run release --push` → tag `wsgw-solution-review-v0.1.0-dev.1` → 提交 `c38bfbd`；在装有 dev.0 的隔离 `DSH_HOME` 里 `dsh plugin add <tag 地址>` 原地升级（+1 包），启动后 `/overview` 200、规则 28 条、client 83,988 bytes 含新文案（`github-release-install.log` 末段） |
 | S1 | `plugins/wsgw-solution-review/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
+| S6 预备（2026-10-29） | 提交 `8259c65`（`paper/innovation-notes.md` §10 复审）→ 英文初稿 `paper/draft-en.md`。初稿体检（脚本，仓库外）：摘要 349 词（刊限 350）；正文约 7,600 词不含表 / 8,500 词含表（刊限 12,000，结果章节占位将再加 1,500–2,500）；参考文献 27 条，在文列表与文内引用双向一致，其中 2025–2026 年 10 条与 2 个脚注网页来源已逐条核实存在；`[[TBD]]` 占位 32 处（摘要 3、§3.9 模型与伦理 2、§4.3–4.6 结果 5、§5 / §6 4、文末声明 5、图 8、作者 2 等）；表 1–9、图 1–8 按首次出现编号；脱敏扫描（网上国网 / 国网 / 支付宝 / state grid / wsgw / deepseek / 江苏 等）无命中。规则分布数字（tier × severity：blocker 0/4/0、major 6/7/3、minor 4/2/2；校验器用量 section 9 / table 3 / statement 16 / quantity 1 / mermaid 3 / cross-ref 3）由 `rules/capability-open-access.rules.yaml` 用 PyYAML 现算 |
 
 ## 7. 下一步
 
@@ -231,6 +234,6 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 
 分发：其他机器（含 Windows 桌面版）用 GitHub 发布 tag 安装，见 `plugins/wsgw-solution-review/docs/design.md` §16 与插件 README；npm 发布仍推迟。
 
-论文侧（暂停中）：`paper/innovation-notes.md` v0.2；S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。
+论文侧（S6 🟡，2026-10-29）：`paper/innovation-notes.md` v0.2 + §10 复审；英文初稿 `paper/draft-en.md`（Frontiers in Computer Science Original Research 结构，文内 `<!-- DRAFT STATUS -->` 块记录版本、改投 Technology and Code 的改法与脱敏约定）。S3b 已落实「规则包有效版本号」反向要求（`reviews.rulePackVersion = pack@ver+ovN`）。待办按先后：① 用户拍板 Q11（期刊切换 / ESCI 认定 / 试点最低线），确认后同步 `AGENTS.md` §5.4；② S5 评测跑出 `eval_runs` 后填 §4.3 与图 8 消融部分；③ 真实试点累计 ≥30 份定稿审查后填 §4.4–4.5、图 7–8、摘要与结论中的 `[[TBD]]`；④ 补 §3.9 模型名与版本、伦理 / 同意措辞、作者与 CRediT、Generative AI 声明、数据仓库 DOI（公开仓库名含产品缩写，需决定是否从中性命名的镜像发布）；⑤ 2024 年以前的参考文献逐条核对卷期页码 DOI；⑥ 绘图 1–5（引入路线、可验证性谱与三层、审查流水线、复核即反馈、插件架构）与看板脱敏截图（图 6）。
 
 环境备注：本机 Node 需 ≥ 22.19（已用 nvm 装 v22.23.3）；`DSH_HOME` 可指向任意目录做隔离验证。
