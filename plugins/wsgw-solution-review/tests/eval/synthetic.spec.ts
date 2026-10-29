@@ -67,10 +67,11 @@ describe('synthetic dataset (T-EVA-04)', () => {
     for (const r of pack.rules.filter((r) => r.tier !== 'soft')) expect(planted, r.id).toContain(r.id)
   })
 
-  it('every solution parses to the template shape (resource table, eight sections, attachments) and has no de-anonymised names', () => {
+  it('every solution parses to the template shape (headings, a table unless tables are planted missing) and has no de-anonymised names', () => {
     for (const s of set.solutions) {
       const doc = parseMarkdown(s.markdown)
-      expect(doc.tables.length).toBeGreaterThanOrEqual(1)
+      const tablesRemoved = s.defects.some((d) => (d.ruleId === 'DOC-010' || d.ruleId === 'INT-001') && d.plantedKind === 'missing')
+      if (!tablesRemoved) expect(doc.tables.length, s.id).toBeGreaterThanOrEqual(1)
       expect(doc.headings.length).toBeGreaterThanOrEqual(1)
       expect(s.markdown).not.toMatch(/网上国网|国网|支付宝|阿宝|江苏|福建/u)
     }

@@ -137,7 +137,7 @@ describe('ablation runner (T-EVA-08, T-EVA-09)', () => {
   it('deterministic configurations are byte-identical across repetitions (apart from runId / repetition / at)', async () => {
     const strip = (r: Awaited<ReturnType<typeof runConfiguration>>) => {
       const { runId: _id, at: _at, config, ...rest } = r
-      const { repetition: _rep, ...c } = config as Record<string, unknown>
+      const { repetition: _rep, ...c } = config as unknown as Record<string, unknown>
       return { ...rest, config: c }
     }
     const a = await runConfiguration({ ablation: 'B0', dataset: small, pack, cfg, judge: flagJudge, repetition: 0 })
