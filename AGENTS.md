@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-28（看板交互重做：左侧栏「方案审查」主面板做总览与全局规则，右侧栏只留复核助手；§2.2 / §3 / §4.1 同步）。
+> 最后更新：2026-10-29（发表渠道改为 ICSE 2027 AGENT 工作坊，路径 A；S5 评测脚本与合成集开工；§5.4 / §6 同步）。
 
 ## 0. 这个仓库现在是什么
 
@@ -187,9 +187,11 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 原 30 条历史意见（45 个意见点，2026-10-23 已随 archive 删除）的分布为 通过 15 / 建议整改 14 / 不通过 1，类别严重不均衡，因此**不用准确率单指标**，报告每类召回与 kappa；论文只引用该统计口径，不再分发原文。
 
-### 5.4 目标期刊与稿件约束
+### 5.4 目标发表渠道与稿件约束
 
-MDPI *Computers*（2026-10-19 用户决定，按 ReqPlan-Eval 先例：组件级评测 + 诚实限制陈述；详见 `paper/innovation-notes.md`）。稿件结构按其 Article 模板：Introduction / Related Work / System Design / Implementation / Evaluation / Discussion / Conclusions；强调可复现（开源插件 + 匿名化数据 + 评测脚本）。备选：*Applied Sciences*、*Electronics*、*Information*。
+**当前目标（2026-10-29 用户拍板，路径 A）**：ICSE 2027 **AGENT** 工作坊（IEEE 出版、EI/CPCI 检索的会议论文，8 页 IEEE 双栏，截稿 2026-11-13 AoE，通知 2026-12-11）。用户毕业口径为「录用通知即可，EI 会议也算」，因此先以会议录用为目标；稿件先用合成集评测结果（§5.3 消融部分）成文，真实数据由用户本地替换数据集后重跑。会议版之后再扩展为期刊版（候选：MDPI *Computers*（EI）；需 SCIE 时 *IEEE Access* / *Applied Sciences* / *Electronics*）。*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
+
+稿件结构按 IEEE 会议模板：Introduction / Background & Problem / Approach / Implementation / Evaluation / Discussion & Threats / Conclusions；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。英文长稿 `paper/draft-en.md` 保留为期刊版底稿。
 
 ## 6. 质量门禁
 
@@ -198,6 +200,7 @@ MDPI *Computers*（2026-10-19 用户决定，按 ReqPlan-Eval 先例：组件级
 - **协议测试**：脚本化 agent 按固定工具调用序列与专家回答跑完一次「预审 → 复核 → 定稿」，断言落库内容与交付文件；真实模型对话由人工冒烟覆盖（清单见 `progress.md`）。
 - **离线校验脚本**：client bundle 结构（banner / footer / 外部化白名单）、规则 YAML schema。
 - 命令（S3 搭好工程后固定写入此处）：`pnpm test`、`pnpm typecheck`、`pnpm build`、`pnpm run check:bundle`。
+- **评测脚本**（S5，`plugins/wsgw-solution-review/scripts/eval/`，先 `pnpm run build`）：`pnpm run eval:gen`（合成集 + 真值 + 自检）、`pnpm run eval:ablation`（消融；默认确定性 judge，LLM 配置需 `--adapter`）、`pnpm run eval:anonymize`（脱敏）。输出到 `paper/data/public/`；用法见 `paper/REPRODUCE.md`，口径见插件 `docs/evaluation.md` §5。
 - 每步完成的证据写入 `progress.md`：测试名、通过数、commit。
 
 ## 7. 历史与决策记录（为什么重做）

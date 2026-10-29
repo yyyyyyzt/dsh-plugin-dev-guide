@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-29　|　当前步骤：**S4 看板 V2 + 第二轮反馈（口语化复核、中文级别、同一方案只留一条记录）已实现并发布 `wsgw-solution-review-v0.1.0-dev.1`；待用户本机 GUI 冒烟，清单见 §7。论文侧 2026-10-29 完成创新点复审 v0.3 与英文初稿（S6 🟡），结果章节待 S5 数据**
+> 更新：2026-10-29　|　当前步骤：**S5 评测开工（路径 A：ICSE 2027 AGENT 工作坊，截稿 11-13）：合成集生成器、指标与统计、B0 基线、消融运行器、脱敏脚本；确定性配置已在合成集跑出首批 `eval_runs`，LLM 配置待用户本地带 adapter 跑。S4 看板待用户本机 GUI 冒烟（§7）。S6 英文长稿保留为期刊版底稿，会议版 8 页待 S5 数据成文**
 
 ## 1. 步骤总览
 
@@ -16,8 +16,8 @@
 | S3b | Host 存储与工具：storage domain、`review_*` / `rules_*` / `memory_recall` 工具、命令、设置 | 契约测试绿；`--dump-config` 能组装 | ✅ 2026-10-20 `pnpm test` 284 passed（store 12 / tools 45 / host 13 条由 todo 转为断言）；`--dump-config` 出现两行 |
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ✅ 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）；同日真机 `rv_20261023_xnhfjz`：10 条问题、全部采纳、finalized、意见 `reviews/rv_20261023_xnhfjz.md` |
 | S4 | 看板 V2（`dashboard.md` V2.0）：左侧栏主面板（审查 / 规则 / 评测）+ 右侧栏复核助手 + 可写 API（规则含建议 / 恢复出厂、候选、复核）；设置卡片推迟 | bundle 校验脚本通过；主面板可看审查量、展开复核、编辑规则；录屏 | 🟡 2026-10-28：V2 完成，`pnpm test` 355 passed / 15 todo；`build` / `check:bundle` 通过（76,607 bytes）；headless 真机 API + Chrome 无头浏览器走查（§6）。V1（右栏四页，2026-10-27）已被替换。剩余：用户本机 GUI 冒烟（§7 清单）与录屏 |
-| S5 | 数据迁移与评测：24 条规则重写入新 schema；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；批量评测路径（`ctx.llm`）；消融实验脚本 | `eval_runs` 有首批结果；消融四组可一键复现 | ⬜ |
-| S6 | 论文：大纲 → 实验 → 稿件（候选 *Frontiers in Computer Science* Software 栏目，备选 MDPI *Computers*；正式切换待用户确认，见 Q11） | 稿件初稿 + 图表 + 可复现包 | 🟡 2026-10-29 创新点复审 v0.3（`paper/innovation-notes.md` §10）+ 英文初稿 `paper/draft-en.md`（Frontiers Original Research 结构；§1–3、§5–6 成文，§4.3–4.5 结果与 8 幅图为 `[[TBD]]` 占位，待 S5 评测与 ≥30 份真实试点数据） |
+| S5 | 数据迁移与评测：24 条规则重写入新 schema（已提前到 S2）；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；合成集生成器 + 指标 / 统计 + B0 基线 + 消融运行器（judge 可插拔：确定性 flag / 回放 / LLM adapter）+ 脱敏脚本 | `eval_runs` 有首批结果；消融可一键复现；真实数据集可按 `docs/evaluation.md` §2.5 替换 | 🟡 2026-10-29 开工，细目见 §2 S5 与 §6 |
+| S6 | 论文：大纲 → 实验 → 稿件。**2026-10-29 路径 A**：先投 ICSE 2027 AGENT 工作坊（IEEE 8 页，截稿 11-13，通知 12-11），再扩期刊版（*Computers* / SCIE+EI 刊） | 会议稿 8 页 + 图表 + 可复现包；英文长稿为期刊底稿 | 🟡 2026-10-29 创新点复审 v0.3（`paper/innovation-notes.md` §10）+ 英文初稿 `paper/draft-en.md`（Frontiers Original Research 结构；§1–3、§5–6 成文，§4.3–4.5 结果与 8 幅图为 `[[TBD]]` 占位，待 S5 评测与 ≥30 份真实试点数据） |
 
 ## 2. 各步骤交付清单
 
@@ -147,6 +147,7 @@
 | 2026-10-28 | 级别与判定方式统一用中文业务名：严重 / 一般 / 轻微、程序检查 / AI 辅助 / 人工判断（工具文字输出、看板、话术）；数据与参数仍是英文值；规则页去掉「来源」行与「不在看板修改」提示，改为一行级别说明 | 用户：「major、minor 没人能理解」「冗余提示删掉」。不改 schema，只改呈现 |
 | 2026-10-28 | 同一方案只留一条进行中记录：`contentKey`（去 BOM / 统一换行 / 去行尾空白）判重；新建时把同 contentKey / 路径 / 标题的「进行中且无决定」旧记录标 `superseded`；启动时收拢存量；新增 `discarded`（对话或看板作废）。已关闭记录保留、默认隐藏、不计数；schema 只放宽，`version` 不变 | 用户实测同一文件出现 3 条记录（1 条定稿 + 2 条进行中、都在 16:47）：原哈希按原始字节算，粘贴 / 路径 / 转换的空白差异即成新记录；协议又让「重开」保留旧记录。只做软关闭不物理删除：记录是审计与论文数据 |
 | 2026-10-29 | 论文候选期刊改为 *Frontiers in Computer Science*（Software 栏目；WoS **ESCI** 非 SCIE、IF 3.4、JCR Q3、中科院 2025 升级版 4 区 / 2026-03 新锐 3 区），MDPI *Computers*（同为 ESCI，IF 5.2、JCR Q2）降为备选；文章类型按数据量定：≥30 份真实定稿审查投 Original Research，不足则 Technology and Code；叙事改动：编译器隐喻降为框架视角、RSI 只进讨论、RQ1–RQ4 对应四性质、标题不提「编译」；v0.2 创新点判定为「够用但需真实试点数据」，补充低成本方向 D1–D7（首选 D1 规则可验证性审计：28 条仅 10 条 hard、4 条 blocker 全为 hybrid）。`AGENTS.md` §5.4 待用户确认后同步 | 用户 2026-10-29 要求复审创新点是否够 SCI 3/4 区、是否合该刊风格并写英文初稿；结论与依据见 `paper/innovation-notes.md` §10，初稿见 `paper/draft-en.md` |
+| 2026-10-29 | 用户拍板路径 A：「录用通知即可，EI 会议也算」→ 目标 ICSE 2027 AGENT 工作坊（截稿 11-13）；S5 立即开工，先按评测脚本与合成集出结果，真实数据集由用户本地替换后重跑。实现落点：评测模块放插件 `src/eval/`（复用引擎纯函数、vitest 覆盖），脚本 `scripts/eval/*.mjs` 经 `lib/` 运行，输出 `paper/data/public/`；LLM 判定抽象为 judge（`flag` 确定性 / `replay` 回放 / `llm` 外部 adapter），插件内不写任何模型客户端（铁律 1）；无 key 环境只跑确定性配置并如实标注 | 用户 2026-10-29 决定；`AGENTS.md` §5.4 / §6 同步；judge 设计见 `docs/evaluation.md` §5.1 |
 | 2026-10-29 | 同日用户补充「2 个月内需三大检索证明用于毕业」：核对官方 Compendex 源列表后，*Frontiers in Computer Science* 不算 EI 也不算 SCIE，撤回其作为候选；期刊按学校口径在 *Computers*（EI）与 *IEEE Access* / *Applied Sciences* / *Electronics*（SCIE + EI）之间选；JAIT 可算 EI 期刊但审稿 59 天不适合 2 个月目标；ICSE 2027 工作坊（11-13 截稿）只能拿录用通知 | 证据 `/opt/cursor/artifacts/compendex-check.log`；细节 `paper/innovation-notes.md` §10.7 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
@@ -163,7 +164,7 @@
 | Q8 | 正式公文模板样例 | 若有正式红头/表单模板，提供样例后在 `review-protocol.md` §6 增加模板变体；默认沿用历史意见格式 | ⬜ 不阻塞 |
 | Q9 | 专家身份 | 局域网多人使用时如何区分专家：默认每个会话首次复核前用 `ask_user_question` 问一次姓名/工号并写入 `reviews.reviewer`；不自建账号体系 | ⬜ 不阻塞，按默认 |
 | Q10 | S3c 真机种子审查 | 2026-10-23 已跑通：`rv_20261023_xnhfjz`，10 条、全部采纳、`finalVerdict=不通过`、意见文件已生成；使用 `DEEPSEEK_API_KEY` 走 headless，无需 web 登录 | ✅ |
-| Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code。**2026-10-29 补充**（用户：2 个月内需三大检索任一库证明用于毕业）：按 2026-08 官方 Compendex 源列表核对，*Frontiers in Computer Science* 不在 EI 且仅 ESCI → 毕业用途出局；*Computers* 在 EI；JAIT 在 EI（2026-05 起）但首次决定 59 天。默认改为：若需 EI → *Computers*；若需 SCIE → *IEEE Access* / *Applied Sciences* / *Electronics*；会议只能 2 个月内拿录用通知。待用户确认学校口径（检索证明 vs 录用通知）后定稿，见 `paper/innovation-notes.md` §10.7 | ⬜ 待用户确认口径 |
+| Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code。**2026-10-29 补充**（用户：2 个月内需三大检索任一库证明用于毕业）：按 2026-08 官方 Compendex 源列表核对，*Frontiers in Computer Science* 不在 EI 且仅 ESCI → 毕业用途出局；*Computers* 在 EI；JAIT 在 EI（2026-05 起）但首次决定 59 天。默认改为：若需 EI → *Computers*；若需 SCIE → *IEEE Access* / *Applied Sciences* / *Electronics*；会议只能 2 个月内拿录用通知。待用户确认学校口径（检索证明 vs 录用通知）后定稿，见 `paper/innovation-notes.md` §10.7。**2026-10-29 用户拍板**：录用通知即可、EI 会议也算 → 路径 A（ICSE 2027 AGENT 工作坊），`AGENTS.md` §5.4 已同步 | ✅ 路径 A |
 
 ## 5. 推迟 / 拒绝
 
