@@ -1,6 +1,7 @@
 # MDPI *Computers* 投稿：Section / Topic 建议 + 各项草稿
 
-> 本目录服务于「若投 MDPI *Computers*（EI 期刊）」这一条路线；EI 会议稿在 `../ei-conference/`，两者共用同一篇内容。
+> 本目录服务于**唯一投稿目标** MDPI *Computers*（EI，IF 5.2）；投稿稿本体在 `../mdpi-article/`（官方模板，11 页）。
+> `../ei-conference/`（IOS Press 会议稿）已废弃留档，不再用于任何投递；`../draft-en.md`（Frontiers 长稿）为素材库。
 > 生成时间：2026-10-30。
 
 ## 1. 投稿页该选什么
@@ -90,11 +91,12 @@ Sincerely,
 ## 3. Manuscript 上传
 
 - 只用**一个主文件**：`Computers` 要求正文单独提交，不要把补充材料打进主文件。
+- 现稿已按 **MDPI 官方模板** 写好：`paper/mdpi-article/main.tex`（`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，11 页 A4，编译 `./build.sh`）。
 - 两种合法路径：
-  1. **Free Format Submission**（推荐先用）：直接传 `paper/draft-en.md` 转出的 PDF/Word，不套 MDPI 排版；编辑部转成 MDPI 版式后再送审。参考文献风格统一即可。
-  2. **LaTeX**：必须换成 MDPI 官方模板 `MDPI_template_ACS.zip`，并把**所有源文件 + 图片打成一个 ZIP**（本目录的 IOS Press 模板**不能**用于 MDPI 投稿）。
-- 摘要 ≤ 200 词左右、关键词 3–10 个（现稿 6 个）。
-- 首页脚注需含：Funding、Author Contributions、Conflict of Interest、Data Availability、Acknowledgments（现稿只有 Acknowledgements）。
+  1. **LaTeX（现稿走这条）**：把 `main.tex` + `Definitions/`（`mdpi.cls`、`journalnames.tex`、`mdpi.bst`、`logo-*.eps/pdf`、`logo-mdpi-eps-converted-to.pdf`）打成一个 ZIP 上传；编辑器与编辑部要能用 `pdflatex` 重编译。`paper/ei-conference/main.tex`（IOS Press 模板）**不能**用于 MDPI 投稿，已废弃。
+  2. **Free Format Submission**（备选）：传 `main.pdf` 即可，不套排版；适合赶时间但会失去模板的声明区格式。
+- 摘要 261 词（MDPI 建议 ~200，已在 `main.tex` 里尽量压缩且不丢数字）；关键词 6 个。
+- 声明区已在 `main.tex` 文末：Author Contributions / Funding / Institutional Review Board / Informed Consent / Data Availability / Acknowledgments / Conflicts of Interest。仍待填真值（见 §8）。
 - 独立研究者须标 "Independent Researcher"。
 
 ## 4. Supplementary File(s)

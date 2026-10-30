@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-30（发表渠道改为 EI 会议，IOS Press 模板会议稿；MDPI *Computers* 降为期刊备选；§5.4 同步）。
+> 最后更新：2026-10-30（发表渠道定案：唯一目标 MDPI *Computers*（EI），官方模板投稿稿落 `paper/mdpi-article/`；IOS Press 会议稿废弃留档；§5.4 同步）。
 
 ## 0. 这个仓库现在是什么
 
@@ -189,11 +189,13 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 ### 5.4 目标发表渠道与稿件约束
 
-**2026-10-30 更新（用户改向 EI 会议）**：会议稿在 `paper/ei-conference/`，用用户提供的 **IOS Press Book Article** 模板（`IOS-Book-Article.cls` + `vancouver.bst`；编译与压页方法见该目录 `MANUSCRIPT.md`），当前 12 页、只报已跑出的确定性评测结果，LLM-judge 配置与真实试点写成明确限制。`paper/draft-en.md` 保留为期刊长稿。MDPI *Computers*（EI）降为期刊备选，投稿材料草稿在 `paper/mdpi-submission/`（Section = `AI-Driven Innovations`；Topic 首选 `AI Agents: Progress, Architecture, and Applications`）。会议版与期刊版**不得同时投稿**。
+**2026-10-30 定案（用户拍板，取代此前全部渠道决策）**：唯一目标期刊 **MDPI *Computers***（ISSN 2073-431X；EI/Compendex 收录，IF 5.2），用 MDPI 官方模板投稿。投稿稿件在 `paper/mdpi-article/`：`main.tex` + `Definitions/`（官方 `mdpi.cls`/`journalnames.tex`/`mdpi.bst` 原样随附），`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，ACS 数字引用（23 条），11 页。编译见该目录 `README.md`（`pdflatex main` 两次；`Definitions/logo-mdpi-eps-converted-to.pdf` 需先由 `epstopdf` 生成，脚本已入库）。
+- Section = **`AI-Driven Innovations`**；Topic 选填，首选 **`AI Agents: Progress, Architecture, and Applications`**，次选 `AI-Driven Software Engineering and Next-Generation Web Services`。理由与逐条 scope 对齐见 `paper/mdpi-submission/submission-drafts.md`。
+- 稿件结构按 MDPI Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Conclusion + 声明区（Author Contributions / Funding / IRB / Informed Consent / Data Availability / Conflicts of Interest）；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。
+- `paper/ei-conference/`（IOS Press 模板的 EI 会议稿）**已废弃，仅留档**，不得用于投稿；`paper/draft-en.md`（Frontiers 长稿）保留为素材库。
+- 一稿多投禁止：任一时间只投 *Computers* 一处。
 
-**2026-10-29 决策（路径 A，已被上条取代）**：ICSE 2027 **AGENT** 工作坊（IEEE 出版、EI/CPCI 检索的会议论文，8 页 IEEE 双栏，截稿 2026-11-13 AoE，通知 2026-12-11）。用户毕业口径为「录用通知即可，EI 会议也算」，因此先以会议录用为目标；稿件先用合成集评测结果（§5.3 消融部分）成文，真实数据由用户本地替换数据集后重跑。会议版之后再扩展为期刊版（候选：MDPI *Computers*（EI）；需 SCIE 时 *IEEE Access* / *Applied Sciences* / *Electronics*）。*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
-
-稿件结构按 IOS Press Book Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Conclusion，Vancouver 数字引用；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。英文长稿 `paper/draft-en.md` 保留为期刊版底稿。
+**历史（已废弃的决策，勿再引用）**：2026-10-29 的路径 A（ICSE 2027 AGENT 工作坊，8 页 IEEE 双栏，截稿 2026-11-13）、2026-10-30 上午的「EI 会议 + IOS Press 模板」。两次均因用户改口而作废；*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
 
 ## 6. 质量门禁
 

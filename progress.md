@@ -1,7 +1,7 @@
 # progress.md — wsgw-solution-review 进度
 
 > 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/wsgw-solution-review/docs/`）。
-> 更新：2026-10-29　|　当前步骤：**S5 评测开工（路径 A：ICSE 2027 AGENT 工作坊，截稿 11-13）：合成集生成器、指标与统计、B0 基线、消融运行器、脱敏脚本；确定性配置已在合成集跑出首批 `eval_runs`，LLM 配置待用户本地带 adapter 跑。S4 看板待用户本机 GUI 冒烟（§7）。S6 英文长稿保留为期刊版底稿，会议版 8 页待 S5 数据成文**
+> 更新：2026-10-30　|　当前步骤：**S6 投稿冲刺（渠道已定案 MDPI *Computers*）：投稿稿 `paper/mdpi-article/main.tex`（官方模板，11 页）已编译通过，只报确定性结果；待用户补作者/ORCID/声明与仓库链接后上传 susy.mdpi.com。S5 确定性配置已在合成集跑出首批 `eval_runs`（100 份 / 253 处缺陷），LLM 配置仍需 adapter。S4 看板待用户本机 GUI 冒烟（§7）**
 
 ## 1. 步骤总览
 
@@ -17,7 +17,7 @@
 | S3c | agent preset + persona + skill + `cordis.patch.yml`；协议回放测试 | 用 mock LLM 回放「预审→复核→定稿」全程，落库与交付文件断言通过；真机 `dsh web` 走通种子方案 | ✅ 2026-10-20 preset / persona / skill / patch 已交付；`pnpm dsh:install` 一条命令装进 `web` profile，真机 `dsh web` 中预设、插件页、三条命令均可用（见 §6）。2026-10-23 脚本化协议回放 11 条全绿（`tests/protocol/protocol.e2e.ts`，快照 `tests/fixtures/expected/opinion-seed.md`）；同日真机 `rv_20261023_xnhfjz`：10 条问题、全部采纳、finalized、意见 `reviews/rv_20261023_xnhfjz.md` |
 | S4 | 看板 V2（`dashboard.md` V2.0）：左侧栏主面板（审查 / 规则 / 评测）+ 右侧栏复核助手 + 可写 API（规则含建议 / 恢复出厂、候选、复核）；设置卡片推迟 | bundle 校验脚本通过；主面板可看审查量、展开复核、编辑规则；录屏 | 🟡 2026-10-28：V2 完成，`pnpm test` 355 passed / 15 todo；`build` / `check:bundle` 通过（76,607 bytes）；headless 真机 API + Chrome 无头浏览器走查（§6）。V1（右栏四页，2026-10-27）已被替换。剩余：用户本机 GUI 冒烟（§7 清单）与录屏 |
 | S5 | 数据迁移与评测：24 条规则重写入新 schema（已提前到 S2）；原 30 条历史意见已删除（仅保留 45 个意见点的分布口径），覆盖分析改用合成方案；合成集生成器 + 指标 / 统计 + B0 基线 + 消融运行器（judge 可插拔：确定性 flag / 回放 / LLM adapter）+ 脱敏脚本 | `eval_runs` 有首批结果；消融可一键复现；真实数据集可按 `docs/evaluation.md` §2.5 替换 | 🟡 2026-10-29 开工，细目见 §2 S5 与 §6 |
-| S6 | 论文：大纲 → 实验 → 稿件。**2026-10-29 路径 A**：先投 ICSE 2027 AGENT 工作坊（IEEE 8 页，截稿 11-13，通知 12-11），再扩期刊版（*Computers* / SCIE+EI 刊） | 会议稿 8 页 + 图表 + 可复现包；英文长稿为期刊底稿 | 🟡 2026-10-29 创新点复审 v0.3（`paper/innovation-notes.md` §10）+ 英文初稿 `paper/draft-en.md`（Frontiers Original Research 结构；§1–3、§5–6 成文，§4.3–4.5 结果与 8 幅图为 `[[TBD]]` 占位，待 S5 评测与 ≥30 份真实试点数据） |
+| S6 | 论文：大纲 → 实验 → 稿件。**2026-10-30 渠道定案**：只投 MDPI *Computers*（EI，IF 5.2），用官方模板；投稿稿 `paper/mdpi-article/main.tex`（Section = `AI-Driven Innovations`，Topic 首选 `AI Agents`），投稿材料 `paper/mdpi-submission/` | 可编译的投稿稿 + MDPI 打包 zip + 图形摘要 + cover letter；复现包随文 | 🟡 2026-10-30：投稿稿 11 页编译 0 error（ACS 23 条、Table 1/2、Algorithm 1、Figure 1）；图形摘要 1100×560；cover letter 与 Section/Topic 判断已备。剩余：作者/ORCID/CRediT/Funding/Data Availability 占位、仓库链接、3 位审稿人。`paper/ei-conference/`（IOS Press）与 `paper/draft-en.md`（Frontiers）降为留档 |
 
 ## 2. 各步骤交付清单
 
@@ -153,6 +153,8 @@
 | 2026-10-29 | 同日用户补充「2 个月内需三大检索证明用于毕业」：核对官方 Compendex 源列表后，*Frontiers in Computer Science* 不算 EI 也不算 SCIE，撤回其作为候选；期刊按学校口径在 *Computers*（EI）与 *IEEE Access* / *Applied Sciences* / *Electronics*（SCIE + EI）之间选；JAIT 可算 EI 期刊但审稿 59 天不适合 2 个月目标；ICSE 2027 工作坊（11-13 截稿）只能拿录用通知 | 证据 `/opt/cursor/artifacts/compendex-check.log`；细节 `paper/innovation-notes.md` §10.7 |
 | 2026-10-30 | 用户改向「投 EI 会议」并给了 `Latex-Template.zip`（实为 **IOS Press Book Article** 模板，非 IEEE/MDPI）→ 会议稿落在 `paper/ei-conference/`（`main.tex` + 官方 `cls`/`bst` + `MANUSCRIPT.md`），编译得 12 页；不复用 `paper/draft-en.md` 的 `[[TBD]]` 结构，只用已跑出的确定性结果，LLM-judge 配置与真实试点写成明确限制（不用代理指标） | 用户 m00130；IOS Press 版式 12.4×20 cm、10 pt、Vancouver 数字引用 |
 | 2026-10-30 | MDPI *Computers* 若投：Section = `AI-Driven Innovations`，Topic 首选 `AI Agents: Progress, Architecture, and Applications`（tool use / memory / agent 评测 / human–agent 协作逐条对得上），次选 `AI-Driven Software Engineering and Next-Generation Web Services`；Topic 为选填。投稿草稿（cover letter 含两句强制声明、补充材料 caption、图形摘要）落 `paper/mdpi-submission/`，图形摘要 1100×560 PNG | 用户 m00130 要求判断 Section/Topic 并备齐除视频外的提交项；两者**不能同时投** |
+| 2026-10-30 | 用户改口并定案：「是我的问题，我选错了 latex 模板」+ 附 MDPI 官方 `MDPI_Article_Template.zip`；明确唯一目标 **MDPI *Computers***（EI 期刊），要求改掉过期渠道决策、按当天投稿推进 → 新建 `paper/mdpi-article/`（`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}` + 官方 `Definitions/`），正文搬 IOS 稿 6 节、参考文献改写为 **ACS 数字制 23 条**（`\isAPAandChicago{}{...}` 内），算法浮动体用 `newfloat` 的 `algo` 环境避开类文件自带的 `algorithm` 定理计数器；补 MDPI 声明区（Author Contributions / Funding / IRB / Informed Consent / Data Availability / COI）；`epstopdf` 预生成 `Definitions/logo-mdpi-eps-converted-to.pdf`（否则 `pdftex.def` 报文件缺失），`build.sh` 一键编译 | 用户 m00486；模板与授权文件来自 m00485 的 `MDPI_Article_Template.zip`（sha256:993da9bf）；`AGENTS.md` §5.4 已改，IOS 会议稿降为留档 |
+| 2026-10-30 | 投稿稿现状：11 页 A4、0 error、表 1/2 用 `tabularx{\textwidth}` 满栏宽、Algorithm 1 与 Figure 1 正常浮动；摘要压到 261 词（MDPI 建议 ≤200，未再压以免丢数字）；只报确定性结果，LLM-judge 与真实试点写成限制 | 编译日志与 `pdfinfo` 见 `paper/mdpi-article/`；`progress.md` §2 S6 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -171,7 +173,7 @@
 | Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code。**2026-10-29 补充**（用户：2 个月内需三大检索任一库证明用于毕业）：按 2026-08 官方 Compendex 源列表核对，*Frontiers in Computer Science* 不在 EI 且仅 ESCI → 毕业用途出局；*Computers* 在 EI；JAIT 在 EI（2026-05 起）但首次决定 59 天。默认改为：若需 EI → *Computers*；若需 SCIE → *IEEE Access* / *Applied Sciences* / *Electronics*；会议只能 2 个月内拿录用通知。待用户确认学校口径（检索证明 vs 录用通知）后定稿，见 `paper/innovation-notes.md` §10.7。**2026-10-29 用户拍板**：录用通知即可、EI 会议也算 → 路径 A（ICSE 2027 AGENT 工作坊），`AGENTS.md` §5.4 已同步 | ✅ 路径 A |
 | Q12 | 证据门禁 `QUOTE_MIN_CHARS = 8` 对整句占位短句（如「压测：/」「幂等策略：待定。」）的处理：维持 8 字下限（降级待人工）/ 放宽到 4 字 / 对 placeholder 标记的候选免下限 | 默认维持；待真实数据集的 FP 口径再定 | ⬜ |
 | Q13 | T-EVA-06「3 次 check() 哈希一致」在默认 `testTimeout: 5000` 下超时：单跑约 8 s（2 核机器），全量 `pnpm test` 因此 1 failed / 431 passed。断言本身正确（逻辑一致，单跑两次都通过）；根因是该用例 3 次全量跑约 8 s 但未单独放宽超时，且 2026-10-29 记录的「432 passed」在更快的机器上成立 | 默认：给该用例加 `{ timeout: 60_000 }`（纯测试配置，不改引擎），保留默认超时以继续暴露慢用例；不降低重复次数 | ⬜ 待用户确认 |
-| Q14 | 发表渠道：用户 2026-10-30 说「改为 EI 会议」但同轮又给了 MDPI *Computers* 的投稿表单咨询；IOS Press 模板来自某本 EI 会议论文集，与 *Computers* 官方模板不是一套 | 默认：**会议为主**（`paper/ei-conference/`，12 页已可编译），*Computers* 作期刊备选（`paper/mdpi-submission/` 已备 Section/Topic 与提交材料）；两者不得同时投稿，需用户确认主攻后再定投递顺序 | ⬜ 待用户确认 |
+| Q14 | 发表渠道：用户 2026-10-30 先说「改为 EI 会议」并给了 IOS Press 模板，随后改口「我选错了 latex 模板」并附 MDPI 官方模板，明确只投 MDPI *Computers* | **已定案**：唯一目标 MDPI *Computers*（EI，IF 5.2），投稿稿 `paper/mdpi-article/`（官方模板，11 页），材料 `paper/mdpi-submission/`；`paper/ei-conference/`（IOS Press）与 `paper/draft-en.md`（Frontiers）仅留档；一稿多投禁止 | ✅ 用户 m00486 定案 |
 
 ## 5. 推迟 / 拒绝
 

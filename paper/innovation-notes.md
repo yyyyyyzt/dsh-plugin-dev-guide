@@ -264,3 +264,7 @@
 | *Journal of Artificial Intelligence and Technology*（JAIT，2766-8649，ISTP Press，主编 Yinong Chen / ASU） | 否 | 否 | **是**（2026-05-20 起；已在 08 月源列表） | 算 EI 期刊；Scopus（CiteScore 2025 10.1，SJR 0.722）；官网：首次决定 59 天、录用到见刊 12 天、录用率 25%、APC USD 1200、8–12 页双栏 Word 模板。EI 收录很新，投前请图书馆在 Engineering Village 按 ISSN 27668649 确认 2026 年文章已可检索 |
 
 因此 §10.3「候选改为 *Frontiers*」**只在毕业要求不含三大检索时成立**；若含，则回到 *Computers*（EI）或 SCIE + EI 的 *Applied Sciences* / *Electronics* / *IEEE Access*。会议路线（含 ICSE 2027 工作坊 AGENT，截稿 2026-11-13、通知 12-11、IEEE 出版）2 个月内只能拿到录用通知，EI 检索要到 2027 年中。时间线判断与路径见 `progress.md` Q11。
+
+### 10.8 定案（2026-10-30）
+
+用户改口并附 MDPI 官方模板后，渠道**收敛为唯一的 MDPI *Computers***（EI/Compendex，IF 5.2，ISSN 2073-431X），不再走会议路线。上文的候选比较保留为决策依据，但「ICSE 2027 AGENT 工作坊 / EI 会议 / IOS Press 模板」均作废。投稿稿：`paper/mdpi-article/`（官方 `Definitions/mdpi` 类，ACS 数字引用 23 条，11 页，`./build.sh` 一键编译，`main.zip` 可独立重编译）；投稿材料：`paper/mdpi-submission/`（Section = `AI-Driven Innovations`，Topic 首选 `AI Agents: Progress, Architecture, and Applications`）。`paper/ei-conference/` 与 `paper/draft-en.md` 仅留档。

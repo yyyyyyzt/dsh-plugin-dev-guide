@@ -1,3 +1,7 @@
+> **已废弃（2026-10-30）**：本文档描述的是 IOS Press Book Article 模板的 EI 会议稿（`paper/ei-conference/`）。
+> 用户随后确认模板选错，唯一投稿目标改为 **MDPI *Computers***，投稿稿在 `paper/mdpi-article/`。
+> 本目录仅作留档，不得用于投稿。
+
 # 会议稿说明（`main.tex`）
 
 模板自带说明见 `README.md`（IOS Press 官方，勿改）。本文件记录本稿的构建、状态与取舍。
