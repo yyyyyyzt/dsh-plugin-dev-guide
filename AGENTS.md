@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-29（发表渠道改为 ICSE 2027 AGENT 工作坊，路径 A；S5 评测脚本与合成集开工；§5.4 / §6 同步）。
+> 最后更新：2026-10-30（发表渠道改为 EI 会议，IOS Press 模板会议稿；MDPI *Computers* 降为期刊备选；§5.4 同步）。
 
 ## 0. 这个仓库现在是什么
 
@@ -189,9 +189,11 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 ### 5.4 目标发表渠道与稿件约束
 
-**当前目标（2026-10-29 用户拍板，路径 A）**：ICSE 2027 **AGENT** 工作坊（IEEE 出版、EI/CPCI 检索的会议论文，8 页 IEEE 双栏，截稿 2026-11-13 AoE，通知 2026-12-11）。用户毕业口径为「录用通知即可，EI 会议也算」，因此先以会议录用为目标；稿件先用合成集评测结果（§5.3 消融部分）成文，真实数据由用户本地替换数据集后重跑。会议版之后再扩展为期刊版（候选：MDPI *Computers*（EI）；需 SCIE 时 *IEEE Access* / *Applied Sciences* / *Electronics*）。*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
+**2026-10-30 更新（用户改向 EI 会议）**：会议稿在 `paper/ei-conference/`，用用户提供的 **IOS Press Book Article** 模板（`IOS-Book-Article.cls` + `vancouver.bst`；编译与压页方法见该目录 `MANUSCRIPT.md`），当前 12 页、只报已跑出的确定性评测结果，LLM-judge 配置与真实试点写成明确限制。`paper/draft-en.md` 保留为期刊长稿。MDPI *Computers*（EI）降为期刊备选，投稿材料草稿在 `paper/mdpi-submission/`（Section = `AI-Driven Innovations`；Topic 首选 `AI Agents: Progress, Architecture, and Applications`）。会议版与期刊版**不得同时投稿**。
 
-稿件结构按 IEEE 会议模板：Introduction / Background & Problem / Approach / Implementation / Evaluation / Discussion & Threats / Conclusions；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。英文长稿 `paper/draft-en.md` 保留为期刊版底稿。
+**2026-10-29 决策（路径 A，已被上条取代）**：ICSE 2027 **AGENT** 工作坊（IEEE 出版、EI/CPCI 检索的会议论文，8 页 IEEE 双栏，截稿 2026-11-13 AoE，通知 2026-12-11）。用户毕业口径为「录用通知即可，EI 会议也算」，因此先以会议录用为目标；稿件先用合成集评测结果（§5.3 消融部分）成文，真实数据由用户本地替换数据集后重跑。会议版之后再扩展为期刊版（候选：MDPI *Computers*（EI）；需 SCIE 时 *IEEE Access* / *Applied Sciences* / *Electronics*）。*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
+
+稿件结构按 IOS Press Book Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Conclusion，Vancouver 数字引用；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。英文长稿 `paper/draft-en.md` 保留为期刊版底稿。
 
 ## 6. 质量门禁
 

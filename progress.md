@@ -151,6 +151,8 @@
 | 2026-10-29 | 合成集自检暴露 shipped 规则缺陷：DOC-002 `cross-ref` 的 `listItemPattern` 未给附件编号加捕获组（校验器取 `m[1]` 得到「原型」而非编号），导致清单里正确列出的原型附件被判「引用在清单中不存在」。修正正则并以自检覆盖；作为论文 §4.3 的一条发现（合成集的价值之一是回归 shipped 规则） | 2026-10-29 `pnpm run eval:gen` 自检；修复提交 `9f9627a` |
 | 2026-10-29 | 证据门禁 8 字引文下限会拒掉整句 <8 字的否定 / 占位句（合成集 11 条，全部降级为待人工而非丢弃）。本轮不改阈值，记为论文发现与 Q12，待真实数据再定 | S5 消融 `gateReasons` |
 | 2026-10-29 | 同日用户补充「2 个月内需三大检索证明用于毕业」：核对官方 Compendex 源列表后，*Frontiers in Computer Science* 不算 EI 也不算 SCIE，撤回其作为候选；期刊按学校口径在 *Computers*（EI）与 *IEEE Access* / *Applied Sciences* / *Electronics*（SCIE + EI）之间选；JAIT 可算 EI 期刊但审稿 59 天不适合 2 个月目标；ICSE 2027 工作坊（11-13 截稿）只能拿录用通知 | 证据 `/opt/cursor/artifacts/compendex-check.log`；细节 `paper/innovation-notes.md` §10.7 |
+| 2026-10-30 | 用户改向「投 EI 会议」并给了 `Latex-Template.zip`（实为 **IOS Press Book Article** 模板，非 IEEE/MDPI）→ 会议稿落在 `paper/ei-conference/`（`main.tex` + 官方 `cls`/`bst` + `MANUSCRIPT.md`），编译得 12 页；不复用 `paper/draft-en.md` 的 `[[TBD]]` 结构，只用已跑出的确定性结果，LLM-judge 配置与真实试点写成明确限制（不用代理指标） | 用户 m00130；IOS Press 版式 12.4×20 cm、10 pt、Vancouver 数字引用 |
+| 2026-10-30 | MDPI *Computers* 若投：Section = `AI-Driven Innovations`，Topic 首选 `AI Agents: Progress, Architecture, and Applications`（tool use / memory / agent 评测 / human–agent 协作逐条对得上），次选 `AI-Driven Software Engineering and Next-Generation Web Services`；Topic 为选填。投稿草稿（cover letter 含两句强制声明、补充材料 caption、图形摘要）落 `paper/mdpi-submission/`，图形摘要 1100×560 PNG | 用户 m00130 要求判断 Section/Topic 并备齐除视频外的提交项；两者**不能同时投** |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
@@ -168,6 +170,8 @@
 | Q10 | S3c 真机种子审查 | 2026-10-23 已跑通：`rv_20261023_xnhfjz`，10 条、全部采纳、`finalVerdict=不通过`、意见文件已生成；使用 `DEEPSEEK_API_KEY` 走 headless，无需 web 登录 | ✅ |
 | Q11 | 论文目标期刊是否正式切换 | 默认：候选 *Frontiers in Computer Science*（Software），*Computers* 备选，`AGENTS.md` §5.4 暂不改；用户确认后同步。前置：单位对「SCI 3/4 区」的认定是否接受 ESCI（两刊均为 ESCI，中科院分区均有收录）；试点最低线 ≥30 份真实定稿审查，不足则改投 Technology and Code。**2026-10-29 补充**（用户：2 个月内需三大检索任一库证明用于毕业）：按 2026-08 官方 Compendex 源列表核对，*Frontiers in Computer Science* 不在 EI 且仅 ESCI → 毕业用途出局；*Computers* 在 EI；JAIT 在 EI（2026-05 起）但首次决定 59 天。默认改为：若需 EI → *Computers*；若需 SCIE → *IEEE Access* / *Applied Sciences* / *Electronics*；会议只能 2 个月内拿录用通知。待用户确认学校口径（检索证明 vs 录用通知）后定稿，见 `paper/innovation-notes.md` §10.7。**2026-10-29 用户拍板**：录用通知即可、EI 会议也算 → 路径 A（ICSE 2027 AGENT 工作坊），`AGENTS.md` §5.4 已同步 | ✅ 路径 A |
 | Q12 | 证据门禁 `QUOTE_MIN_CHARS = 8` 对整句占位短句（如「压测：/」「幂等策略：待定。」）的处理：维持 8 字下限（降级待人工）/ 放宽到 4 字 / 对 placeholder 标记的候选免下限 | 默认维持；待真实数据集的 FP 口径再定 | ⬜ |
+| Q13 | T-EVA-06「3 次 check() 哈希一致」在默认 `testTimeout: 5000` 下超时：单跑约 8 s（2 核机器），全量 `pnpm test` 因此 1 failed / 431 passed。断言本身正确（逻辑一致，单跑两次都通过）；根因是该用例 3 次全量跑约 8 s 但未单独放宽超时，且 2026-10-29 记录的「432 passed」在更快的机器上成立 | 默认：给该用例加 `{ timeout: 60_000 }`（纯测试配置，不改引擎），保留默认超时以继续暴露慢用例；不降低重复次数 | ⬜ 待用户确认 |
+| Q14 | 发表渠道：用户 2026-10-30 说「改为 EI 会议」但同轮又给了 MDPI *Computers* 的投稿表单咨询；IOS Press 模板来自某本 EI 会议论文集，与 *Computers* 官方模板不是一套 | 默认：**会议为主**（`paper/ei-conference/`，12 页已可编译），*Computers* 作期刊备选（`paper/mdpi-submission/` 已备 Section/Topic 与提交材料）；两者不得同时投稿，需用户确认主攻后再定投递顺序 | ⬜ 待用户确认 |
 
 ## 5. 推迟 / 拒绝
 
