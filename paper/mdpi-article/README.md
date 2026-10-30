@@ -7,10 +7,11 @@
 
 | 文件 | 说明 |
 |---|---|
-| `main.tex` | 唯一源文件。`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}` |
+| `main.tex` | 唯一源文件。`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`；7 个一级节、12 表、4 图（全 TikZ/pgfplots 矢量） |
+| `bib.tex` | 2026-10-30 新增的 17 条参考文献（`\bibitem`），由 `main.tex` 内的 `\input{bib.tex}` 引入；前 23 条仍内联在 `main.tex` |
 | `Definitions/` | MDPI 官方类文件与参考文献样式（`mdpi.cls`、`journalnames.tex`、`mdpi.bst` 等），**原样随包**，投稿时一并打包 |
 | `build.sh` | 编译脚本：生成 logo 的 EPS 转换结果，跑两遍 `pdflatex` |
-| `main.pdf` | 最近一次编译产物（11 页 A4） |
+| `main.pdf` | 最近一次编译产物（23 页 A4，正文约 11.9k 词，40 条文献，12 表 4 图） |
 
 ## 编译
 
@@ -19,6 +20,7 @@
 # 或手动：
 epstopdf --outfile=Definitions/logo-mdpi-eps-converted-to.pdf Definitions/logo-mdpi.eps
 pdflatex main && pdflatex main
+# 两次编译是必须的：第二次才解析交叉引用与参考文献编号
 ```
 
 依赖（Debian/Ubuntu）：

@@ -139,6 +139,23 @@
 | AI 使用披露 | Acknowledgments 标准句式（1/8） | 未写 | 在 Acknowledgments 补一句 "During the preparation of this manuscript, the authors used … for …; the authors reviewed and edited the output and take full responsibility." |
 | 类型 / Section | Article 最常见 | — | 投 **Article**；Section = `AI-Driven Innovations`（见 `paper/mdpi-submission/submission-drafts.md`） |
 
+### 8.1 执行结果（2026-10-30 第二轮）
+
+动作表已按 8 篇样本的中位值重写稿件，结果对照：
+
+| 指标 | 样本中位 | 重写后 | 结论 |
+|---|---|---|---|
+| 参考文献 | 48.5 | **40**（5 条本刊） | 落在 P25–P75（32–75）内，自引比例 5/40 = 12.5%，与样本 7–23% 一致 |
+| 图 | 5 | **4** | 架构图、类型权限三列表、结果条形图、缺陷类型条形图；全部 TikZ/pgfplots 矢量 |
+| 表 | 7.5 | **12** | 需求矩阵、层语义、规则构成、六族校验器、存储七表、九工具、结果、分层、缺陷类型、θ 敏感性、案例走查 |
+| 正文词 | 11,506 | **约 11.9k** | 命中目标区间 9k–12k |
+| 页数 | 27.5 | **23** | 接近区间下沿，仍属常见范围 |
+| 摘要 | 205 | **256** | 落在样本 153–413 内，四条关键数保留 |
+| 关键词 | 7.5 | **8** | 与中位一致 |
+| 章节 | 8/8 Introduction、3/8 独立 Discussion、4/8 单列 Limitations | Introduction / Related Work / Materials and Methods / Results / Discussion / **Limitations and Future Work** / Conclusions | 结构对齐 |
+| Data Availability | 1/8 附 GitHub | GitHub + Zenodo（**DOI 仍为占位**） | 需用户补真实仓库与 DOI |
+| AI 使用披露 | 1/8 | Acknowledgments 已写标准句 | 完成 |
+
 **不建议照做的**：把 Discussion 硬拆成独立节、为了凑页数稀释论证、把摘要写成结构化四段、图内用花哨渐变或 3D 效果（样本中一个都没有）。
 
 ## 9. 可直接复用的模板片段
