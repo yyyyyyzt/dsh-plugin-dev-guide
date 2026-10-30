@@ -1,0 +1,2384 @@
+[
+  {
+    "id": "syn-hist-01",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-02",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-03",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "riskctl",
+      "realname",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-04",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "sync",
+      "tracking",
+      "ui",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-05",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-06",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-07",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "realname",
+      "sync",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-08",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "sync",
+      "tracking",
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-09",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-10",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "realname",
+      "sync",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-11",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-12",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "realname",
+      "sync",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-13",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-14",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "tracking",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-15",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-16",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "tracking",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-17",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-hist-18",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-005",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-19",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SYN-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-20",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-21",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-22",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-005",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "tracking",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-23",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "tracking",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-24",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-25",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-005",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "SEC-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-26",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-hist-27",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-hist-28",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "sync",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-hist-29",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "ui",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-hist-30",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-01",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "SEC-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-02",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "riskctl",
+      "sync",
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-03",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-04",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "tracking",
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-05",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-06",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "sync",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-07",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-08",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "SEC-001",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-09",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-10",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "CAP-005",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-11",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-12",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-13",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "sync",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-14",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-15",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-16",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SEC-003",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SYN-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-17",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-18",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "ui",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-19",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "tracking",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-20",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-21",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-005",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-22",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname"
+    ]
+  },
+  {
+    "id": "syn-rand-23",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SYN-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-24",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "CAP-005",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "tracking",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-25",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-26",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "realname",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-27",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-28",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-29",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-30",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl"
+    ]
+  },
+  {
+    "id": "syn-rand-31",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-001",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-32",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-33",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-34",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "realname",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-35",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "riskctl",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-36",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "tracking"
+    ]
+  },
+  {
+    "id": "syn-rand-37",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "CAP-005",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname"
+    ]
+  },
+  {
+    "id": "syn-rand-38",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname"
+    ]
+  },
+  {
+    "id": "syn-rand-39",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-40",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-41",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-42",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-43",
+    "expectedVerdict": "通过",
+    "defects": [],
+    "features": [
+      "realname",
+      "sync",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-44",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "sync",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-45",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-46",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SEC-001",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "tracking",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-47",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "tracking",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-48",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-49",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "realname",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-50",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-51",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-52",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-005",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-53",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-003",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SYN-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-54",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-005",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-003",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "tracking",
+      "ui",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-55",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-003",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-56",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "sync",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-57",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-58",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "DOC-002",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "tracking",
+      "ui",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-59",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-60",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-002",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "SEC-002",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "sync",
+      "tracking",
+      "message"
+    ]
+  },
+  {
+    "id": "syn-rand-61",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-006",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "negated"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-001",
+        "severity": "blocker",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "realname",
+      "sync",
+      "tracking",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-62",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-63",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "INT-003",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-64",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "CHN-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "hollow"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-65",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "DOC-010",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "MON-001",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "tracking",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-66",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-002",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "DOC-012",
+        "severity": "minor",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SEC-004",
+        "severity": "blocker",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-67",
+    "expectedVerdict": "建议整改",
+    "defects": [
+      {
+        "ruleId": "DOC-001",
+        "severity": "major",
+        "plantedKind": "missing"
+      },
+      {
+        "ruleId": "DOC-011",
+        "severity": "major",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "sync"
+    ]
+  },
+  {
+    "id": "syn-rand-68",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "INT-005",
+        "severity": "minor",
+        "plantedKind": "hollow"
+      },
+      {
+        "ruleId": "SEC-001",
+        "severity": "blocker",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "message",
+      "modify"
+    ]
+  },
+  {
+    "id": "syn-rand-69",
+    "expectedVerdict": "通过",
+    "defects": [
+      {
+        "ruleId": "INT-004",
+        "severity": "minor",
+        "plantedKind": "missing"
+      }
+    ],
+    "features": [
+      "realname",
+      "sync",
+      "ui"
+    ]
+  },
+  {
+    "id": "syn-rand-70",
+    "expectedVerdict": "不通过",
+    "defects": [
+      {
+        "ruleId": "CAP-001",
+        "severity": "blocker",
+        "plantedKind": "placeholder"
+      },
+      {
+        "ruleId": "CAP-005",
+        "severity": "major",
+        "plantedKind": "negated"
+      }
+    ],
+    "features": [
+      "riskctl",
+      "message"
+    ]
+  }
+]
