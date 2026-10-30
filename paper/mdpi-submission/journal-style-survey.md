@@ -150,7 +150,7 @@
 | 表 | 7.5 | **12** | 需求矩阵、层语义、规则构成、六族校验器、存储七表、九工具、结果、分层、缺陷类型、θ 敏感性、案例走查 |
 | 正文词 | 11,506 | **约 11.9k** | 命中目标区间 9k–12k |
 | 页数 | 27.5 | **23** | 接近区间下沿，仍属常见范围 |
-| 摘要 | 205 | **256** | 落在样本 153–413 内，四条关键数保留 |
+| 摘要 | 205 | **251** | 落在样本 153–413 内，四条关键数保留 |
 | 关键词 | 7.5 | **8** | 与中位一致 |
 | 章节 | 8/8 Introduction、3/8 独立 Discussion、4/8 单列 Limitations | Introduction / Related Work / Materials and Methods / Results / Discussion / **Limitations and Future Work** / Conclusions | 结构对齐 |
 | Data Availability | 1/8 附 GitHub | GitHub + Zenodo（**DOI 仍为占位**） | 需用户补真实仓库与 DOI |
