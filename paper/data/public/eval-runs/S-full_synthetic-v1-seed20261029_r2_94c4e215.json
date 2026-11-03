@@ -1,0 +1,3373 @@
+{
+  "runId": "S-full_synthetic-v1-seed20261029_r2_94c4e215",
+  "config": {
+    "ablation": "S-full",
+    "judge": "flag",
+    "model": "none",
+    "promptHash": "8556185d4f82",
+    "repetition": 2,
+    "rulePackVersion": "capability-open-access@1.0.0",
+    "minorThreshold": 3
+  },
+  "dataset": "synthetic-v1-seed20261029",
+  "metrics": {
+    "precision": 1,
+    "recall": 0.6640316205533597,
+    "f1": 0.7980997624703088,
+    "weightedRecall": 0.6487068965517241,
+    "tp": 168,
+    "fp": 0,
+    "fn": 85,
+    "verdictAccuracy": 0.85,
+    "verdictMacroF1": 0.8318733480023802,
+    "kappa": 0.7625079164027866,
+    "kappaQuadratic": 0.7387770897832817,
+    "confusion": [
+      [
+        30,
+        0,
+        0
+      ],
+      [
+        6,
+        41,
+        0
+      ],
+      [
+        4,
+        5,
+        14
+      ]
+    ],
+    "confusionOrder": [
+      "通过",
+      "建议整改",
+      "不通过"
+    ],
+    "evidenceValidity": 0.7924528301886793,
+    "gateReasons": {
+      "QUOTE_TOO_SHORT": 11
+    },
+    "pendingCoverage": 0.8,
+    "perTier": {
+      "hard": {
+        "tp": 125,
+        "fp": 0,
+        "fn": 17,
+        "precision": 1,
+        "recall": 0.8802816901408451,
+        "f1": 0.9363295880149813,
+        "weightedRecall": 0.8951965065502183
+      },
+      "hybrid": {
+        "tp": 43,
+        "fp": 0,
+        "fn": 68,
+        "precision": 1,
+        "recall": 0.38738738738738737,
+        "f1": 0.5584415584415584,
+        "weightedRecall": 0.4085106382978723
+      }
+    },
+    "solutions": 100
+  },
+  "perRule": [
+    {
+      "ruleId": "CAP-001",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 3,
+      "fp": 0,
+      "fn": 4,
+      "precision": 1,
+      "recall": 0.42857142857142855
+    },
+    {
+      "ruleId": "CAP-002",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 7,
+      "fp": 0,
+      "fn": 7,
+      "precision": 1,
+      "recall": 0.5
+    },
+    {
+      "ruleId": "CAP-003",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 5,
+      "fp": 0,
+      "fn": 6,
+      "precision": 1,
+      "recall": 0.45454545454545453
+    },
+    {
+      "ruleId": "CAP-005",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 4,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1,
+      "recall": 0.6666666666666666
+    },
+    {
+      "ruleId": "CAP-006",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 12,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "SEC-001",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 0,
+      "fp": 0,
+      "fn": 5,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "SEC-002",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 11,
+      "fp": 0,
+      "fn": 3,
+      "precision": 1,
+      "recall": 0.7857142857142857
+    },
+    {
+      "ruleId": "SEC-003",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 1,
+      "fp": 0,
+      "fn": 3,
+      "precision": 1,
+      "recall": 0.25
+    },
+    {
+      "ruleId": "SEC-004",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 3,
+      "fp": 0,
+      "fn": 6,
+      "precision": 1,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ruleId": "INT-001",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 26,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "INT-002",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 4,
+      "fp": 0,
+      "fn": 13,
+      "precision": 1,
+      "recall": 0.23529411764705882
+    },
+    {
+      "ruleId": "INT-003",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 2,
+      "fp": 0,
+      "fn": 2,
+      "precision": 1,
+      "recall": 0.5
+    },
+    {
+      "ruleId": "INT-004",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 8,
+      "fp": 0,
+      "fn": 5,
+      "precision": 1,
+      "recall": 0.6153846153846154
+    },
+    {
+      "ruleId": "INT-005",
+      "tier": "hybrid",
+      "severity": "minor",
+      "tp": 5,
+      "fp": 0,
+      "fn": 10,
+      "precision": 1,
+      "recall": 0.3333333333333333
+    },
+    {
+      "ruleId": "CHN-001",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 2,
+      "fp": 0,
+      "fn": 6,
+      "precision": 1,
+      "recall": 0.25
+    },
+    {
+      "ruleId": "SYN-001",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 1,
+      "fp": 0,
+      "fn": 3,
+      "precision": 1,
+      "recall": 0.25
+    },
+    {
+      "ruleId": "MON-001",
+      "tier": "hybrid",
+      "severity": "minor",
+      "tp": 2,
+      "fp": 0,
+      "fn": 5,
+      "precision": 1,
+      "recall": 0.2857142857142857
+    },
+    {
+      "ruleId": "DOC-001",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 15,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "DOC-002",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 12,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "DOC-005",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "DOC-010",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 12,
+      "fp": 0,
+      "fn": 5,
+      "precision": 1,
+      "recall": 0.7058823529411765
+    },
+    {
+      "ruleId": "DOC-011",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 16,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "DOC-012",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 13,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    }
+  ],
+  "perSolution": [
+    {
+      "id": "syn-hist-01",
+      "truth": [
+        "INT-004",
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-004",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-004": "hard",
+        "INT-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-02",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-03",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-04",
+      "truth": [
+        "DOC-002",
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-05",
+      "truth": [
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-06",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-07",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-08",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-09",
+      "truth": [
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-10",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-11",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-12",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-13",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-14",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-15",
+      "truth": [
+        "DOC-002",
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-16",
+      "truth": [
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-17",
+      "truth": [
+        "DOC-001",
+        "DOC-010",
+        "INT-004",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001",
+        "DOC-010",
+        "INT-004"
+      ],
+      "predictedTiers": {
+        "INT-004": "hard",
+        "DOC-001": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 1,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-18",
+      "truth": [
+        "CAP-005",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-005",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard",
+        "CAP-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-19",
+      "truth": [
+        "CAP-003",
+        "INT-002",
+        "SYN-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 1,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-20",
+      "truth": [
+        "DOC-012",
+        "INT-001",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-012",
+        "INT-001",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard",
+        "INT-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-21",
+      "truth": [
+        "CAP-002",
+        "CAP-003",
+        "CAP-006",
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "CAP-006",
+        "DOC-011"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "CAP-006": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-22",
+      "truth": [
+        "CAP-003",
+        "CAP-006",
+        "DOC-005",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "DOC-005",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-001": "hard",
+        "DOC-005": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-23",
+      "truth": [
+        "CAP-006",
+        "DOC-011",
+        "INT-002",
+        "INT-004",
+        "MON-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "DOC-011",
+        "INT-004"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-004": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.7499999999999999,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-24",
+      "truth": [
+        "CAP-003",
+        "CAP-006",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-003",
+        "CAP-006",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "CAP-003": "hybrid",
+        "INT-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-005",
+        "CHN-001",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 2
+    },
+    {
+      "id": "syn-hist-25",
+      "truth": [
+        "DOC-005",
+        "INT-001",
+        "MON-001",
+        "SEC-003"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-005",
+        "INT-001",
+        "MON-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-005": "hard",
+        "MON-001": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-26",
+      "truth": [
+        "CAP-003",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-003",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard",
+        "CAP-003": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-27",
+      "truth": [
+        "DOC-001",
+        "MON-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-28",
+      "truth": [
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-011"
+      ],
+      "predictedTiers": {
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-29",
+      "truth": [
+        "DOC-011",
+        "INT-004",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-011",
+        "INT-004",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-004": "hard",
+        "DOC-011": "hard",
+        "INT-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-hist-30",
+      "truth": [
+        "CAP-001",
+        "DOC-001",
+        "MON-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-001",
+        "DOC-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard",
+        "CAP-001": "hybrid",
+        "SEC-002": "hybrid",
+        "SEC-004": "hybrid"
+      },
+      "pending": [
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.888888888888889,
+      "gateRejects": 0,
+      "submitted": 3
+    },
+    {
+      "id": "syn-rand-01",
+      "truth": [
+        "DOC-010",
+        "DOC-011",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-010",
+        "DOC-011",
+        "SEC-002",
+        "SEC-003"
+      ],
+      "predictedTiers": {
+        "DOC-010": "hard",
+        "DOC-011": "hard",
+        "SEC-002": "hybrid",
+        "SEC-003": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.888888888888889,
+      "gateRejects": 1,
+      "submitted": 3
+    },
+    {
+      "id": "syn-rand-02",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-03",
+      "truth": [
+        "DOC-011",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-011"
+      ],
+      "predictedTiers": {
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-04",
+      "truth": [
+        "DOC-002",
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-05",
+      "truth": [
+        "CAP-006",
+        "DOC-002",
+        "DOC-010",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "DOC-002",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-002": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-06",
+      "truth": [
+        "DOC-001",
+        "DOC-010",
+        "INT-002",
+        "MON-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-07",
+      "truth": [
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "SEC-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-08",
+      "truth": [
+        "SEC-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-09",
+      "truth": [
+        "CHN-001",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-004"
+      ],
+      "predictedTiers": {
+        "INT-004": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-10",
+      "truth": [
+        "CAP-002",
+        "CAP-005",
+        "DOC-011",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "CAP-005",
+        "DOC-011",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "INT-001": "hard",
+        "DOC-011": "hard",
+        "DOC-012": "hard",
+        "CAP-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-11",
+      "truth": [
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-12",
+      "truth": [
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "SEC-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-13",
+      "truth": [
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-14",
+      "truth": [
+        "DOC-001",
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001",
+        "DOC-011"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-15",
+      "truth": [
+        "CAP-006",
+        "DOC-011",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "DOC-011"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-16",
+      "truth": [
+        "CAP-006",
+        "INT-001",
+        "SEC-003",
+        "SYN-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-17",
+      "truth": [
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-18",
+      "truth": [
+        "DOC-002",
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-19",
+      "truth": [
+        "CAP-002",
+        "CAP-003",
+        "DOC-011",
+        "INT-001",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "CAP-003",
+        "DOC-011",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "INT-001": "hard",
+        "DOC-011": "hard",
+        "CAP-003": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.888888888888889,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-20",
+      "truth": [
+        "CAP-001",
+        "DOC-012",
+        "INT-001",
+        "INT-002",
+        "INT-005",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-001",
+        "DOC-012",
+        "INT-001",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard",
+        "CAP-001": "hybrid",
+        "INT-002": "hybrid"
+      },
+      "pending": [
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-005",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.8,
+      "gateRejects": 0,
+      "submitted": 2
+    },
+    {
+      "id": "syn-rand-21",
+      "truth": [
+        "CAP-006",
+        "CHN-001",
+        "DOC-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "CHN-001",
+        "DOC-005"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-005": "hard",
+        "CHN-001": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-22",
+      "truth": [
+        "CAP-002",
+        "CAP-006",
+        "DOC-010",
+        "SEC-003"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-23",
+      "truth": [
+        "CAP-006",
+        "SYN-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-24",
+      "truth": [
+        "CAP-002",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "CAP-003",
+        "CAP-005",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "INT-001": "hard",
+        "DOC-012": "hard",
+        "CAP-003": "hybrid",
+        "CAP-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.9090909090909091,
+      "gateRejects": 0,
+      "submitted": 2
+    },
+    {
+      "id": "syn-rand-25",
+      "truth": [
+        "DOC-010",
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-26",
+      "truth": [
+        "CAP-002",
+        "CHN-001",
+        "INT-001",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "INT-001",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "INT-001": "hard",
+        "INT-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-27",
+      "truth": [
+        "DOC-002"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-28",
+      "truth": [
+        "DOC-002"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-29",
+      "truth": [
+        "CAP-002",
+        "CHN-001",
+        "DOC-011",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-011",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-30",
+      "truth": [
+        "CAP-001",
+        "DOC-010",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-31",
+      "truth": [
+        "INT-004",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-004",
+        "SEC-004"
+      ],
+      "predictedTiers": {
+        "INT-004": "hard",
+        "SEC-004": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.8,
+      "gateRejects": 1,
+      "submitted": 2
+    },
+    {
+      "id": "syn-rand-32",
+      "truth": [
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-33",
+      "truth": [
+        "DOC-001",
+        "DOC-010"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-34",
+      "truth": [
+        "DOC-010",
+        "DOC-011",
+        "DOC-012",
+        "INT-001",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-010",
+        "DOC-011",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-010": "hard",
+        "DOC-011": "hard",
+        "DOC-012": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.888888888888889,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-35",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-36",
+      "truth": [
+        "CAP-001",
+        "CAP-002",
+        "DOC-012",
+        "INT-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.5714285714285715,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-37",
+      "truth": [
+        "CAP-002",
+        "CAP-005",
+        "DOC-001",
+        "DOC-010"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-38",
+      "truth": [
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-39",
+      "truth": [
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-40",
+      "truth": [
+        "DOC-002",
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-41",
+      "truth": [
+        "DOC-001",
+        "DOC-002",
+        "INT-003",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard",
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-42",
+      "truth": [
+        "DOC-011",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-011",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "DOC-011": "hard",
+        "INT-005": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-43",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-44",
+      "truth": [
+        "CAP-001",
+        "CAP-002",
+        "DOC-010",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-002",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 1,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-45",
+      "truth": [
+        "DOC-011",
+        "INT-001",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-011",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-46",
+      "truth": [
+        "INT-001",
+        "SEC-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-001",
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "SEC-002": "hybrid",
+        "INT-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.8,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-47",
+      "truth": [
+        "DOC-011",
+        "DOC-012",
+        "INT-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-011",
+        "DOC-012",
+        "INT-001",
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-011": "hard",
+        "DOC-012": "hard",
+        "SEC-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-48",
+      "truth": [
+        "CAP-003",
+        "DOC-012",
+        "INT-001",
+        "INT-002",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-003",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard",
+        "CAP-003": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.7499999999999999,
+      "gateRejects": 2,
+      "submitted": 3
+    },
+    {
+      "id": "syn-rand-49",
+      "truth": [
+        "CAP-002",
+        "DOC-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard",
+        "SEC-002": "hybrid",
+        "SEC-004": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 2
+    },
+    {
+      "id": "syn-rand-50",
+      "truth": [
+        "DOC-002"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-51",
+      "truth": [
+        "CAP-003",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-52",
+      "truth": [
+        "CAP-005",
+        "DOC-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 1,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-53",
+      "truth": [
+        "CAP-006",
+        "DOC-001",
+        "INT-002",
+        "INT-003",
+        "SEC-002",
+        "SYN-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-006",
+        "DOC-001",
+        "INT-003",
+        "SEC-002",
+        "SYN-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-001": "hard",
+        "SEC-002": "hybrid",
+        "INT-003": "hybrid",
+        "SYN-001": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.9090909090909091,
+      "gateRejects": 0,
+      "submitted": 3
+    },
+    {
+      "id": "syn-rand-54",
+      "truth": [
+        "CAP-003",
+        "DOC-005",
+        "INT-002",
+        "INT-003"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-005",
+        "INT-003"
+      ],
+      "predictedTiers": {
+        "DOC-005": "hard",
+        "INT-003": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-55",
+      "truth": [
+        "CAP-003",
+        "INT-002",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "SEC-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.5,
+      "gateRejects": 1,
+      "submitted": 2
+    },
+    {
+      "id": "syn-rand-56",
+      "truth": [
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-57",
+      "truth": [
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-58",
+      "truth": [
+        "CAP-002",
+        "CHN-001",
+        "DOC-002",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "DOC-002": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 1,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-59",
+      "truth": [
+        "CAP-001",
+        "CAP-002",
+        "DOC-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-001",
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard",
+        "SEC-002": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-60",
+      "truth": [
+        "INT-001",
+        "INT-002",
+        "MON-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-001",
+        "MON-001",
+        "SEC-002"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "SEC-002": "hybrid",
+        "MON-001": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 0.7499999999999999,
+      "gateRejects": 0,
+      "submitted": 2
+    },
+    {
+      "id": "syn-rand-61",
+      "truth": [
+        "CAP-006",
+        "CHN-001",
+        "DOC-001",
+        "SEC-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-006",
+        "CHN-001",
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-001": "hard",
+        "CHN-001": "hybrid"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-62",
+      "truth": [
+        "DOC-012",
+        "INT-001",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-012": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-63",
+      "truth": [
+        "INT-001",
+        "INT-003",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-001",
+        "INT-004"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "INT-004": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-64",
+      "truth": [
+        "CHN-001",
+        "DOC-001",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-001": "hard",
+        "DOC-012": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.8571428571428571,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-65",
+      "truth": [
+        "DOC-010",
+        "MON-001"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "DOC-010": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "MON-001",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-66",
+      "truth": [
+        "CAP-002",
+        "DOC-001",
+        "DOC-012",
+        "INT-001",
+        "INT-005",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "DOC-001",
+        "DOC-012",
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "DOC-001": "hard",
+        "DOC-012": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 1,
+      "submitted": 1
+    },
+    {
+      "id": "syn-rand-67",
+      "truth": [
+        "DOC-001",
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-001",
+        "DOC-011"
+      ],
+      "predictedTiers": {
+        "DOC-001": "hard",
+        "DOC-011": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-002",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "建议整改",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-68",
+      "truth": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-003",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-69",
+      "truth": [
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-004"
+      ],
+      "predictedTiers": {
+        "INT-004": "hard"
+      },
+      "pending": [
+        "CAP-001",
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-003",
+        "SEC-004",
+        "SYN-001"
+      ],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-70",
+      "truth": [
+        "CAP-001",
+        "CAP-005"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-001",
+        "CAP-005"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CAP-005": "hybrid"
+      },
+      "pending": [
+        "CAP-003",
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "predictedVerdict": "不通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 2
+    }
+  ],
+  "at": "2026-10-29T10:33:36.945Z"
+}

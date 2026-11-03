@@ -1,0 +1,2355 @@
+{
+  "runId": "B0_synthetic-v1-seed20261029_r0_2d9049c5",
+  "config": {
+    "ablation": "B0",
+    "judge": "flag",
+    "model": "none",
+    "promptHash": "8556185d4f82",
+    "repetition": 0,
+    "rulePackVersion": "capability-open-access@1.0.0",
+    "minorThreshold": 3
+  },
+  "dataset": "synthetic-v1-seed20261029",
+  "metrics": {
+    "precision": 0.27485380116959063,
+    "recall": 0.1857707509881423,
+    "f1": 0.22169811320754718,
+    "weightedRecall": 0.16163793103448276,
+    "tp": 47,
+    "fp": 124,
+    "fn": 206,
+    "verdictAccuracy": 0.28,
+    "verdictMacroF1": 0.2754283695460166,
+    "kappa": -0.042722664735698856,
+    "kappaQuadratic": -0.058769372410618415,
+    "confusion": [
+      [
+        6,
+        7,
+        17
+      ],
+      [
+        10,
+        12,
+        25
+      ],
+      [
+        5,
+        8,
+        10
+      ]
+    ],
+    "confusionOrder": [
+      "通过",
+      "建议整改",
+      "不通过"
+    ],
+    "evidenceValidity": 1,
+    "gateReasons": {},
+    "pendingCoverage": 0,
+    "perTier": {
+      "hard": {
+        "tp": 37,
+        "fp": 16,
+        "fn": 105,
+        "precision": 0.6981132075471698,
+        "recall": 0.2605633802816901,
+        "f1": 0.37948717948717947,
+        "weightedRecall": 0.24017467248908297
+      },
+      "hybrid": {
+        "tp": 10,
+        "fp": 108,
+        "fn": 101,
+        "precision": 0.0847457627118644,
+        "recall": 0.09009009009009009,
+        "f1": 0.08733624454148471,
+        "weightedRecall": 0.0851063829787234
+      }
+    },
+    "solutions": 100
+  },
+  "perRule": [
+    {
+      "ruleId": "CAP-001",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 0,
+      "fp": 19,
+      "fn": 7,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "CAP-002",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 4,
+      "fp": 0,
+      "fn": 10,
+      "precision": 1,
+      "recall": 0.2857142857142857
+    },
+    {
+      "ruleId": "CAP-003",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 11,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "CAP-005",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 6,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "CAP-006",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 3,
+      "fp": 16,
+      "fn": 9,
+      "precision": 0.15789473684210525,
+      "recall": 0.25
+    },
+    {
+      "ruleId": "SEC-001",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 3,
+      "fp": 37,
+      "fn": 2,
+      "precision": 0.075,
+      "recall": 0.6
+    },
+    {
+      "ruleId": "SEC-002",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 0,
+      "fp": 0,
+      "fn": 14,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "SEC-003",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "SEC-004",
+      "tier": "hybrid",
+      "severity": "blocker",
+      "tp": 0,
+      "fp": 0,
+      "fn": 9,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "INT-001",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 9,
+      "fp": 0,
+      "fn": 17,
+      "precision": 1,
+      "recall": 0.34615384615384615
+    },
+    {
+      "ruleId": "INT-002",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 2,
+      "fp": 9,
+      "fn": 15,
+      "precision": 0.18181818181818182,
+      "recall": 0.11764705882352941
+    },
+    {
+      "ruleId": "INT-003",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "INT-004",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 0,
+      "fp": 0,
+      "fn": 13,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "INT-005",
+      "tier": "hybrid",
+      "severity": "minor",
+      "tp": 3,
+      "fp": 15,
+      "fn": 12,
+      "precision": 0.16666666666666666,
+      "recall": 0.2
+    },
+    {
+      "ruleId": "CHN-001",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 2,
+      "fp": 28,
+      "fn": 6,
+      "precision": 0.06666666666666667,
+      "recall": 0.25
+    },
+    {
+      "ruleId": "SYN-001",
+      "tier": "hybrid",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "MON-001",
+      "tier": "hybrid",
+      "severity": "minor",
+      "tp": 0,
+      "fp": 0,
+      "fn": 7,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "DOC-001",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 2,
+      "fp": 0,
+      "fn": 13,
+      "precision": 1,
+      "recall": 0.13333333333333333
+    },
+    {
+      "ruleId": "DOC-002",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 12,
+      "fp": 0,
+      "fn": 0,
+      "precision": 1,
+      "recall": 1
+    },
+    {
+      "ruleId": "DOC-005",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 4,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "DOC-010",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 7,
+      "fp": 0,
+      "fn": 10,
+      "precision": 1,
+      "recall": 0.4117647058823529
+    },
+    {
+      "ruleId": "DOC-011",
+      "tier": "hard",
+      "severity": "major",
+      "tp": 0,
+      "fp": 0,
+      "fn": 16,
+      "precision": 0,
+      "recall": 0
+    },
+    {
+      "ruleId": "DOC-012",
+      "tier": "hard",
+      "severity": "minor",
+      "tp": 0,
+      "fp": 0,
+      "fn": 13,
+      "precision": 0,
+      "recall": 0
+    }
+  ],
+  "perSolution": [
+    {
+      "id": "syn-hist-01",
+      "truth": [
+        "INT-004",
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-02",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-03",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-04",
+      "truth": [
+        "DOC-002",
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006",
+        "DOC-002",
+        "DOC-010",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "SEC-001": "hybrid",
+        "DOC-002": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-05",
+      "truth": [
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006",
+        "CHN-001",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "SEC-001": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-06",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-07",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CHN-001",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-08",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-09",
+      "truth": [
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-010",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-10",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-11",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-12",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-13",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-14",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-15",
+      "truth": [
+        "DOC-002",
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-001",
+        "CHN-001",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CHN-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-16",
+      "truth": [
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "CHN-001",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-005": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-17",
+      "truth": [
+        "DOC-001",
+        "DOC-010",
+        "INT-004",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-18",
+      "truth": [
+        "CAP-005",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-002": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-19",
+      "truth": [
+        "CAP-003",
+        "INT-002",
+        "SYN-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-20",
+      "truth": [
+        "DOC-012",
+        "INT-001",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CAP-006"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CAP-006": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-21",
+      "truth": [
+        "CAP-002",
+        "CAP-003",
+        "CAP-006",
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-22",
+      "truth": [
+        "CAP-003",
+        "CAP-006",
+        "DOC-005",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-23",
+      "truth": [
+        "CAP-006",
+        "DOC-011",
+        "INT-002",
+        "INT-004",
+        "MON-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CAP-006"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CAP-006": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.28571428571428575,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-24",
+      "truth": [
+        "CAP-003",
+        "CAP-006",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-25",
+      "truth": [
+        "DOC-005",
+        "INT-001",
+        "MON-001",
+        "SEC-003"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CHN-001",
+        "INT-001",
+        "INT-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "SEC-001": "hybrid",
+        "INT-001": "hard",
+        "INT-002": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.22222222222222224,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-26",
+      "truth": [
+        "CAP-003",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-001"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-27",
+      "truth": [
+        "DOC-001",
+        "MON-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-28",
+      "truth": [
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-29",
+      "truth": [
+        "DOC-011",
+        "INT-004",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-hist-30",
+      "truth": [
+        "CAP-001",
+        "DOC-001",
+        "MON-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-01",
+      "truth": [
+        "DOC-010",
+        "DOC-011",
+        "SEC-002",
+        "SEC-003",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.28571428571428575,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-02",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-03",
+      "truth": [
+        "DOC-011",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-04",
+      "truth": [
+        "DOC-002",
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-001",
+        "CHN-001",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CHN-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-05",
+      "truth": [
+        "CAP-006",
+        "DOC-002",
+        "DOC-010",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "DOC-002",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "INT-005": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.5714285714285715,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-06",
+      "truth": [
+        "DOC-001",
+        "DOC-010",
+        "INT-002",
+        "MON-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-07",
+      "truth": [
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-08",
+      "truth": [
+        "SEC-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-001",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-09",
+      "truth": [
+        "CHN-001",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-10",
+      "truth": [
+        "CAP-002",
+        "CAP-005",
+        "DOC-011",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001",
+        "INT-001",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "INT-002": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.25,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-11",
+      "truth": [
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-12",
+      "truth": [
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001",
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-13",
+      "truth": [
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-14",
+      "truth": [
+        "DOC-001",
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-15",
+      "truth": [
+        "CAP-006",
+        "DOC-011",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-16",
+      "truth": [
+        "CAP-006",
+        "INT-001",
+        "SEC-003",
+        "SYN-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-17",
+      "truth": [
+        "DOC-010"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-010",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-18",
+      "truth": [
+        "DOC-002",
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-19",
+      "truth": [
+        "CAP-002",
+        "CAP-003",
+        "DOC-011",
+        "INT-001",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CAP-006",
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CAP-006": "hard",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-20",
+      "truth": [
+        "CAP-001",
+        "DOC-012",
+        "INT-001",
+        "INT-002",
+        "INT-005",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-001",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-21",
+      "truth": [
+        "CAP-006",
+        "CHN-001",
+        "DOC-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-22",
+      "truth": [
+        "CAP-002",
+        "CAP-006",
+        "DOC-010",
+        "SEC-003"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-010",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-23",
+      "truth": [
+        "CAP-006",
+        "SYN-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-24",
+      "truth": [
+        "CAP-002",
+        "CAP-003",
+        "CAP-005",
+        "CHN-001",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "INT-001",
+        "INT-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "SEC-001": "hybrid",
+        "INT-001": "hard",
+        "INT-002": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-25",
+      "truth": [
+        "DOC-010",
+        "INT-005"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-26",
+      "truth": [
+        "CAP-002",
+        "CHN-001",
+        "INT-001",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-005": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-27",
+      "truth": [
+        "DOC-002"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CHN-001",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-28",
+      "truth": [
+        "DOC-002"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CHN-001",
+        "DOC-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "CHN-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-29",
+      "truth": [
+        "CAP-002",
+        "CHN-001",
+        "DOC-011",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "INT-001",
+        "INT-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "SEC-001": "hybrid",
+        "INT-001": "hard",
+        "INT-002": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.25,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-30",
+      "truth": [
+        "CAP-001",
+        "DOC-010",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-31",
+      "truth": [
+        "INT-004",
+        "SEC-001",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-32",
+      "truth": [
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001",
+        "INT-002",
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-002": "hybrid",
+        "INT-005": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-33",
+      "truth": [
+        "DOC-001",
+        "DOC-010"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CHN-001",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "SEC-001": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-34",
+      "truth": [
+        "DOC-010",
+        "DOC-011",
+        "DOC-012",
+        "INT-001",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CAP-006",
+        "DOC-010",
+        "INT-001",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CAP-006": "hard",
+        "SEC-001": "hybrid",
+        "INT-001": "hard",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.4000000000000001,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-35",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-36",
+      "truth": [
+        "CAP-001",
+        "CAP-002",
+        "DOC-012",
+        "INT-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-001",
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-001": "hard",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.28571428571428575,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-37",
+      "truth": [
+        "CAP-002",
+        "CAP-005",
+        "DOC-001",
+        "DOC-010"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "DOC-001": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-38",
+      "truth": [
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-39",
+      "truth": [
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-40",
+      "truth": [
+        "DOC-002",
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "DOC-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-41",
+      "truth": [
+        "DOC-001",
+        "DOC-002",
+        "INT-003",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-42",
+      "truth": [
+        "DOC-011",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-43",
+      "truth": [],
+      "expectedVerdict": "通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 1,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-44",
+      "truth": [
+        "CAP-001",
+        "CAP-002",
+        "DOC-010",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-002",
+        "CAP-006",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "CAP-006": "hard",
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.28571428571428575,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-45",
+      "truth": [
+        "DOC-011",
+        "INT-001",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-002",
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-002": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-46",
+      "truth": [
+        "INT-001",
+        "SEC-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-47",
+      "truth": [
+        "DOC-011",
+        "DOC-012",
+        "INT-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-48",
+      "truth": [
+        "CAP-003",
+        "DOC-012",
+        "INT-001",
+        "INT-002",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "INT-002": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.33333333333333337,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-49",
+      "truth": [
+        "CAP-002",
+        "DOC-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-50",
+      "truth": [
+        "DOC-002"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-006",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-51",
+      "truth": [
+        "CAP-003",
+        "INT-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-52",
+      "truth": [
+        "CAP-005",
+        "DOC-002"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CHN-001",
+        "DOC-002"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CHN-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-53",
+      "truth": [
+        "CAP-006",
+        "DOC-001",
+        "INT-002",
+        "INT-003",
+        "SEC-002",
+        "SYN-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-54",
+      "truth": [
+        "CAP-003",
+        "DOC-005",
+        "INT-002",
+        "INT-003"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-55",
+      "truth": [
+        "CAP-003",
+        "INT-002",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-005"
+      ],
+      "predictedTiers": {
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-56",
+      "truth": [
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-006",
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-57",
+      "truth": [
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-58",
+      "truth": [
+        "CAP-002",
+        "CHN-001",
+        "DOC-002",
+        "INT-005"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-002",
+        "DOC-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-002": "hard",
+        "SEC-001": "hybrid",
+        "DOC-002": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.5714285714285715,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-59",
+      "truth": [
+        "CAP-001",
+        "CAP-002",
+        "DOC-001",
+        "SEC-002"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-60",
+      "truth": [
+        "INT-001",
+        "INT-002",
+        "MON-001",
+        "SEC-002",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "INT-002": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.28571428571428575,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-61",
+      "truth": [
+        "CAP-006",
+        "CHN-001",
+        "DOC-001",
+        "SEC-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid",
+        "INT-005": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.3333333333333333,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-62",
+      "truth": [
+        "DOC-012",
+        "INT-001",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CAP-006",
+        "INT-001",
+        "INT-002",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-006": "hard",
+        "SEC-001": "hybrid",
+        "INT-001": "hard",
+        "INT-002": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.28571428571428575,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-63",
+      "truth": [
+        "INT-001",
+        "INT-003",
+        "INT-004"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [],
+      "predictedTiers": {},
+      "pending": [],
+      "predictedVerdict": "通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-64",
+      "truth": [
+        "CHN-001",
+        "DOC-001",
+        "DOC-012",
+        "INT-001"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-65",
+      "truth": [
+        "DOC-010",
+        "MON-001"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CHN-001",
+        "DOC-010"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid",
+        "DOC-010": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0.5,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-66",
+      "truth": [
+        "CAP-002",
+        "DOC-001",
+        "DOC-012",
+        "INT-001",
+        "INT-005",
+        "SEC-004"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001",
+        "INT-002"
+      ],
+      "predictedTiers": {
+        "INT-002": "hybrid",
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-67",
+      "truth": [
+        "DOC-001",
+        "DOC-011"
+      ],
+      "expectedVerdict": "建议整改",
+      "predicted": [
+        "CAP-001",
+        "CHN-001",
+        "DOC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CHN-001": "hybrid",
+        "DOC-001": "hard"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.4,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-68",
+      "truth": [
+        "INT-005",
+        "SEC-001"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0.6666666666666666,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-69",
+      "truth": [
+        "INT-004"
+      ],
+      "expectedVerdict": "通过",
+      "predicted": [
+        "CAP-001",
+        "CAP-006",
+        "SEC-001"
+      ],
+      "predictedTiers": {
+        "CAP-001": "hybrid",
+        "CAP-006": "hard",
+        "SEC-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "不通过",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    },
+    {
+      "id": "syn-rand-70",
+      "truth": [
+        "CAP-001",
+        "CAP-005"
+      ],
+      "expectedVerdict": "不通过",
+      "predicted": [
+        "CHN-001"
+      ],
+      "predictedTiers": {
+        "CHN-001": "hybrid"
+      },
+      "pending": [],
+      "predictedVerdict": "建议整改",
+      "f1": 0,
+      "gateRejects": 0,
+      "submitted": 0
+    }
+  ],
+  "at": "2026-10-29T10:33:34.726Z"
+}

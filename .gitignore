@@ -21,3 +21,6 @@ Thumbs.db
 
 # generated review opinions
 plugins/wsgw-solution-review/reviews/
+
+# evaluation: private anonymization maps / real datasets (evaluation.md §7.3)
+paper/data/private/

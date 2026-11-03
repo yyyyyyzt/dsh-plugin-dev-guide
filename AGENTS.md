@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-28（看板交互重做：左侧栏「方案审查」主面板做总览与全局规则，右侧栏只留复核助手；§2.2 / §3 / §4.1 同步）。
+> 最后更新：2026-10-30（发表渠道定案：唯一目标 MDPI *Computers*（EI），官方模板投稿稿落 `paper/mdpi-article/`；IOS Press 会议稿废弃留档；§5.4 同步）。
 
 ## 0. 这个仓库现在是什么
 
@@ -187,9 +187,15 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 原 30 条历史意见（45 个意见点，2026-10-23 已随 archive 删除）的分布为 通过 15 / 建议整改 14 / 不通过 1，类别严重不均衡，因此**不用准确率单指标**，报告每类召回与 kappa；论文只引用该统计口径，不再分发原文。
 
-### 5.4 目标期刊与稿件约束
+### 5.4 目标发表渠道与稿件约束
 
-MDPI *Computers*（2026-10-19 用户决定，按 ReqPlan-Eval 先例：组件级评测 + 诚实限制陈述；详见 `paper/innovation-notes.md`）。稿件结构按其 Article 模板：Introduction / Related Work / System Design / Implementation / Evaluation / Discussion / Conclusions；强调可复现（开源插件 + 匿名化数据 + 评测脚本）。备选：*Applied Sciences*、*Electronics*、*Information*。
+**2026-10-30 定案（用户拍板，取代此前全部渠道决策）**：唯一目标期刊 **MDPI *Computers***（ISSN 2073-431X；EI/Compendex 收录，IF 5.2），用 MDPI 官方模板投稿。投稿稿件在 `paper/mdpi-article/`：`main.tex` + `Definitions/`（官方 `mdpi.cls`/`journalnames.tex`/`mdpi.bst` 原样随附），`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，ACS 数字引用（23 条），11 页。编译见该目录 `README.md`（`pdflatex main` 两次；`Definitions/logo-mdpi-eps-converted-to.pdf` 需先由 `epstopdf` 生成，脚本已入库）。
+- Section = **`AI-Driven Innovations`**；Topic 选填，首选 **`AI Agents: Progress, Architecture, and Applications`**，次选 `AI-Driven Software Engineering and Next-Generation Web Services`。理由与逐条 scope 对齐见 `paper/mdpi-submission/submission-drafts.md`。
+- 稿件结构按 MDPI Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Conclusion + 声明区（Author Contributions / Funding / IRB / Informed Consent / Data Availability / Conflicts of Interest）；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。
+- `paper/ei-conference/`（IOS Press 模板的 EI 会议稿）**已废弃，仅留档**，不得用于投稿；`paper/draft-en.md`（Frontiers 长稿）保留为素材库。
+- 一稿多投禁止：任一时间只投 *Computers* 一处。
+
+**历史（已废弃的决策，勿再引用）**：2026-10-29 的路径 A（ICSE 2027 AGENT 工作坊，8 页 IEEE 双栏，截稿 2026-11-13）、2026-10-30 上午的「EI 会议 + IOS Press 模板」。两次均因用户改口而作废；*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
 
 ## 6. 质量门禁
 
@@ -198,6 +204,7 @@ MDPI *Computers*（2026-10-19 用户决定，按 ReqPlan-Eval 先例：组件级
 - **协议测试**：脚本化 agent 按固定工具调用序列与专家回答跑完一次「预审 → 复核 → 定稿」，断言落库内容与交付文件；真实模型对话由人工冒烟覆盖（清单见 `progress.md`）。
 - **离线校验脚本**：client bundle 结构（banner / footer / 外部化白名单）、规则 YAML schema。
 - 命令（S3 搭好工程后固定写入此处）：`pnpm test`、`pnpm typecheck`、`pnpm build`、`pnpm run check:bundle`。
+- **评测脚本**（S5，`plugins/wsgw-solution-review/scripts/eval/`，先 `pnpm run build`）：`pnpm run eval:gen`（合成集 + 真值 + 自检）、`pnpm run eval:ablation`（消融；默认确定性 judge，LLM 配置需 `--adapter`）、`pnpm run eval:anonymize`（脱敏）。输出到 `paper/data/public/`；用法见 `paper/REPRODUCE.md`，口径见插件 `docs/evaluation.md` §5。
 - 每步完成的证据写入 `progress.md`：测试名、通过数、commit。
 
 ## 7. 历史与决策记录（为什么重做）

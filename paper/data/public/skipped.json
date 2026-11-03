@@ -1,0 +1,18 @@
+[
+  {
+    "ablation": "B1",
+    "reason": "requires llm adapter (--adapter <module>)"
+  },
+  {
+    "ablation": "S-gate",
+    "reason": "requires llm adapter (--adapter <module>)"
+  },
+  {
+    "ablation": "S-policy",
+    "reason": "requires llm adapter (--adapter <module>)"
+  },
+  {
+    "ablation": "S-memory",
+    "reason": "online-only: no expert feedback in an offline dataset"
+  }
+]

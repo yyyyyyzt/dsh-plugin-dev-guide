@@ -496,7 +496,7 @@ rules:
       of:
         - kind: cross-ref
           params:
-            listItemPattern: '附件\s*[0-9０-９一二三四五六七八九十]+\s*[:：][^；;\n]*(原型|UE|对比|效果图)'
+            listItemPattern: '附件\s*([0-9０-９一二三四五六七八九十]+)\s*[:：][^；;\n]*(?:原型|UE|对比|效果图)'
         - kind: statement
           params:
             families: [prototype]

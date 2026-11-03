@@ -1,0 +1,170 @@
+{
+  "ok": true,
+  "violations": [],
+  "detection": {
+    "missing": {
+      "planted": 98,
+      "detected": 71,
+      "pending": 27,
+      "missed": 0
+    },
+    "negated": {
+      "planted": 37,
+      "detected": 31,
+      "pending": 6,
+      "missed": 0
+    },
+    "placeholder": {
+      "planted": 52,
+      "detected": 42,
+      "pending": 5,
+      "missed": 5
+    },
+    "hollow": {
+      "planted": 66,
+      "detected": 24,
+      "pending": 30,
+      "missed": 12
+    }
+  },
+  "perRule": {
+    "INT-004": {
+      "planted": 13,
+      "detected": 8,
+      "pending": 0,
+      "missed": 5
+    },
+    "INT-005": {
+      "planted": 15,
+      "detected": 5,
+      "pending": 10,
+      "missed": 0
+    },
+    "DOC-002": {
+      "planted": 12,
+      "detected": 12,
+      "pending": 0,
+      "missed": 0
+    },
+    "DOC-010": {
+      "planted": 17,
+      "detected": 12,
+      "pending": 0,
+      "missed": 5
+    },
+    "INT-002": {
+      "planted": 17,
+      "detected": 4,
+      "pending": 13,
+      "missed": 0
+    },
+    "DOC-001": {
+      "planted": 15,
+      "detected": 15,
+      "pending": 0,
+      "missed": 0
+    },
+    "CAP-005": {
+      "planted": 6,
+      "detected": 4,
+      "pending": 2,
+      "missed": 0
+    },
+    "DOC-012": {
+      "planted": 13,
+      "detected": 13,
+      "pending": 0,
+      "missed": 0
+    },
+    "INT-001": {
+      "planted": 26,
+      "detected": 26,
+      "pending": 0,
+      "missed": 0
+    },
+    "CAP-003": {
+      "planted": 11,
+      "detected": 5,
+      "pending": 6,
+      "missed": 0
+    },
+    "SYN-001": {
+      "planted": 4,
+      "detected": 1,
+      "pending": 3,
+      "missed": 0
+    },
+    "CAP-002": {
+      "planted": 14,
+      "detected": 7,
+      "pending": 0,
+      "missed": 7
+    },
+    "CAP-006": {
+      "planted": 12,
+      "detected": 12,
+      "pending": 0,
+      "missed": 0
+    },
+    "DOC-011": {
+      "planted": 16,
+      "detected": 16,
+      "pending": 0,
+      "missed": 0
+    },
+    "DOC-005": {
+      "planted": 4,
+      "detected": 4,
+      "pending": 0,
+      "missed": 0
+    },
+    "MON-001": {
+      "planted": 7,
+      "detected": 2,
+      "pending": 5,
+      "missed": 0
+    },
+    "SEC-003": {
+      "planted": 4,
+      "detected": 1,
+      "pending": 3,
+      "missed": 0
+    },
+    "CAP-001": {
+      "planted": 7,
+      "detected": 3,
+      "pending": 4,
+      "missed": 0
+    },
+    "SEC-002": {
+      "planted": 14,
+      "detected": 11,
+      "pending": 3,
+      "missed": 0
+    },
+    "SEC-004": {
+      "planted": 9,
+      "detected": 3,
+      "pending": 6,
+      "missed": 0
+    },
+    "SEC-001": {
+      "planted": 5,
+      "detected": 0,
+      "pending": 5,
+      "missed": 0
+    },
+    "CHN-001": {
+      "planted": 8,
+      "detected": 2,
+      "pending": 6,
+      "missed": 0
+    },
+    "INT-003": {
+      "planted": 4,
+      "detected": 2,
+      "pending": 2,
+      "missed": 0
+    }
+  }
+}
