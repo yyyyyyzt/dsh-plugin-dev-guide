@@ -30,14 +30,19 @@
 %=================================================================
 \Title{Verifiability-Typed Review Knowledge with Human-Gated Evolution for LLM-Assisted Review of Technical Solution Proposals}
 
-% TODO: replace placeholder author, affiliation and ORCID before submission.
+% TODO: replace the placeholder authors (A-F), affiliation, e-mails and ORCIDs before submission.
 \newcommand{\orcidauthorA}{0000-0000-0000-0000}
+\newcommand{\orcidauthorB}{0000-0000-0000-0000}
+\newcommand{\orcidauthorC}{0000-0000-0000-0000}
+\newcommand{\orcidauthorD}{0000-0000-0000-0000}
+\newcommand{\orcidauthorE}{0000-0000-0000-0000}
+\newcommand{\orcidauthorF}{0000-0000-0000-0000}
 
-\Author{Firstname Lastname $^{1}$\orcidA{}}
-\AuthorNames{Firstname Lastname}
+\Author{Author A $^{1}$\orcidA{}, Author B $^{1}$\orcidB{}, Author C $^{1}$\orcidC{}, Author D $^{1}$\orcidD{}, Author E $^{1}$\orcidE{}, Author F $^{1}$\orcidF{}}
+\AuthorNames{Author A, Author B, Author C, Author D, Author E and Author F}
 \address{%
-$^{1}$ \quad Organisation, City, Country; first.author@example.com}
-\corres{Correspondence: first.author@example.com}
+$^{1}$ \quad Digital Technology Department, Example Utility Company, Beijing 100000, China; author.a@example.com (A.); author.b@example.com (B.); author.c@example.com (C.); author.d@example.com (D.); author.e@example.com (E.); author.f@example.com (F.)}
+\corres{Correspondence: author.a@example.com}
 
 \abstract{Large language models (LLMs) increasingly pre-screen technical documents before an expert signs off, yet expert review knowledge enters such systems as keyword rules, prompt checklists or retrieval over past reviews, and each route loses a property that high-stakes review needs: findings must trace to a rule and a document location, decision authority must match how deterministically a requirement can be checked, knowledge must grow from use, and that growth must stay under human control. We call this the \emph{review-knowledge ingestion problem} and study it for preliminary review of technical solution proposals at a large utility. Knowledge becomes a versioned package of verifiability-typed rules: \emph{hard} rules are owned by deterministic verifiers that produce located evidence, including absence evidence an LLM may never assert; \emph{hybrid} rules let verifiers locate candidate spans while the LLM judges only inside them, enforced by a tool-side evidence gate; \emph{soft} rules only raise items for judgement. A deterministic policy derives the suggested verdict; only the expert writes the final one. Expert decisions become an audited learned layer that may tune parameters and phrasing but never promotes a rule's tier. Implemented as a plugin of an open-source agent harness (28 rules, no separate backend), the design reaches F1 0.798 against 0.222 for a keyword baseline on 100 synthetic proposals with 253 planted defects, with no false positive and 85\% verdict agreement ($\kappa=0.76$); 80\% of the remaining misses reach the expert as open items. Only 10 of 28 rules proved deterministically verifiable, and the four blocking rules least of all.}
 
@@ -578,6 +583,10 @@ Usage tracking implemented (MON-001) & ``New page tracking points must be added 
 The walkthrough also shows what the design does \emph{not} claim. The tracking defect is missed by the mechanism---the phrase plans tracking but does not implement it, and no verifier could decide that---so it is handed over as an open item. A reviewer who reads the pending list sees five findings, not four, and the difference between the four that count and the one that does not is explicit in the interface rather than implicit in a model's confidence.
 
 
+\subsection{The Protocol Closed on Internal Proposals}\label{sec:pilot}
+
+Beyond the corpus we ran the system on three technical solution proposals written for the platform, one reviewed twice after revision and once re-run to exercise resumption: five runs in total. The runs were performed by the team that built the system, so they document mechanics, not an independent expert study. Across the five runs the system raised 58 findings: 40 located by verifiers, 12 judged by the model inside candidate spans, and 6 added by the operator. The gate refused 3 of the 12 model-judged findings, all with the same reason---the quote fell outside the spans the verifier had located---so the refusal path of Section~\ref{sec:gate} was exercised on real prose and not only on planted defects. Hard and typed rules rated every proposal \emph{fail}; the two reviews carried to a final verdict kept it, the operator accepting 15 of the 18 findings that required a decision and rejecting 3, none rewritten. The learned layer was written: after five runs it held statistics for 13 rules and 21 exemplars, and no rule had changed tier.
+
 \section{Discussion}\label{sec:discussion}
 
 \subsection{Answers to the Research Questions}
@@ -616,14 +625,14 @@ The 100 proposals are generated from phrase pools, so they measure mechanism cor
 \paragraph{The judge is deterministic.}
 Hybrid recall (0.387) is a lower bound, since the flag judge decides only on structural cues and leaves semantic cases pending by design; conversely precision (1.000) is an upper bound, because the same judge never invents a quote. Span scoping showed no effect precisely because the judge only cites the span it is given, so the effect that spans are meant to have---keeping a generative model from wandering---is untested here. The planned ablation covers three judge settings (direct prompting over the whole document, prompting over candidate spans, and prompting with the gate disabled) with two open models, fixed decoding parameters and the same corpus, and reports the gate's rejection taxonomy as the primary outcome.
 
-\paragraph{No expert was in the loop.}
-The online form of the contribution---that review decisions become memory, and that memory improves later reviews---is not tested. The tests exercise the plumbing (decision recording, memory aggregation, exemplar retrieval) and the offline aggregator, not the claim that expert recall per rule rises with exposure. That claim needs a longitudinal deployment: the same reviewers, the same capability, a baseline period without memory and a treatment period with it, with per-rule recall, dismissal rate and rewrite rate as the outcomes. We describe the measurement plan and the schema rather than report the effect, and we consider this the paper's largest open question.
+\paragraph{No independent expert was in the loop.}
+The online form of the contribution---that review decisions become memory, and that memory improves later reviews---is not tested. The five internal runs of Section~\ref{sec:pilot} show that the loop closes and that the learned layer is written, but the operator was the team that wrote the rules, so their acceptance rate says nothing about an outside expert, and five runs cannot measure a learning curve. What the runs exercise is the plumbing (decision recording, memory aggregation, exemplar retrieval) and the offline aggregator, not the claim that expert recall per rule rises with exposure. That claim needs a longitudinal deployment: the same reviewers, the same capability, a baseline period without memory and a treatment period with it, with per-rule recall, dismissal rate and rewrite rate as the outcomes. We describe the measurement plan and the schema rather than report the effect, and we consider this the paper's largest open question.
 
 \paragraph{Scope of the rule pack.}
 Twenty-eight rules covering one capability's review checklist are not a review standard. The typing mechanism is agnostic to the rules---it takes any rule with a declared verifier---but the composition table (Section~\ref{sec:rules}) shows that the balance of tiers is a property of the domain: documentation rules are mostly mechanical, security rules are mostly semantic. A different domain will need a different balance, and the question of how to choose tiers without taste is open; our practice was to write the verifier first and the tier second, which makes the choice traceable but not automatic.
 
 \paragraph{Language and lexicon.}
-The corpus, the lexicon and the rules are in Chinese, for the electricity-service deployment; the mechanism is language-agnostic but the cue lists are not. Porting is a configuration task, not a code change, and the lexicon is versioned with the pack, but each port needs its own self-check, because the failure we found while building the corpus---a pattern that fails to capture an attachment number---is exactly the kind of defect that only a per-domain self-check catches.
+The corpus, the lexicon and the rules are in Chinese, for the electricity-service deployment; the mechanism is language-agnostic but the cue lists are not. Porting is a configuration task, not a code change, and the lexicon is versioned with the pack, but each port needs its own self-check, because a cue list calibrated on one domain's phrasing fails silently on another's, and only a per-domain self-check catches that.
 
 \paragraph{Verdict policy and human factors.}
 The verdict policy is deterministic and its threshold is insensitive in this corpus, but it assumes a reviewer who reads pending items, and we have not measured that. Nor have we measured whether an expert overrides the suggested verdict more often when it is wrong in the lenient direction, which is the asymmetry the design leans on. Both are study designs, not implementation gaps, and both belong with the longitudinal deployment.
@@ -632,11 +641,11 @@ The verdict policy is deterministic and its threshold is insensitive in this cor
 
 A review system built on large language models tends to give the model one of two roles: generate the comments, or decide the verdict. We have argued for a third arrangement in which the model never decides alone, the program never decides what it cannot check, and the expert's decisions are the knowledge the system accumulates. Its unit of construction is the rule, its unit of evidence is the quote, its unit of authority is the tier, and its unit of learning is the decision row.
 
-On a corpus of 100 proposals with 253 planted defects, the arrangement produces no false finding, recovers two thirds of the defects, and agrees with the planted verdict on 85\% of proposals ($\kappa=0.76$), against a keyword baseline at chance. The more instructive result is where it loses: the rules that block a release are the rules whose satisfaction needs a reader, and the misses that remain are concentrated on prose that plans rather than implements. We read that as evidence that the design constraint is right---the model's job is to read, not to conclude---and as the agenda that follows: a judge worth trusting, a longitudinal test of whether decisions improve later reviews, and a mapping between rule packs and the control catalogues that compliance work already uses.
+On a corpus of 100 proposals with 253 planted defects, the arrangement produces no false finding, recovers two thirds of the defects, and agrees with the planted verdict on 85\% of proposals ($\kappa=0.76$), against a keyword baseline at chance. The more instructive result is where it loses: the rules that block a release are the rules whose satisfaction needs a reader, and the misses that remain are concentrated on prose that plans rather than implements. The loop also closed outside the corpus: five runs on three internal proposals, 58 findings and 18 operator decisions, with the gate refusing three model-judged findings on real prose. We read all of this as evidence that the design constraint is right---the model's job is to read, not to conclude---and as the agenda that follows: a judge worth trusting, a longitudinal test of whether decisions improve later reviews, and a mapping between rule packs and the control catalogues that compliance work already uses.
 
 \vspace{6pt}
 
-\noindent\textbf{Author Contributions:} Conceptualization, [TODO]; methodology, [TODO]; software, [TODO]; validation, [TODO]; formal analysis, [TODO]; investigation, [TODO]; data curation, [TODO]; writing---original draft preparation, [TODO]; writing---review and editing, [TODO]; visualization, [TODO]; supervision, [TODO]; project administration, [TODO]; funding acquisition, [TODO]. All authors have read and agreed to the published version of the manuscript.
+\noindent\textbf{Author Contributions:} Conceptualization, A.; methodology, A. and B.; software, C.; validation, B. and C.; formal analysis, B.; investigation, D.; data curation, C.; writing---original draft preparation, A.; writing---review and editing, A., D. and E.; visualization, C.; supervision, E. and F.; project administration, D.; funding acquisition, F. All authors have read and agreed to the published version of the manuscript.
 
 \noindent\textbf{Funding:} This research received no external funding.
 
@@ -644,7 +653,7 @@ On a corpus of 100 proposals with 253 planted defects, the arrangement produces 
 
 \noindent\textbf{Informed Consent Statement:} Not applicable.
 
-\noindent\textbf{Data Availability Statement:} The synthetic corpus, the generator, the judgment traces and the evaluation scripts are available in the artifact repository at [TODO: GitHub URL] and archived at [TODO: Zenodo DOI]. The 30 historical expert opinions on which the verdict distribution is based cannot be released for confidentiality; the anonymisation procedure and the distribution derived from them are documented in the repository.
+\noindent\textbf{Data Availability Statement:} The synthetic corpus, the generator, the judgment traces and the evaluation scripts are available in the artifact repository at [TODO: GitHub URL] and archived at [TODO: Zenodo DOI]. The 30 historical expert opinions and the three internal proposals of Section~\ref{sec:pilot} cannot be released for confidentiality; the anonymisation procedure and the aggregate statistics derived from them are documented in the repository.
 
 \noindent\textbf{Acknowledgments:} During the preparation of this manuscript, the author(s) used a large language model assistant for drafting and language polishing. The authors reviewed and edited the content and take full responsibility for the content of the publication.
 
