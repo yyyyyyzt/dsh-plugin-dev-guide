@@ -35,9 +35,9 @@ F1 0.798 against 0.222 for a keyword baseline of the same policy, with no false 
 verdict agreement (κ = 0.76); 80% of its remaining misses reach the expert as open items rather than
 as silent passes. Only 10 of the 28 shipped rules proved deterministically verifiable, and the four
 blocking rules least of all — a result we report as a finding, not as a limitation to be hidden.
-The system is implemented as a plugin of an open agent harness with no separate backend, and the
-manuscript reports five internal end-to-end runs and a six-reviewer simulated panel as pilot
-evidence, each labelled as such.
+The system is implemented as a plugin of an open agent harness with no separate backend; the
+manuscript reports five internal end-to-end runs as pilot evidence, explicitly labelled as internal
+and not as independent expert validation.
 
 **Reproducibility.** The plugin, the 28-rule package, the corpus generator, the corpus with ground
 truth, the ablation runner and the nine published runs are released under MIT at
