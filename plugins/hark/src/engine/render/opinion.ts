@@ -6,9 +6,14 @@ const EMPTY_PASS_SENTENCE = '按当前方案技术路线开展。'
 
 const escapeCell = (s: string) => s.replace(/\|/g, '\\|')
 
-function pointText(issue: Issue): string {
-  const text = issue.status === 'rewritten' && issue.rewriteText?.trim() ? issue.rewriteText : issue.suggestion
+function pointBody(text: string): string {
   return text.trim().replace(/[。；;，,.!！\s]+$/u, '')
+}
+
+/** Suggestion text of one issue (rewrite wins), without its trailing punctuation. */
+export function pointText(issue: Issue): string {
+  const text = issue.status === 'rewritten' && issue.rewriteText?.trim() ? issue.rewriteText : issue.suggestion
+  return pointBody(text)
 }
 
 function finishSentence(text: string): string {
@@ -45,7 +50,8 @@ export function opinionPoints(issues: Issue[]): string[] {
 
 export function renderOpinion(input: OpinionInput): string {
   const points = opinionPoints(input.issues)
-  if (points.length === 0 && input.finalVerdict === '通过') points.push(EMPTY_PASS_SENTENCE)
+  const annex = (input.annex ?? []).map((text) => `${pointBody(text)}。`).filter((text) => text !== '。')
+  if (points.length === 0 && annex.length === 0 && input.finalVerdict === '通过') points.push(EMPTY_PASS_SENTENCE)
 
   const lines = [
     '# 技术方案预审意见',
@@ -60,7 +66,12 @@ export function renderOpinion(input: OpinionInput): string {
     '',
   ]
   if (points.length) {
+    if (annex.length) lines.push('一、问题与整改意见', '')
     lines.push(points.map((p, i) => `（${i + 1}）${p}`).join('\n'), '')
+  }
+  if (annex.length) {
+    lines.push(points.length ? '二、需补正事项' : '需补正事项', '')
+    lines.push(annex.map((a, i) => `（${i + 1}）${a}`).join('\n'), '')
   }
   const c = input.counts
   lines.push(

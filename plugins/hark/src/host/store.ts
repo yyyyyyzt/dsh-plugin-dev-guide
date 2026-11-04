@@ -12,6 +12,7 @@ import {
   opinionFileName,
   parseMarkdown,
   parseRuleDraft,
+  pointText,
   recall,
   renderOpinion,
   RulePackError,
@@ -19,6 +20,7 @@ import {
 } from '../engine/index.js'
 import { flattenHeadings } from '../engine/parse/markdown.js'
 import type {
+  Channel,
   ChecklistEntry,
   Dimension,
   Doc,
@@ -115,6 +117,10 @@ export interface StatusResult {
   summary: string
   finalVerdict?: Verdict
   issues: IssueRecord[]
+  /** issueId list of opinion-channel issues (items without a ruleId always belong here). */
+  opinionIssues: string[]
+  /** issueId list of checklist-channel issues. */
+  checklistIssues: string[]
   checklist: ChecklistEntry[]
   counts: {
     blocker: number
@@ -130,7 +136,7 @@ export interface StatusResult {
   checklistCounts: Record<ChecklistEntry['status'], number>
 }
 
-export type DecideAction = 'adopt' | 'reject' | 'rewrite' | 'add' | 'adopt_rest' | 'set_reviewer' | 'set_final_verdict' | 'discard'
+export type DecideAction = 'adopt' | 'reject' | 'rewrite' | 'add' | 'adopt_rest' | 'adopt_checklist' | 'set_reviewer' | 'set_final_verdict' | 'discard'
 
 export interface DecideInput {
   action?: DecideAction | undefined
@@ -151,6 +157,8 @@ export interface DecideResult {
   affected?: string[]
   /** adopt_rest only: pending issues left for one-by-one confirmation. */
   remainingPending?: string[]
+  /** adopt_checklist only: opinion-channel issues still awaiting a decision. */
+  remainingOpinion?: string[]
   aiVerdict: Verdict
   finalVerdict?: Verdict
   reviewer?: string
@@ -356,6 +364,7 @@ const byCreated = (a: ReviewRecord, b: ReviewRecord): number =>
 function isRealOverride(rec: RuleOverrideRecord): boolean {
   return rec.status !== undefined
     || rec.severity !== undefined
+    || rec.channel !== undefined
     || rec.suggestion !== undefined
     || rec.draft !== undefined
     || (rec.params !== undefined && Object.keys(rec.params).length > 0)
@@ -930,7 +939,9 @@ export class ReviewStore {
     }
     const doc = this.docOf(review)
     const { rules, lexicon, version } = this.effectiveRules()
-    const report = runCheck(doc, rules, lexicon)
+    const dimensions = this.config.reviewDimensions ?? []
+    const selected = dimensions.length > 0 ? rules.filter((r) => dimensions.includes(r.dimension)) : rules
+    const report = runCheck(doc, selected, lexicon)
 
     const issues = this.domain.table('issues')
     for (const old of this.issuesOf(reviewId)) {
@@ -1017,6 +1028,10 @@ export class ReviewStore {
     const review = this.requireReview(reviewId)
     const issues = this.issuesOf(reviewId)
     const verdict = this.verdictOf(reviewId)
+    const ruleChannel = new Map(this.effectiveRules().rules.map((r) => [r.id, r.channel]))
+    const channelOf = (issue: Issue): Channel => (issue.ruleId ? ruleChannel.get(issue.ruleId) ?? 'opinion' : 'opinion')
+    const opinionIssues = issues.filter((i) => channelOf(i) === 'opinion').map((i) => i.issueId)
+    const checklistIssues = issues.filter((i) => channelOf(i) === 'checklist').map((i) => i.issueId)
     const counts = {
       ...verdict.counts,
       pending: issues.filter((i) => i.status === 'pending').length,
@@ -1042,6 +1057,8 @@ export class ReviewStore {
       summary,
       ...(review.finalVerdict ? { finalVerdict: review.finalVerdict } : {}),
       issues,
+      opinionIssues,
+      checklistIssues,
       checklist,
       counts,
       checklistCounts,
@@ -1173,6 +1190,22 @@ export class ReviewStore {
         })
         return done({ issue: record })
       }
+      case 'adopt_checklist': {
+        const ruleChannel = new Map(this.effectiveRules().rules.map((r) => [r.id, r.channel]))
+        const isChecklist = (issue: Issue): boolean => (issue.ruleId ? ruleChannel.get(issue.ruleId) === 'checklist' : false)
+        const affected: string[] = []
+        const remainingOpinion: string[] = []
+        for (const issue of this.issuesOf(reviewId)) {
+          if (issue.status === 'confirmed' && isChecklist(issue)) {
+            await this.setIssueStatus(issue, 'adopted')
+            await this.writeFeedback(review, issue, 'adopt', {})
+            affected.push(issue.issueId)
+          } else if (issue.status === 'confirmed' || issue.status === 'pending') {
+            if (!isChecklist(issue)) remainingOpinion.push(issue.issueId)
+          }
+        }
+        return done({ affected, remainingOpinion })
+      }
       case 'adopt_rest': {
         const affected: string[] = []
         const remainingPending: string[] = []
@@ -1261,6 +1294,16 @@ export class ReviewStore {
     const aiVerdictAtFinalize = this.verdictOf(reviewId).verdict
     const finalizedAt = this.now().toISOString()
     const version = review.versions.length + 1
+    const ruleChannel = new Map(this.effectiveRules().rules.map((r) => [r.id, r.channel]))
+    const checklistIssue = (issue: Issue): boolean => (issue.ruleId ? ruleChannel.get(issue.ruleId) === 'checklist' : false)
+    const annex = [
+      ...new Set(
+        issues
+          .filter((issue) => (issue.status === 'adopted' || issue.status === 'rewritten') && checklistIssue(issue))
+          .map((issue) => `${pointText(issue)}。`)
+          .filter((text) => text !== '。'),
+      ),
+    ]
     const content = renderOpinion({
       reviewId,
       title: review.title,
@@ -1268,7 +1311,8 @@ export class ReviewStore {
       finalizedAt,
       finalVerdict: review.finalVerdict,
       aiVerdictAtFinalize,
-      issues,
+      issues: issues.filter((issue) => !checklistIssue(issue)),
+      ...(annex.length > 0 ? { annex } : {}),
       counts,
     })
 

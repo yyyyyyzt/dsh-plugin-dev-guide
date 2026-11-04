@@ -466,6 +466,7 @@ rules:
     dimension: documentation
     severity: major
     tier: hard
+    channel: checklist
     question: 方案是否有可校验的业务执行时序图（Mermaid）及配套技术描述？
     rationale: 图片时序图无法校验；关键链路需以 Mermaid sequenceDiagram 提供。
     suggestion: 方案需进一步完善技术实现部分，以 Mermaid 时序图明确业务执行链路和配套技术描述。
@@ -487,6 +488,7 @@ rules:
     dimension: documentation
     severity: minor
     tier: hard
+    channel: checklist
     question: 样式 / 交互优化是否有优化前后原型对比？
     rationale: 涉及样式 / 交互优化时需提供对比。
     suggestion: 建议完善样式优化详情以及优化前后原型对比。
@@ -542,6 +544,7 @@ rules:
     dimension: documentation
     severity: major
     tier: hard
+    channel: checklist
     question: 消息订阅 / 推送链路是否有可校验的时序图？
     rationale: 消息类功能需有时序图明确链路。
     suggestion: 补充 Mermaid 时序图，明确消息订阅 / 推送链路。
@@ -563,6 +566,7 @@ rules:
     dimension: documentation
     severity: minor
     tier: hard
+    channel: checklist
     question: 文首是否有资源变更清单表，且至少一行变更类型非占位？
     rationale: 模板要求；清单表是改动范围的权威来源。
     suggestion: 补充资源变更清单表（序号 / 资源名称 / 变更类型 / 名称 / 内外网位置 / 数据存储 / 备注）。
@@ -585,6 +589,7 @@ rules:
     dimension: documentation
     severity: major
     tier: hard
+    channel: checklist
     question: 工作背景 / 技术思路 / 数据规划 / 实施方案 / 资源评估 / 风险评估 / 附件 七个章节是否齐全且非占位？
     rationale: 模板要求。
     suggestion: 按模板补齐缺失章节并给出实质内容。
@@ -609,6 +614,7 @@ rules:
     dimension: documentation
     severity: minor
     tier: hard
+    channel: checklist
     question: 正文引用的附件是否都在附件清单中？
     rationale: 悬空引用导致评审无法核对。
     suggestion: 补齐附件清单或修正正文中的附件引用。

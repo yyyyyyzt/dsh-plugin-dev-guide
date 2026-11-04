@@ -129,3 +129,32 @@ describe('opinionFileName (T-PRO-08)', () => {
     expect(() => opinionFileName('rv_x', 0)).toThrow(/version/)
   })
 })
+
+describe('renderOpinion annex (2026-11-04, plan A)', () => {
+  it('prints numbered clauses under 一、 and correction items under 二、', () => {
+    const md = renderOpinion({
+      ...base,
+      issues: [issue({ severity: 'blocker', status: 'adopted', ruleId: 'CAP-001', suggestion: '建议补充限流策略。' })],
+      annex: ['补充资源变更清单表', '补齐附件清单或修正正文中的附件引用'],
+    })
+    expect(md).toContain('一、问题与整改意见')
+    expect(md).toContain('（1）建议补充限流策略。')
+    expect(md).toContain('二、需补正事项')
+    expect(md).toContain('（1）补充资源变更清单表。')
+    expect(md).toContain('（2）补齐附件清单或修正正文中的附件引用。')
+    expect(md.indexOf('一、问题与整改意见')).toBeLessThan(md.indexOf('二、需补正事项'))
+  })
+
+  it('renders a standalone 需补正事项 section when there are no numbered clauses', () => {
+    const md = renderOpinion({ ...base, annex: ['补充资源变更清单表'] })
+    expect(md).not.toContain('一、问题与整改意见')
+    expect(md).toContain('需补正事项')
+    expect(md).toContain('（1）补充资源变更清单表。')
+  })
+
+  it('does not fall back to the empty-pass sentence when only annex items exist', () => {
+    const md = renderOpinion({ ...base, finalVerdict: '通过', annex: ['补充资源变更清单表'] })
+    expect(md).not.toContain('按当前方案技术路线开展。')
+    expect(md).toContain('需补正事项')
+  })
+})

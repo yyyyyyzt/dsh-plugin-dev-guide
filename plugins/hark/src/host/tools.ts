@@ -19,7 +19,7 @@ const SEVERITY = ['blocker', 'major', 'minor'] as const
 const TIER = ['hard', 'hybrid', 'soft'] as const
 const DIMENSION = ['capacity', 'security', 'interface', 'channel', 'data_sync', 'config', 'monitoring', 'documentation'] as const
 const VERDICT = ['通过', '建议整改', '不通过'] as const
-const DECIDE_ACTIONS = ['adopt', 'reject', 'rewrite', 'add', 'adopt_rest', 'set_reviewer', 'set_final_verdict', 'discard'] as const
+const DECIDE_ACTIONS = ['adopt', 'reject', 'rewrite', 'add', 'adopt_rest', 'adopt_checklist', 'set_reviewer', 'set_final_verdict', 'discard'] as const
 const TIER_NAME: Record<IssueTier, string> = { hard: '程序检查', hybrid: 'AI 辅助', soft: '人工判断', expert: '专家' }
 const ORIGIN_NAME: Record<Issue['origin'], string> = { verifier: '程序', llm: 'AI', expert: '专家' }
 const levelOf = (severity: Severity, from?: Severity): string => (from && from !== severity ? `${SEVERITY_NAME[severity]}（原${SEVERITY_NAME[from]}）` : SEVERITY_NAME[severity])
@@ -117,8 +117,19 @@ const renderStatus = (value: StatusResult): string => {
     `摘要：${value.summary}`,
     `计数：严重 ${value.counts.blocker} / 一般 ${value.counts.major} / 轻微 ${value.counts.minor}；confirmed ${value.counts.confirmed} / pending ${value.counts.pending} / adopted ${value.counts.adopted} / rejected ${value.counts.rejected} / rewritten ${value.counts.rewritten} / expert ${value.counts.expert}`,
   ]
-  if (value.issues.length) lines.push('', `【问题明细（${value.issues.length}）】`, ...value.issues.map((issue) => renderIssue(issue, true)))
-  else lines.push('', '【问题明细】暂无。')
+  const checklistIds = new Set(value.checklistIssues)
+  const opinionOnly = value.issues.filter((issue) => !checklistIds.has(issue.issueId))
+  if (opinionOnly.length) lines.push('', `【问题明细（${opinionOnly.length}）】`, ...opinionOnly.map((issue) => renderIssue(issue, true)))
+  else lines.push('', '【问题明细】暂无需逐条裁决的意见项。')
+  if (checklistIds.size) {
+    const byId = new Map(value.issues.map((issue) => [issue.issueId, issue]))
+    lines.push('', `【补正事项（可一次性采纳）（${checklistIds.size}）】`)
+    for (const issueId of value.checklistIssues) {
+      const issue = byId.get(issueId)
+      if (issue) lines.push(`- ${issue.ruleId ?? issueId}｜${clip(issue.suggestion)}`)
+    }
+    lines.push('提示：review_decide(action: adopt_checklist) 只采纳这些补正事项；意见项仍需逐条确认。')
+  }
   lines.push('', renderChecklist(value.checklist, true))
   return lines.join('\n')
 }
@@ -292,6 +303,11 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
         if (v.action === 'discard') return text(`${_args.reviewId} 已作废，之后只读；需要重新审查请 review_parse。`)
         const reopen = v.needsRefinalize ? '\n记录已回到进行中：旧意见文件已过期，需重新定稿（review_finalize）。' : ''
         if (v.action === 'set_final_verdict') return text(`最终结论已记录：${v.finalVerdict}（复核后建议结论 ${v.aiVerdict}）。${reopen}`)
+        if (v.action === 'adopt_checklist') {
+          const left = (v as { remainingOpinion?: string[] }).remainingOpinion ?? []
+          const tail = left.length ? `；${left.length} 条意见项仍需逐条确认` : ''
+          return text(`已一次采纳 ${v.affected?.length ?? 0} 条补正事项${tail}；复核后建议结论 ${v.aiVerdict}。${reopen}`)
+        }
         if (v.action === 'adopt_rest') {
           const pending = v.remainingPending ?? []
           const tail = pending.length ? `；还有 ${pending.length} 条待人工需逐条请专家确认：${pending.join('、')}` : ''

@@ -9,6 +9,7 @@
         rulesDir: null              # null = the rule packs shipped inside the package (rules/*.rules.yaml)
         outputDir: reviews          # relative to the session working directory
         minorThreshold: 3
+        reviewDimensions: []        # empty = every dimension; narrow it per reviewer, e.g. [security, capacity]
         askBatchSize: 5
         rejectWarnRatio: 0.6
         rejectWarnMinSamples: 5

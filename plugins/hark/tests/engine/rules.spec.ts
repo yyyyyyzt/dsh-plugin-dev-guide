@@ -126,6 +126,26 @@ describe('shipped pack (T-RUL-12 schema half)', () => {
   })
 })
 
+describe('rule output channel (2026-11-04, plan A)', () => {
+  it('defaults to opinion when the field is absent', () => {
+    const pack = parseRulePack(readRuleFixture('valid-minimal.yaml'))
+    expect(pack.rules[0]!.channel).toBe('opinion')
+  })
+
+  it('accepts checklist on a non-blocker rule', () => {
+    const yaml = readRuleFixture('valid-minimal.yaml').replace('tier: hard', 'tier: hard\n    channel: checklist')
+    const pack = parseRulePack(yaml)
+    expect(pack.rules[0]!.channel).toBe('checklist')
+  })
+
+  it('rejects a checklist rule that carries blocker severity', () => {
+    const yaml = readRuleFixture('valid-minimal.yaml')
+      .replace('severity: major', 'severity: blocker')
+      .replace('tier: hard', 'tier: hard\n    channel: checklist')
+    expectPackError(yaml, 'CAP-002', /channel/)
+  })
+})
+
 describe('mergeRules (T-RUL-10, T-DES-10)', () => {
   let shipped: Rule[]
   beforeAll(() => {
@@ -199,5 +219,29 @@ describe('mergeRules (T-RUL-10, T-DES-10)', () => {
     const p = (rules.find((x) => x.id === 'CAP-002')!.verifier as { params: StatementParams }).params
     expect(p.whenNoCandidate).toBe('fail')
     expect(warnings.join(' ')).toMatch(/hard|pending/)
+  })
+})
+
+describe('mergeRules channel override (2026-11-04, plan A)', () => {
+  const shipped = shippedPack().rules
+  const stats = { shown: 0, adopt: 0, reject: 0, rewrite: 0 }
+  const ov = (ruleId: string, patch: Partial<RuleOverride>): RuleOverride => ({ ruleId, stats, audit: [], ...patch })
+
+  it('demotes an opinion rule to checklist', () => {
+    const { rules, warnings } = mergeRules(shipped, [ov('INT-001', { channel: 'checklist' })])
+    expect(rules.find((r) => r.id === 'INT-001')!.channel).toBe('checklist')
+    expect(warnings).toEqual([])
+  })
+
+  it('ignores checklist → opinion and warns', () => {
+    const { rules, warnings } = mergeRules(shipped, [ov('DOC-010', { channel: 'opinion' })])
+    expect(rules.find((r) => r.id === 'DOC-010')!.channel).toBe('checklist')
+    expect(warnings.some((w) => w.includes('checklist → opinion'))).toBe(true)
+  })
+
+  it('ignores promotion of a blocker rule to checklist', () => {
+    const { rules, warnings } = mergeRules(shipped, [ov('SEC-001', { channel: 'checklist' })])
+    expect(rules.find((r) => r.id === 'SEC-001')!.channel).toBe('opinion')
+    expect(warnings.some((w) => w.includes('blocker'))).toBe(true)
   })
 })

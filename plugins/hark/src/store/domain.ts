@@ -170,6 +170,7 @@ export const RuleOverrideRecordSchema = z.object({
   ruleId: z.string(),
   status: z.enum(['active', 'draft', 'retired']).optional(),
   severity: SeveritySchema.optional(),
+  channel: z.enum(['opinion', 'checklist']).optional(),
   suggestion: z.string().optional(),
   params: z
     .object({
