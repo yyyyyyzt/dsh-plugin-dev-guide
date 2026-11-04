@@ -8,7 +8,7 @@
 两个并存、互不耦合的部分：
 
 1. **DSH 插件开发指南**（原有）：`README.md`、`docs/`、`examples/hello-plugin`、`scripts/discover-plugins.mjs`、`plugins.md`。基线 `dsh-v0.2.1-rc.2`，按 `docs/maintenance.md` 维护。
-2. **wsgw-solution-review**（新，本指引的主体；wsgw = 网上国网）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 MDPI *Computers*，见 §5.4）。代码位于 `plugins/wsgw-solution-review/`，论文位于 `paper/`。
+2. **arbiter**（新，本指引的主体）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 MDPI *Computers*，见 §5.4）。代码位于 `plugins/arbiter/`，论文位于 `paper/`。
 
 旧版 Python 原型已于 2026-10-23 按用户决策从工作区删除；历史结论保留在 §7 与 `paper/`，原始数据不再随仓库分发，**不得 import 或重建**。
 
@@ -18,8 +18,8 @@
 |---|---|---|
 | `AGENTS.md` | 本文：目标、铁律、架构、研究主张、决策记录 | 持续维护 |
 | `progress.md` | 步骤计划、每步状态与证据、开放问题 | 每步结束必更新 |
-| `plugins/wsgw-solution-review/` | 插件工程（docs / rules / src / tests / client） | S1 起创建 |
-| `plugins/wsgw-solution-review/docs/` | 需求、设计、规则 schema、对话协议、评测方案——**唯一事实来源** | S1 |
+| `plugins/arbiter/` | 插件工程（docs / rules / src / tests / client） | S1 起创建 |
+| `plugins/arbiter/docs/` | 需求、设计、规则 schema、对话协议、评测方案——**唯一事实来源** | S1 |
 | `paper/` | 论文大纲、实验脚本、图表、稿件 | S6 |
 | `docs/`、`examples/`、`scripts/`、`plugins.md` | DSH 插件开发指南（原有内容） | 独立维护 |
 
@@ -47,7 +47,7 @@
 4. **证据必须可验证。** 文本证据的 `quote` 必须能在方案原文中按子串命中（归一化空白后）；`kind: absence` 只能由校验器产生，必须记录缺失项与定位章节，展示时标注「absence / 非引文」，不得伪装成原文引用。LLM 提交的 absence 一律拒绝。未通过门禁的问题降级为 `待人工`，不参与结论计算。这条由工具侧强制。
 5. **结论由策略决定，不由模型一句话决定。** `ai_verdict` 是已确认问题集合上的确定性函数（§4.4）。
 6. **不要越做越大。** 任何新增能力先问：能否通过安装插件/配置解决？是否在 §2.3 的不做清单里？是否对论文主张有贡献？三问有一否即不做，记入 `progress.md` 的「推迟/拒绝」表。
-7. **文档同源。** 需求、设计、规则 schema 只在 `plugins/wsgw-solution-review/docs/` 维护一份；`progress.md` 只记状态与证据（测试名 / commit），不复述设计。发现冲突以 `docs/` 为准并立即修正。
+7. **文档同源。** 需求、设计、规则 schema 只在 `plugins/arbiter/docs/` 维护一份；`progress.md` 只记状态与证据（测试名 / commit），不复述设计。发现冲突以 `docs/` 为准并立即修正。
 8. **语言与风格。** 对话、文档用简体中文；代码标识符、commit message 用英文；不加叙述性注释。
 
 ### 2.3 明确不做（本阶段）
@@ -64,7 +64,7 @@
 | # | 问题 | 结论 |
 |---|---|---|
 | 1 | 检索还要不要 | 不要向量库。「历史同类问题提醒」改为**按规则号读取记忆**（专家采纳/驳回/改写统计 + 措辞范例），由 storage-domain 持久化。轻量、可解释、改完即生效。 |
-| — | 包名 / 模型 / 格式 / 首批规则 / 历史原文 / 脱敏 / 部署（Q1–Q7，2026-10-19 用户拍板） | 包名 `wsgw-solution-review`；模型默认 DeepSeek（走 DSH provider，插件不绑定厂商）；正式意见 Markdown + 可选 `present`；首批规则从旧 24 条按可验证性分级（`docs/rule-schema.md` 附录）；历史方案原文暂不可得 → **合成（mock）方案**做离线评测并在论文中明示；论文数据匿名并给出脱敏方法（`docs/evaluation.md`）；部署为 Web profile，未来开放 ip:port 给局域网 → 看板可写（规则 / 候选 / 复核），沿用 DSH 鉴权；细粒度权限后置。 |
+| — | 包名 / 模型 / 格式 / 首批规则 / 历史原文 / 脱敏 / 部署（Q1–Q7，2026-10-19 用户拍板） | 包名 `arbiter`；模型默认 DeepSeek（走 DSH provider，插件不绑定厂商）；正式意见 Markdown + 可选 `present`；首批规则从旧 24 条按可验证性分级（`docs/rule-schema.md` 附录）；历史方案原文暂不可得 → **合成（mock）方案**做离线评测并在论文中明示；论文数据匿名并给出脱敏方法（`docs/evaluation.md`）；部署为 Web profile，未来开放 ip:port 给局域网 → 看板可写（规则 / 候选 / 复核），沿用 DSH 鉴权；细粒度权限后置。 |
 | 2 | 硬检查合格线 | 收紧：规则按**可验证性**分三级（§4.3）。只有带结构化校验器的规则才允许 `hard`；关键词出现≠通过；否定句、占位符（`/`、`无`、`略`）要识别。 |
 | 3 | 评测是否进这一版 | 进，但改口径：以**专家在对话中的采纳/驳回**作为在线标注（回流即标注），离线指标随之累积；30 条历史意见只用于结论分布校准与规则覆盖分析，不冒充 golden set。指标定义见 §5.3。 |
 | 4 | 专家复核算不算 MVP | 算，且是核心：复核在对话中完成，专家回复即记忆写入。 |
@@ -76,7 +76,7 @@
 - **DSH**：`deepseek-harness` tag **`dsh-v0.2.1-rc.2`**（2026-10-17，master 最新预发布）。本插件按这一版开发；`engines.dsh` 初定 `">=0.2.1-rc.2 <0.3.0"`。本仓库 `docs/` 指南的版本字符串已对齐，但行为细节仍以 0.2.1-rc.2 源码与 `docs/subsystems/*.zh.md` 为准（Web 平面已改为 agent preset 组合，新增 storage / plugin-market / sidebar-right 等）。
 - **运行时**：Node `^22.19 || >=24`，pnpm `11.x`（DSH 根 `packageManager: pnpm@11.28.5`）。DSH 源码工具链以 checkout 为准；本插件工程使用 TypeScript 5.9 / vitest 3，client bundle 的 tsdown 0.22 在 S4 引入。
 - **本地开发回路**：克隆 deepseek-harness 并 `pnpm install && pnpm run build`；`pnpm dsh web --patch <本插件 cordis.yml>` 源码加载；或 `pnpm dsh plugin --profile web add <本插件目录>` 安装进 profile。Client 半每次 `pnpm run build` 后刷新页面（仓库外插件没有 HMR watcher）。
-- **分发**：给其他机器（含 Windows 桌面版）用 GitHub 发布 tag：插件目录 `pnpm run release --push` → DSH 插件页填 `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#wsgw-solution-review-v<version>`（设计见插件 `docs/design.md` §16）。
+- **分发**：给其他机器（含 Windows 桌面版）用 GitHub 发布 tag：插件目录 `pnpm run release --push` → DSH 插件页填 `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#arbiter-v<version>`（设计见插件 `docs/design.md` §16）。
 - **DSH 原生能力对照**（Web profile 默认已挂载，插件直接 `inject`）：
 
 | 能力 | 服务 / 包 | 本插件用途 |
@@ -89,33 +89,33 @@
 | skill | `ctx.skills`（`dsh-skill` + `skill-filesystem`） | 审查流程 SKILL.md（审查 → 复核 → 定稿） |
 | 交付 | `present` | 正式意见 Markdown |
 | 会话查询 | `dsh-session-query-sqlite` | 评测时回放会话、统计耗时 |
-| Web 路由 | `ctx.webServer.register` | dashboard 的 `/plugins/wsgw-solution-review/api/*` |
+| Web 路由 | `ctx.webServer.register` | dashboard 的 `/plugins/arbiter/api/*` |
 | 左侧栏面板 | `sidebar.panellist` + `main`（`ctx.layout.selectPanel`） | 「方案审查」主面板：审查总览（日历 / 趋势 / 方案列表）、全局规则、评测 |
 | 右侧栏 | `ctx.sidebarRightTabs` + `sidebar.right.pane.tab` | 「复核助手」：进行中审查的逐条复核 |
 | 连接围栏 | `ctx.connection.requestRejection(req)` | 看板路由的 401 / 403（与 DSH Web 同一访问控制） |
 | 配置 | 插件行 `config`（schemastery） | 阈值、规则包目录、默认署名。0.2.1 没有给第三方插件自动生成设置表单的入口（`installSettingsSection` / `settings.plugin.item` 是 0.1.x 指南写法），设置卡片推迟 |
 | 测试支撑 | 真实 `dsh-storage-json` + 脚本化 agent | `dsh-llm-mock-server` 未随 npm 发布，协议回放用脚本化工具调用序列；真实对话靠人工冒烟 |
 
-## 4. 架构概要（细节在 `plugins/wsgw-solution-review/docs/design.md`）
+## 4. 架构概要（细节在 `plugins/arbiter/docs/design.md`）
 
 ### 4.1 组成
 
 ```
-wsgw-solution-review (bundle, cordis.patch.yml)
+arbiter (bundle, cordis.patch.yml)
 ├─ host 平面
-│  ├─ review-store      storage domain `wsgw_solution_review`（规则层 / 审查 / 反馈 / 记忆 / 评测）
+│  ├─ review-store      storage domain `arbiter`（规则层 / 审查 / 反馈 / 记忆 / 评测）
 │  ├─ review-engine     Markdown AST + Mermaid 解析 → 规则校验器 → 证据锚定 → 结论策略（纯函数，可单测）
 │  ├─ review-tools      review_parse / review_check / review_record_issue / review_status / review_decide / review_finalize / rules_list / rules_propose / memory_recall（挂在 preset 内，只有审查 agent 可见）
 │  ├─ review-commands   /review, /rules, /memory —— 只做 host 侧即时查询（DSH 命令不经过模型，不能用来发起审查）
-│  ├─ review-api        dashboard HTTP 路由（读 + 受限写）`/plugins/wsgw-solution-review/api/*`
+│  ├─ review-api        dashboard HTTP 路由（读 + 受限写）`/plugins/arbiter/api/*`
 │  └─ config            阈值、规则包目录、默认署名（插件行 YAML）
-├─ agent preset `wsgw-solution-review`（方案审查）
+├─ agent preset `arbiter`（方案审查）
 │  ├─ persona           审核专家口吻；只建议，不裁决
-│  ├─ skill `wsgw-solution-review`   审查三阶段 SOP + 输出格式
+│  ├─ skill `arbiter`   审查三阶段 SOP + 输出格式
 │  └─ 工具白名单        tool-fs(只读为主)、tool-skill、tool-ask-user、present、review-tools
 └─ client 平面
    ├─ 左侧栏面板 + main 主面板「方案审查」   审查（指标 / 日历·趋势 / 方案列表就地展开复核）· 规则（全局编辑 + 记忆 + 候选）· 评测
-   └─ sidebar-right tab `wsgw-review`「复核助手」   进行中 / 需重新定稿的审查，与对话并排复核
+   └─ sidebar-right tab `arbiter-review`「复核助手」   进行中 / 需重新定稿的审查，与对话并排复核
 ```
 
 ### 4.2 对话协议（三阶段，一个会话内完成）
@@ -142,7 +142,7 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
            = 建议整改 若 ∃ major ∈ confirmed 或 |minor ∈ confirmed| ≥ minorThreshold
            = 通过     否则
 ```
-`soft` 与 `待人工` 项只列出不计分。`final_verdict` 仅由 `review_decide(set_final_verdict)` 在专家确认后写入。精确定义见 `plugins/wsgw-solution-review/docs/design.md` §6。
+`soft` 与 `待人工` 项只列出不计分。`final_verdict` 仅由 `review_decide(set_final_verdict)` 在专家确认后写入。精确定义见 `plugins/arbiter/docs/design.md` §6。
 
 ### 4.5 记忆模型（持久化，取代向量库）
 
@@ -204,7 +204,7 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 - **协议测试**：脚本化 agent 按固定工具调用序列与专家回答跑完一次「预审 → 复核 → 定稿」，断言落库内容与交付文件；真实模型对话由人工冒烟覆盖（清单见 `progress.md`）。
 - **离线校验脚本**：client bundle 结构（banner / footer / 外部化白名单）、规则 YAML schema。
 - 命令（S3 搭好工程后固定写入此处）：`pnpm test`、`pnpm typecheck`、`pnpm build`、`pnpm run check:bundle`。
-- **评测脚本**（S5，`plugins/wsgw-solution-review/scripts/eval/`，先 `pnpm run build`）：`pnpm run eval:gen`（合成集 + 真值 + 自检）、`pnpm run eval:ablation`（消融；默认确定性 judge，LLM 配置需 `--adapter`）、`pnpm run eval:anonymize`（脱敏）。输出到 `paper/data/public/`；用法见 `paper/REPRODUCE.md`，口径见插件 `docs/evaluation.md` §5。
+- **评测脚本**（S5，`plugins/arbiter/scripts/eval/`，先 `pnpm run build`）：`pnpm run eval:gen`（合成集 + 真值 + 自检）、`pnpm run eval:ablation`（消融；默认确定性 judge，LLM 配置需 `--adapter`）、`pnpm run eval:anonymize`（脱敏）。输出到 `paper/data/public/`；用法见 `paper/REPRODUCE.md`，口径见插件 `docs/evaluation.md` §5。
 - 每步完成的证据写入 `progress.md`：测试名、通过数、commit。
 
 ## 7. 历史与决策记录（为什么重做）

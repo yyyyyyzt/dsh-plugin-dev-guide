@@ -1,11 +1,11 @@
 # 评测复现说明（S5）
 
-设计口径见 `plugins/wsgw-solution-review/docs/evaluation.md`；本文只讲怎么跑。所有命令在 `plugins/wsgw-solution-review/` 下执行，Node ≥ 22.14，pnpm 11。
+设计口径见 `plugins/arbiter/docs/evaluation.md`；本文只讲怎么跑。所有命令在 `plugins/arbiter/` 下执行，Node ≥ 22.14，pnpm 11。
 
 ## 0. 准备
 
 ```bash
-cd plugins/wsgw-solution-review
+cd plugins/arbiter
 pnpm install
 pnpm run build          # 评测脚本从 lib/ 加载引擎与 src/eval 的编译产物
 pnpm test               # 含 tests/eval/*（T-EVA-01..11）

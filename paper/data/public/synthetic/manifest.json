@@ -1,7 +1,7 @@
 {
   "id": "synthetic-v1-seed20261029",
   "seed": 20261029,
-  "generatedBy": "wsgw-solution-review/eval/synthetic@1.0.0",
+  "generatedBy": "arbiter/eval/synthetic@1.0.0",
   "rulePackVersion": "capability-open-access@1.0.0",
   "minorThreshold": 3,
   "counts": {

@@ -20,7 +20,7 @@ Thumbs.db
 .vscode/
 
 # generated review opinions
-plugins/wsgw-solution-review/reviews/
+plugins/arbiter/reviews/
 
 # evaluation: private anonymization maps / real datasets (evaluation.md §7.3)
 paper/data/private/

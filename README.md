@@ -18,15 +18,15 @@
 | **插件索引（作者）** | [plugins.md](./plugins.md) | anweat 的 DSH 插件集合：安装命令 / 版本 / 说明 / 新增流程 |
 | **维护运行手册** | [docs/maintenance.md](./docs/maintenance.md) | DSH 破坏性升级后的插件巡检、适配、验证与 Issue/PR 决策门禁 |
 
-## 研究项目：技术方案预审插件 `wsgw-solution-review`
+## 研究项目：技术方案预审插件 `arbiter`
 
-本仓库同时承载一个 DSH 插件研究项目——「网上国网技术方案 AI 预审」（AI 只预审、不自动否决；专家在对话里采纳/驳回/改写，意见回流为规则与记忆）。
+本仓库同时承载一个 DSH 插件研究项目——「业务平台技术方案 AI 预审」（AI 只预审、不自动否决；专家在对话里采纳/驳回/改写，意见回流为规则与记忆）。
 
 | 内容 | 路径 | 说明 |
 |---|---|---|
 | **项目章程（agent 指引）** | [AGENTS.md](./AGENTS.md) | 目标、铁律（能装插件就不自研）、六项决策、技术基线、架构、研究主张与指标、质量门禁 |
 | **进度与决策日志** | [progress.md](./progress.md) | 分步骤计划 S0–S6（文档 → 测试 → 开发）、决策记录、待定问题、证据链 |
-| **插件源码与文档** | [`plugins/wsgw-solution-review/`](./plugins/wsgw-solution-review/README.md) | `docs/`（需求 / 设计 / 规则模型 / 对话协议 / 评测 / 看板）→ `tests/` → `src/`；开发 `pnpm install && pnpm test`；装进本机 `web` profile：`pnpm dsh:install` |
+| **插件源码与文档** | [`plugins/arbiter/`](./plugins/arbiter/README.md) | `docs/`（需求 / 设计 / 规则模型 / 对话协议 / 评测 / 看板）→ `tests/` → `src/`；开发 `pnpm install && pnpm test`；装进本机 `web` profile：`pnpm dsh:install` |
 | **论文笔记** | `paper/innovation-notes.md` | 贡献定位、相关工作对照、新颖性风险、实验—主张映射（S6 稿件的种子） |
 
 ## 快速开始
