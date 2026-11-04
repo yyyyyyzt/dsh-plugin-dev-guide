@@ -1,0 +1,255 @@
+{
+  "expert": "E3",
+  "decisions": [
+    {
+      "id": "syn-hist-01",
+      "decisions": [
+        {
+          "ruleId": "INT-004",
+          "action": "rewrite",
+          "rewriteText": "接口参数表须增列渠道标识字段（取值由平台分配、固定不变，用于区分调用来源），不得以「暂不传渠道编号」代替字段定义与取值规范。",
+          "rationale": "「暂不传渠道编号」是明确不做，接口表缺渠道标识列，渠道来源不可区分；方向对，须落到表格字段与取值规范。"
+        },
+        {
+          "ruleId": "INT-005",
+          "action": "rewrite",
+          "rewriteText": "「防重方案：TBD」须补齐为可实施内容：明确幂等键（如请求流水号）、重复请求返回首次结果的规则、重试次数与退避策略，并升为 major。",
+          "rationale": "「防重方案：TBD」是占位残留，写了等于没写，交付物不可用；严重级别 minor→major。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "章节、资源清单表、接口表、附件编号齐全，但接口章节留有 TBD 占位，按空壳即 major 的口径判建议整改。"
+    },
+    {
+      "id": "syn-rand-17",
+      "decisions": [
+        {
+          "ruleId": "DOC-010",
+          "action": "rewrite",
+          "rewriteText": "文首按模板补充资源变更清单表（序号 / 资源名称 / 变更类型 / 名称 / 内外网位置 / 数据存储 / 备注），并保证至少一行变更类型非占位。",
+          "rationale": "文首无资源变更清单表，变更范围与内外网位置无法核对，属交付结构缺失；其余章节与附件自洽，补表即可。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "通过",
+      "note": "技术要素（限流、一次性校验串、幂等、压测、扩容）与附件编号均齐，仅缺资源清单表，属 minor 修补。"
+    },
+    {
+      "id": "syn-rand-69",
+      "decisions": [
+        {
+          "ruleId": "INT-004",
+          "action": "rewrite",
+          "rewriteText": "接口参数表增列渠道标识字段（建议 appCode / channel，取值由平台分配且固定），用于区分调用来源并纳入渠道管控。",
+          "rationale": "业务数据接口未定义渠道标识字段，仅靠运营后台开关不足以区分来源；absence 证据宜标注「缺失 / 非引文」，全文无占位残留，仅需补字段。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "通过",
+      "note": "章节、资源表、接口表、附件齐全，无占位残留，仅渠道标识字段需补。"
+    },
+    {
+      "id": "syn-hist-11",
+      "decisions": [],
+      "addedFindings": [
+        {
+          "text": "方案缺版本号与修订记录（无版本表 / 变更日志），评审版本与后续修订不可追溯。",
+          "severity": "minor",
+          "rationale": "交付物管理要求，不影响技术结论，属提示性 minor，不建议据此阻断。"
+        }
+      ],
+      "verdict": "通过",
+      "note": "必备章节、资源清单表、接口表、附件编号齐全，无占位残留，技术要素完整，通过；仅提示补版本与修订记录。"
+    },
+    {
+      "id": "syn-rand-10",
+      "decisions": [
+        {
+          "ruleId": "CAP-002",
+          "action": "accept",
+          "rationale": "「暂不安排压力测试，视上线后流量再定」把稳定性验证推给生产，无压测范围与指标，属实质缺失。"
+        },
+        {
+          "ruleId": "INT-001",
+          "action": "accept",
+          "rationale": "接口设计只写「按平台统一规范」，无地址、无参数表、无返回码表，还引用了不存在的附件 9，接口不可对接。"
+        },
+        {
+          "ruleId": "DOC-011",
+          "action": "rewrite",
+          "rewriteText": "「工作背景」不得以「无」占位，须按模板写明建设背景、目标用户与业务价值三段实质内容后再提交评审。",
+          "rationale": "必备章节以「无」占位，属典型空壳交付；因章节标题尚在、未彻底缺章，维持 major 不升 blocker。"
+        },
+        {
+          "ruleId": "DOC-012",
+          "action": "accept",
+          "rationale": "正文引用「附件 9」而清单只有附件 1、2，附件编号不可追溯，须补齐清单或改正编号。"
+        },
+        {
+          "ruleId": "CAP-005",
+          "action": "accept",
+          "rationale": "方案自认「未对风控接入做耗时评估」，而 2.4 明确要接风控，响应时间影响无结论。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "工作背景=无、接口无表、附件 9 悬空、风控耗时未评、压测不安排，五处均为「交付物不可用」级别。"
+    },
+    {
+      "id": "syn-hist-25",
+      "decisions": [
+        {
+          "ruleId": "INT-001",
+          "action": "accept",
+          "rationale": "接口章节只有「入参与出参按平台统一规范」一句话，无参数表与返回码表，接口文档不齐。"
+        },
+        {
+          "ruleId": "DOC-005",
+          "action": "rewrite",
+          "rewriteText": "消息订阅 / 推送时序图须补齐「用户订阅 → 平台推送 → 渠道展示」完整消息（当前仅推送与回执 2 条），并在图下标注「图 2 消息订阅推送链路」编号与说明。",
+          "rationale": "消息链路图仅「推送 / 回执」2 条消息，链路不闭环，且图无编号与说明，不符交付要求。"
+        },
+        {
+          "ruleId": "MON-001",
+          "action": "rewrite",
+          "rewriteText": "「埋点暂不明确实现方式」须写明埋点事件名、上报接口与字段口径，并升为 major。",
+          "rationale": "「埋点暂不明确实现方式」是空壳表述，落不到实现；严重级别 minor→major。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "接口缺表与消息链路图不闭环是主要扣分项，埋点表述为空壳。"
+    },
+    {
+      "id": "syn-rand-22",
+      "decisions": [
+        {
+          "ruleId": "CAP-006",
+          "action": "accept",
+          "rationale": "数据规划只有「上线前期会带来大量新增用户」，无日均请求量 / 峰值并发数字，容量与扩容结论无依据。"
+        },
+        {
+          "ruleId": "DOC-010",
+          "action": "rewrite",
+          "rewriteText": "文首按模板补充资源变更清单表（序号 / 资源名称 / 变更类型 / 名称 / 内外网位置 / 数据存储 / 备注），至少一行变更类型非占位。",
+          "rationale": "文首无资源变更清单表，资源口径与内外网位置无法核对，属交付结构缺失。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "缺资源清单表与量化业务量；2.3「压测方案：待定」也是同类占位，建议一并整改后再评审。"
+    },
+    {
+      "id": "syn-rand-03",
+      "decisions": [
+        {
+          "ruleId": "DOC-011",
+          "action": "rewrite",
+          "rewriteText": "补齐「一、工作背景」章节（建设背景 / 目标用户 / 业务价值），并使一级章节编号连续（当前直接从「二、技术方案」起）。",
+          "rationale": "一级章节从「二、技术方案」开始，缺首章且编号断档，必备章节不全，属交付结构缺陷。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "仅缺工作背景一章，其余章节、资源表、接口表、附件编号齐全。"
+    },
+    {
+      "id": "syn-rand-53",
+      "decisions": [
+        {
+          "ruleId": "CAP-006",
+          "action": "accept",
+          "rationale": "2.2 数据规划无任何量化业务量（只有「MQ 选型：TBD」），扩容与容量结论无数据支撑。"
+        },
+        {
+          "ruleId": "DOC-001",
+          "action": "rewrite",
+          "rewriteText": "时序图须以 Mermaid 重绘（当前为图片 + 「略」占位），覆盖授权码换取、openId 与绑定关系校验、登录，并在图下标注「图 1 用户授权时序」编号与说明。",
+          "rationale": "时序图以图片加「略」占位，不可校验，且图无编号说明，属交付缺陷。"
+        },
+        {
+          "ruleId": "SEC-002",
+          "action": "rewrite",
+          "rewriteText": "鉴权链路「授权码换取 openId 与登录校验流程：待定」须补齐为完整闭环（授权码换取 / 身份校验 / 绑定关系校验 / 登录），并由安全团队确认是否构成阻断。",
+          "rationale": "「授权码换取 openId 与登录校验流程：待定」是占位残留，属实；但安全阻断级别宜由安全团队确认，严重级别 blocker→major。"
+        },
+        {
+          "ruleId": "INT-003",
+          "action": "accept",
+          "rationale": "方案称「本次不调整现有逻辑」，但资源表微服务为「修改」、上线目标含「调整首页卡片按钮样式」，自相矛盾，改动影响未核实。"
+        },
+        {
+          "ruleId": "SYN-001",
+          "action": "accept",
+          "rationale": "「MQ 选型：TBD」为占位，消息中间件与异步同步机制未定，数据同步方案不可实施。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "图片占位、待定、TBD 三处空壳并存；鉴权阻断项按「安全团队确认」口径降为 major，故不判不通过。"
+    },
+    {
+      "id": "syn-rand-49",
+      "decisions": [
+        {
+          "ruleId": "DOC-001",
+          "action": "accept",
+          "rationale": "时序图仅「查询余额 / 返回结果」2 条消息，未覆盖授权码换取与绑定关系校验，链路不可校验。"
+        },
+        {
+          "ruleId": "SEC-002",
+          "action": "rewrite",
+          "rewriteText": "鉴权链路「授权码换取 openId 与登录校验流程：待定」须补齐完整闭环并给出对应时序图，是否构成阻断由安全团队确认。",
+          "rationale": "「授权码换取 openId 与登录校验流程：待定」占位属实；安全语义的阻断级别宜由安全团队确认，blocker→major。"
+        },
+        {
+          "ruleId": "SEC-004",
+          "action": "rewrite",
+          "rewriteText": "「渠道接入无暴露风险」须补充外部渠道与内部数据的交互边界及链路依据（时序图 / 网络位置），并由安全团队确认暴露面结论。",
+          "rationale": "「渠道接入无暴露风险」是结论而非论证，无链路依据，属空壳结论；暴露面阻断级别交由安全团队确认，blocker→major。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "鉴权与暴露面两条都以「待定 / 无依据结论」呈现，交付不完整；两条安全 blocker 均降为 major。"
+    },
+    {
+      "id": "syn-rand-36",
+      "decisions": [
+        {
+          "ruleId": "INT-001",
+          "action": "accept",
+          "rationale": "接口章节只有「按平台统一规范」的说明，无参数表与返回码表，且引用不存在的附件 9，接口不可对接。"
+        },
+        {
+          "ruleId": "DOC-012",
+          "action": "rewrite",
+          "rewriteText": "正文「接口联调记录见附件 9」须改为清单内可追溯编号（现清单仅附件 1、2），并在附件页标注编号与内容。",
+          "rationale": "附件编号不可追溯是文书硬伤，与 INT-001 的附件部分重复，合并整改即可。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "建议整改",
+      "note": "接口表缺失与附件编号悬空两处需补，其余章节完整；鉴权闭环描述仍引用外部文档，建议安全侧复核。"
+    },
+    {
+      "id": "syn-rand-70",
+      "decisions": [
+        {
+          "ruleId": "CAP-001",
+          "action": "accept",
+          "rationale": "「并发控制方案：/」是占位残留，全文无并发 / 限流数值，对外渠道开放直接压主链路，属阻断项。"
+        },
+        {
+          "ruleId": "CAP-005",
+          "action": "accept",
+          "rationale": "方案自认「未对风控接入做耗时评估」，而 2.4 明确要接风控，响应时间影响无结论。"
+        }
+      ],
+      "addedFindings": [],
+      "verdict": "不通过",
+      "note": "占位正好压在并发控制这个关键项上，容量侧无任何数据，判不通过。"
+    }
+  ]
+}
