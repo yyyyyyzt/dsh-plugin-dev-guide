@@ -57,6 +57,7 @@ rules:
 | `applicability` | `null | { families?: string[]; sections?: string[]; tableRows?: {column, equals} }` | 否 | 适用性前置条件；不满足 → `not-applicable`，不列为问题。`families` 在全文（段落、标题、表格单元格）上匹配，因此族词必须足够专指（如用「消息推送」而不是「消息」） |
 | `verifier` | §3 | `hard`/`hybrid` 必填；`soft` 必须为空 | |
 | `status` | `active|draft|retired` | 是 | |
+| `channel` | `opinion|checklist` | 否（默认 `opinion`） | 输出通道。`opinion` = 写进正式意见的编号条款，逐条请专家裁决；`checklist` = 补正事项，单列一段、可一次性采纳，不进编号条款。两通道都参与 `ai_verdict` 计算（结论策略不变），区别只在呈现与复核成本。`checklist` 规则的 `severity` 不得为 `blocker`（schema 拒绝） |
 | `provenance` | `{ source, examples[] }` | 是 | `legacy:<id>` / `template` / `expert:<reviewId>` |
 
 schema 校验在加载时执行（zod）；任何一条失败则整个规则包拒绝加载（`design.md` §12）。
@@ -76,6 +77,7 @@ schema 校验在加载时执行（zod）；任何一条失败则整个规则包�
 - 规则加载时静态检查：`hard` 的校验器树里不得出现 `whenNoCandidate: pending` 或非 decisive 的 `statement`。
 - 规则加载时静态检查：`hybrid` 的 `statement` 不得 `decisive: true`，`whenNoCandidate` 只能是 `pending` / `pass`；出现 `fail` 直接拒绝加载（`HYBRID_ABSENCE_FAIL`）。
 - 缺章节 / 缺关键词属于 absence，不是「原文证据」；它只能由 hard 校验器产生并计入 `ai_verdict`，hybrid 的 absence 只进 `pending`。
+- `channel` 与 tier 正交：结构性/模板完整性规则（章节齐全、附件编号、表格列、时序图消息数）标 `checklist`，因为它们的失败必然为真、但很少改变结论；语义与风险规则标 `opinion`。面板数据显示 `checklist` 类条目的专家采纳率只有 22%，而占复核条目的三分之一（`paper/notes/panel-simulation.md`），因此把它们移出编号条款、改为可批量采纳的补正事项。
 
 ## 3. 校验器
 
@@ -209,7 +211,7 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
 
 ### 6.1 覆盖层（`rule_overrides` 表，key = ruleId）
 
-允许覆盖的字段：`status`、`severity`、`suggestion`、`params`（仅白名单：`families` 的增删、`minChars`、`minMessages`、`minParticipants`、`whenNoCandidate`、`negationWindow`、`window`）。其余字段不可在运行期改；`whenNoCandidate: fail` 仅 hard 规则可设，hybrid 上设 fail 会被 schema 拒绝。`draft` 字段承载整条新规则（`LRN-*`），结构同 §1.1。
+允许覆盖的字段：`status`、`severity`、`channel`（只允许 `opinion → checklist`，不可反向）、`suggestion`、`params`（仅白名单：`families` 的增删、`minChars`、`minMessages`、`minParticipants`、`whenNoCandidate`、`negationWindow`、`window`）。其余字段不可在运行期改；`whenNoCandidate: fail` 仅 hard 规则可设，hybrid 上设 fail 会被 schema 拒绝。`draft` 字段承载整条新规则（`LRN-*`），结构同 §1.1。
 
 合并算法（`engine/rules.ts`）：
 

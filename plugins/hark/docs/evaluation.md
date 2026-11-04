@@ -111,6 +111,14 @@ F_1 = \frac{2PR}{P+R}
 
 另按 tier 分组报告（hard / hybrid），按规则报告（规则级精确率 = adopt+rewrite / shown，`rule_overrides.stats`）。
 
+**in-pack / out-of-pack 两个口径（2026-11-04，A 方案）**：专家新增意见里，有的能落到某条已发布的规则（in-pack），有的根本没有任何规则覆盖（out-of-pack）。两者不可合并统计，否则会把「引擎没覆盖到的真实缺口」记成引擎的召回，或把「专家口味」记成引擎的精确率。
+
+- **in-pack agreement**：预测与真值按 `rule_id` 对齐的部分，即现有的 precision / recall / F1 / κ 全部口径；只有这一层与 B0 基线可比。
+- **out-of-pack additions**：专家新增且无法映射到任何规则的条目，单独报告为 `candidateRules`（条数、维度分布、是否转正为 `LRN-*` 草案），**不并入** precision、recall 与 κ。
+- 桥接指标（可选）：`coverageGap = out-of-pack additions / (in-pack matched + out-of-pack additions)`，用于说明规则包的覆盖缺口有多大；它衡量的是规则包，不是模型。
+
+合成集上不存在 out-of-pack（真值全部由规则种植），因此该口径只在在线集与模拟面板上出现；模拟面板里 56 条专家自补意见全部 out-of-pack（`addedFindings` 均未带 `ruleId`，内容集中在发布/回退与数据外发两个未覆盖维度），可作为该口径的首个例子。
+
 ### 4.2 结论级
 
 `ai_verdict`（finalize 时冻结的 `aiVerdictAtFinalize`，即复核前的建议）vs `final_verdict`：准确率、宏 F1、3×3 混淆矩阵、Cohen's kappa（无权重）与二次加权 kappa（三分类有序：通过 < 建议整改 < 不通过）。同时报告「复核后重算的 aiVerdict」vs `final_verdict`，衡量专家对策略本身的改动（`verdictDelta`）。

@@ -172,6 +172,7 @@ ai_verdict:
 - 预审阶段（无专家决定）只看 `confirmed`；复核后 `rejected` 不计、`adopted/rewritten` 计入、专家 `add` 的 `expert` 问题计入。
 - `soft` 与 `pending` 永不计入。
 - 推荐给专家的最终结论 = 复核后重新计算的 `ai_verdict`；专家可改任何值，差异记录在 `reviews.verdictDelta`。
+- `channel`（`opinion` / `checklist`）**不改变**上式：两个通道都计入。区别在呈现与复核成本——`opinion` 项进正式意见的编号条款、逐条 `adopt/reject/rewrite`；`checklist` 项单列「需补正事项」、可 `adopt_rest` 一次采纳（2026-11-04，A 方案）。把通道写进结论策略需要重标语料，推迟到规则包扩充时一起做（见 `paper/notes/panel-simulation.md` 的方法建议）。
 
 ## 7. 存储域
 
