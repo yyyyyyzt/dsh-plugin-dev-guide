@@ -20,7 +20,7 @@ Thumbs.db
 .vscode/
 
 # generated review opinions
-plugins/arbiter/reviews/
+plugins/hark/reviews/
 
 # evaluation: private anonymization maps / real datasets (evaluation.md §7.3)
 paper/data/private/

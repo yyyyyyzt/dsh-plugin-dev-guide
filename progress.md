@@ -1,6 +1,6 @@
-# progress.md — arbiter 进度
+# progress.md — hark 进度
 
-> 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/arbiter/docs/`）。
+> 只记状态、证据与决策，不复述设计（设计见 `AGENTS.md` 与 `plugins/hark/docs/`）。
 > 更新：2026-10-30　|　当前步骤：**S6 投稿冲刺（渠道已定案 MDPI *Computers*）：投稿稿 `paper/mdpi-article/main.tex`（官方模板，23 页 / 正文约 11.9k 词 / 40 条文献 / 12 表 4 图）已编译 0 error、只报确定性结果；期刊风格测绘见 `paper/mdpi-submission/journal-style-survey.md`；待用户补作者/ORCID/声明与仓库链接后上传 susy.mdpi.com。S5 确定性配置已在合成集跑出首批 `eval_runs`（100 份 / 253 处缺陷），LLM 配置仍需 adapter。S4 看板待用户本机 GUI 冒烟（§7）**
 
 ## 1. 步骤总览
@@ -21,7 +21,7 @@
 
 ## 2. 各步骤交付清单
 
-### S1 文档（`plugins/arbiter/docs/`）
+### S1 文档（`plugins/hark/docs/`）
 
 | 文件 | 内容要点 |
 |---|---|
@@ -32,7 +32,7 @@
 | `evaluation.md` | 指标定义（`AGENTS.md` §5.3 展开）、在线标注规则、离线评测集构建、消融设计、统计方法、数据脱敏 |
 | `dashboard.md` | 四页信息架构、每页数据来源（表 / 聚合）、交互（规则启停、候选审批、复核决定可写）、空状态、slot 与 tab 注册 |
 
-### S2 测试（`plugins/arbiter/tests/`）✅
+### S2 测试（`plugins/hark/tests/`）✅
 
 | 位置 | 内容 | 状态 |
 |---|---|---|
@@ -64,10 +64,10 @@
 
 | 位置 | 内容 | 状态 |
 |---|---|---|
-| `src/store/domain.ts` | storage domain `arbiter` v1：zod 记录 schema（reviews / issues / feedback / exemplars / rule_overrides / rule_candidates / eval_runs）、键规则 `rv_<yyyymmdd>_<base32-6>`、`#seq`、`rc_<id>_n` | ✅ |
+| `src/store/domain.ts` | storage domain `hark` v1：zod 记录 schema（reviews / issues / feedback / exemplars / rule_overrides / rule_candidates / eval_runs）、键规则 `rv_<yyyymmdd>_<base32-6>`、`#seq`、`rc_<id>_n` | ✅ |
 | `src/host/store.ts` | `ReviewStore`：`parse` / `check` / `recordIssue`（走 `gate`，hard 规则抛 `HARD_RULE_VERIFIER_OWNED`）/ `status` / `decide`（含自然语言 `answer` 归一化）/ `finalize`（先写文件再更新记录，再幂等刷新记忆）/ `rulesList` / `rulesPropose`（disable/enable/set_severity/set_param/draft/accept_draft/dismiss + 审计）/ `memoryRecall`；规则包有效版本 `pack@ver+ovN` 写入 `reviews.rulePackVersion` | ✅ |
 | `src/host/config.ts` `errors.ts` `rules-loader.ts` `service.ts` | schemastery `Config`（11 项，含描述）；`ReviewToolError(code)` 11 种码；`*.rules.yaml` 目录加载（单包失败不影响其他）；`ctx.solutionReview` 服务声明 | ✅ |
-| `src/host/tools.ts` + `src/tools.ts` | 9 个 `defineTool`（描述均含「只记录建议；最终结论由专家确认」）；预设子入口 `arbiter/tools`，文件读写只经 `ctx.fs`（cwd 取自 `ctx.workingDirectory`） | ✅ |
+| `src/host/tools.ts` + `src/tools.ts` | 9 个 `defineTool`（描述均含「只记录建议；最终结论由专家确认」）；预设子入口 `hark/tools`，文件读写只经 `ctx.fs`（cwd 取自 `ctx.workingDirectory`） | ✅ |
 | `src/engine/rules.ts` | 新增 `parseRuleDraft`（专家草案 YAML → 规则，status 默认 draft） | ✅ |
 | `tests/store/harness.ts` | 真实栈：`Context` + `Storage` + `JsonStorageBackend` + `DomainFacility`，固定时钟与 base32 id | ✅ |
 
@@ -77,8 +77,8 @@
 |---|---|---|
 | `src/index.ts` | host 入口：`inject = [storageDomain, commands, skills]`，`provide = [solutionReview]`；打开 domain、挂命令与技能子插件 | ✅ |
 | `src/host/commands.ts` | `/review [编号]`（列表 / 三层摘要）、`/rules [维度\|层级]`、`/memory <规则号>`；均不经模型 | ✅ |
-| `src/host/skills.ts` + `skills/arbiter/SKILL.md` | 内置技能（`source: bundled`），三阶段 SOP 来自 `review-protocol.md` §3 | ✅ |
-| `src/persona.ts` + `cordis.patch.yml` | host 行（默认配置）+ `preset-arbiter`（方案审查：persona、time-context、bash/pwsh、fs、fs-search、skill-filesystem、tool-skill、ask-user、todo、present、压缩组、`arbiter/tools` 置末） | ✅ |
+| `src/host/skills.ts` + `skills/hark/SKILL.md` | 内置技能（`source: bundled`），三阶段 SOP 来自 `review-protocol.md` §3 | ✅ |
+| `src/persona.ts` + `cordis.patch.yml` | host 行（默认配置）+ `preset-hark`（方案审查：persona、time-context、bash/pwsh、fs、fs-search、skill-filesystem、tool-skill、ask-user、todo、present、压缩组、`hark/tools` 置末） | ✅ |
 | `package.json` | `dsh.bundle.patch`、`exports`（`.` / `./tools` / `./persona` / `./cordis.patch.yml`）、`engines.dsh >=0.2.1-rc.2 <0.3.0`、peer=dev 的 `@deepseek-ai/*`、`prepare` 构建、`dsh:install` / `dsh:verify` | ✅ |
 | `tests/host/*.spec.ts` | bundle 契约（manifest、patch 行、persona 一致）、技能可发现、命令输出、预设子入口挂载（桩服务） | ✅ 13 条 |
 | `README.md`（插件） | 一条命令安装、装后清单、配置表 | ✅ |
@@ -101,7 +101,7 @@
 | 2026-10-19 | 台账不进产品 | 用户决策 5 |
 | 2026-10-19 | Word/PDF 转换、LLM 客户端、表单、Word 生成一律不自研，用 DSH 原生插件 | 用户铁律「能装插件就装插件」 |
 | 2026-10-19 | 指引文件命名为 `AGENTS.md`（而非 `agent.md`） | DSH `agent-instructions` 与 Cursor 均按此名自动加载；语义等同用户所说的 agent.md |
-| 2026-10-19 | 包名与目录 `arbiter` | 用户拍板 Q1 |
+| 2026-10-19 | 包名与目录 `hark` | 用户拍板 Q1 |
 | 2026-10-19 | 模型默认 DeepSeek；插件只经 DSH provider / agent 访问模型，不绑定厂商；评测走 `ctx.llm`，温度 0 | 用户拍板 Q2 |
 | 2026-10-19 | 正式意见 = Markdown 文件 + 可选 `present` 交付；格式沿用历史意见「意见：<结论>（1）（2）…」 | 用户拍板 Q3 |
 | 2026-10-19 | 首批规则：旧 24 条按可验证性分级，分级结果定稿在 `docs/rule-schema.md` 附录 A | 用户拍板 Q4 |
@@ -141,7 +141,7 @@
 | 2026-10-28 | 新增 `GET /overview`（全部审查紧凑摘要，≤ 2000 条）；日期分桶在浏览器按本地时区做 | 指标卡、日历、趋势、列表共用一份数据；Host 时区与专家时区可能不同 |
 | 2026-10-28 | 规则全局编辑新增 `set_suggestion` 与 `reset`（`rules_propose` 与 `PATCH /rules/:id` 同步）；检查问题 / 依据 / 适用范围 / 校验器结构不在看板改 | 整改建议措辞是专家最常想改、且直接进入正式意见的字段；改语义等于新规则，应走起草 → 接受 |
 | 2026-10-28 | 图表用内联 SVG，不引入图表库；热力图分级用 `color-mix` + 主题变量 | 铁律 6；bundle 外部化白名单只有 react / react-dom / cordis；深色主题自动适配 |
-| 2026-10-28 | 对外分发改为 GitHub 发布 tag `arbiter-v<version>`（无父提交，内容 = `pnpm pack` 产物 + 去掉 `scripts` / `devDependencies` 的清单），DSH 插件页填 `https://github.com/…#<tag>` 安装；本地目录 `link:` 只留给开发；取代 2026-10-20 的「不走 git 安装」 | 用户要在 Windows 桌面版上装：桌面版插件页支持包名 / Git 地址 / 本地路径，npm 版 `dsh` 拒绝管理 desktop profile；直接装仓库会在目标机上跑 `prepare` 构建（需 `allowBuilds`、拉 100 MB 开发依赖），且插件在子目录、`lib/` 不进 git。tag 不是分支，不改 main 内容；npm 发布仍推迟 |
+| 2026-10-28 | 对外分发改为 GitHub 发布 tag `hark-v<version>`（无父提交，内容 = `pnpm pack` 产物 + 去掉 `scripts` / `devDependencies` 的清单），DSH 插件页填 `https://github.com/…#<tag>` 安装；本地目录 `link:` 只留给开发；取代 2026-10-20 的「不走 git 安装」 | 用户要在 Windows 桌面版上装：桌面版插件页支持包名 / Git 地址 / 本地路径，npm 版 `dsh` 拒绝管理 desktop profile；直接装仓库会在目标机上跑 `prepare` 构建（需 `allowBuilds`、拉 100 MB 开发依赖），且插件在子目录、`lib/` 不进 git。tag 不是分支，不改 main 内容；npm 发布仍推迟 |
 | 2026-10-28 | 复核改为口语化：每条问题用大白话问（「…，要改吗？」+ 原文 + 建议改成），选项「要改，按这个建议 / 不用改 / 要改，但我换个说法」；登记的问题与建议要求具体可执行；`ask_user_question` 不存在的 `detail` 字段从协议中删除 | 用户反馈 agent 问「按降为 minor 后采纳处理，请确认整改建议措辞（级别调整需在规则层另行调整）」太抽象；根因是协议用规则术语和英文级别、单条问题不能调级别、只选「改写」不给内容时会把「改写」两个字存成改写文 |
 | 2026-10-28 | `review_decide` 的 `adopt` / `rewrite` 可带 `severity` 只调这一条问题（记 `severityFrom`），归一化识别「算轻微」「降为 minor 后采纳」；改规则级别仍走 `rules_propose`，要专家明说「以后 / 这类」 | 专家对单个方案的判断不应顺带改全局规则；也不应被要求去「规则层另行调整」 |
 | 2026-10-28 | 级别与判定方式统一用中文业务名：严重 / 一般 / 轻微、程序检查 / AI 辅助 / 人工判断（工具文字输出、看板、话术）；数据与参数仍是英文值；规则页去掉「来源」行与「不在看板修改」提示，改为一行级别说明 | 用户：「major、minor 没人能理解」「冗余提示删掉」。不改 schema，只改呈现 |
@@ -157,15 +157,16 @@
 | 2026-10-30 | 投稿稿现状：11 页 A4、0 error、表 1/2 用 `tabularx{\textwidth}` 满栏宽、Algorithm 1 与 Figure 1 正常浮动；摘要压到 261 词（MDPI 建议 ≤200，未再压以免丢数字）；只报确定性结果，LLM-judge 与真实试点写成限制 | 编译日志与 `pdfinfo` 见 `paper/mdpi-article/`；`progress.md` §2 S6 |
 | 2026-10-30 | 按 `paper/mdpi-submission/journal-style-survey.md` §8 动作表重写投稿稿：7 节（Introduction / Related Work / Materials and Methods / Results / Discussion / Limitations and Future Work / Conclusions）、12 表 4 图、40 条文献（ACS 数字制，新增 17 条含 5 条 *Computers*）、正文 5,324→约 11.9k 词、摘要 261→256、关键词 6→8；新增 Figure 2 类型权限三列表、Figure 3/4 定量条形图、Table 2 需求矩阵、Table 4 规则构成、Table 5 六族校验器、Table 6 存储七表、Table 7 九工具、Table 9 分层结果、Table 10 缺陷类型、Table 11 θ 敏感性、Table 12 案例走查；数据全部取自 `paper/data/public/ablation/*.json` 与 `summary.md`，未新增实验 | 目标刊抽样中位：27.5 页 / 11,506 词 / 48.5 文献 / 5 图 7 表；编译 `pdflatex main`×2 = 23 页 0 error |
 | 2026-10-30 | 期刊风格测绘：`most_viewed` 页面 Akamai 403 不可编程访问 → 改用 OpenAlex（ISSN 2073-431X、2026 年、`cited_by_count` 降序）取候选，8 篇 PDF 经 `mdpi-res.com` CDN 直连下载，逐篇机器提取指标 + 渲染页人工看版式，结论落 `paper/mdpi-submission/journal-style-survey.md`（含 4 张版式样张与 `metrics.json`） | 用户要求从近一年高被引抽样看共性；样本中位：27.5 页 / 11.5k 词 / 48.5 文献 / 5 图 7 表；我方 11 页 / 5.3k 词 / 23 文献 / 1 图 2 表，文献与图表明显偏薄（报告 §8 给出补齐动作表） |
+| 2026-11-04 | **系统与仓库定名 HARK**（Human-Gated Authority-Typed Review Knowledge）：先试 ARBITER，检索发现同名冲突（arXiv 2603.08993 的 LLM agent 提示干扰检测框架、多个商用 review 工具），KEEPER 亦与临床病历复核系统 KEEPER 重名，GAVEL 至少有 4 篇同名论文 → 改用 HARK（同样检索未见同领域占用）。落地：插件目录 `plugins/hark/`、包名 `hark`、存储域 `hark`、sidebar tab `hark-review`、skill `skills/hark/`、标题 `HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review`；`pnpm build` + `pnpm test` 432 passed / 1 todo；`paper/mdpi-article/main.tex` 24 页 0 error | 命名备选与冲突证据见本条；`git mv` + 全仓替换 64 个文件 |
 | 2026-10-30 | 投稿稿事实核查（第三轮）：逐条把正文数字回溯到 `paper/data/public/eval-runs/*.json`（B0 混淆矩阵 17/30、pending 中位改 9、submitted 53/rejects 11、F1=1 的 42 份、中位 F1 0.857、三次重复 metrics 哈希一致）→ 修掉 4 处无证据断言（FP 比例改 2.6、删除附件编号正则轶事、门禁拒绝不再分 kind、`self-check 0 violations` 改描述式）；文献断言按 OpenAlex 摘要校准 6 处（dolcetti2025/hemmat2025/smell2024(Paska)/rovo2026/lin2026 去掉未核实数字/zhang2026cite）；实现细节对齐仓库（13 个错误码、client 84 kB、评测 100×23 约 1.6 s 实测）。编译 23 页 0 error；摘要 251 词、8 关键词、40 文献 12 表 4 图 | `pdflatex main` 两次 + `pdfinfo`；`node scripts/eval/run-ablation.mjs --configs S-full` 计时 14.68 s/9 次 |
-| 2026-11-03 | 作者占位改为 6 位同单位作者 A–F（`\Author` 单命令逗号分隔，`\AuthorNames` 供页眉），CRediT 按 A–F 分配（A 构思/初稿、B 方法/验证/分析、C 软件/数据/可视化、D 调查/项目管理、E 写作审阅/监督、F 监督/基金）；新增 Results 4.7「协议在内部方案上闭环」（从 `~/.dsh/storages/arbiter.json` 提取：5 次运行/3 份方案、58 条问题=40 验证器+12 模型+6 专家新增、门禁 3/12 OUT_OF_CANDIDATES、18 个决策=15 采纳+3 驳回、13 条规则有统计、21 条范例），Limitations「No expert was in the loop」改为「No independent expert was in the loop」并承认 pilot 记录者即规则作者；删掉另一处未证实的附件编号轶事 | `pdflatex` 两次 0 error / 23 页 |
-| 2026-11-03 | 另建独立工件仓库 `/home/admin/arbiter`（GitHub 尚未创建）：保留 monorepo 布局以复用 `repoRoot` 路径、`plugins/arbiter/` + `paper/data/public/`、README/REPRODUCE/LICENSE(MIT)/CITATION.cff/.zenodo.json/RELEASE.md，`v1.0.0` tag，395 文件 3.7 MB，`git archive` 出 `arbiter-v1.0.0.tar.gz`(554 KB)；实测仓库内 `gen-synthetic` 复现已提交语料（diff 一致）、`run-ablation --repetitions 1` 复现 B0/S-full 全部指标 | 见 `RELEASE.md`：GitHub 建仓与 Zenodo 授权仍需用户本人 |
+| 2026-11-03 | 作者占位改为 6 位同单位作者 A–F（`\Author` 单命令逗号分隔，`\AuthorNames` 供页眉），CRediT 按 A–F 分配（A 构思/初稿、B 方法/验证/分析、C 软件/数据/可视化、D 调查/项目管理、E 写作审阅/监督、F 监督/基金）；新增 Results 4.7「协议在内部方案上闭环」（从 `~/.dsh/storages/hark.json` 提取：5 次运行/3 份方案、58 条问题=40 验证器+12 模型+6 专家新增、门禁 3/12 OUT_OF_CANDIDATES、18 个决策=15 采纳+3 驳回、13 条规则有统计、21 条范例），Limitations「No expert was in the loop」改为「No independent expert was in the loop」并承认 pilot 记录者即规则作者；删掉另一处未证实的附件编号轶事 | `pdflatex` 两次 0 error / 23 页 |
+| 2026-11-03 | 另建独立工件仓库 `/home/admin/hark`（GitHub 尚未创建）：保留 monorepo 布局以复用 `repoRoot` 路径、`plugins/hark/` + `paper/data/public/`、README/REPRODUCE/LICENSE(MIT)/CITATION.cff/.zenodo.json/RELEASE.md，`v1.0.0` tag，395 文件 3.7 MB，`git archive` 出 `hark-v1.0.0.tar.gz`(554 KB)；实测仓库内 `gen-synthetic` 复现已提交语料（diff 一致）、`run-ablation --repetitions 1` 复现 B0/S-full 全部指标 | 见 `RELEASE.md`：GitHub 建仓与 Zenodo 授权仍需用户本人 |
 
 ## 4. 开放问题（给出默认值，不阻塞）
 
 | # | 问题 | 结论（2026-10-19 用户拍板） | 状态 |
 |---|---|---|---|
-| Q1 | 插件包名 | `arbiter`；npm scope 发布前再定 | ✅ |
+| Q1 | 插件包名 | `hark`；npm scope 发布前再定 | ✅ |
 | Q2 | 模型与接入 | 默认 DeepSeek，走 DSH provider；插件不感知厂商 | ✅ |
 | Q3 | 正式意见格式 | Markdown + 可选 `present`；沿用历史意见格式 | ✅ |
 | Q4 | 首批规则范围 | 旧 24 条按可验证性分级（`docs/rule-schema.md` 附录 A） | ✅ |
@@ -202,16 +203,16 @@
 | 步骤 | 证据 |
 |---|---|
 | S0 | 2026-10-23 按用户决策 `git rm -r archive`（34 path）；`AGENTS.md`、`progress.md` 保留；README 目录表移除归档行 |
-| S2 | `plugins/arbiter/`：`pnpm install && pnpm typecheck && pnpm test` → `Tests 117 failed | 97 skipped | 107 todo (321)`（failed/skipped 全部源于 `NotImplementedError`，skipped 为 `beforeAll` 内 stub 抛错连带）；三次提交 `chore(review)` / `feat(review)` / `test(review)` | 
+| S2 | `plugins/hark/`：`pnpm install && pnpm typecheck && pnpm test` → `Tests 117 failed | 97 skipped | 107 todo (321)`（failed/skipped 全部源于 `NotImplementedError`，skipped 为 `beforeAll` 内 stub 抛错连带）；三次提交 `chore(review)` / `feat(review)` / `test(review)` | 
 | S3a | `pnpm test` → `Tests 214 passed | 107 todo (321)`；`pnpm bench` → 200 KB `check()` 0.54 s（首版 19.6 s，`offsetAt` 每句重扫源文件为 O(n²)，改为行号索引 + 按 Doc 缓存句子/全文后修复）；`pnpm typecheck` 通过；五次提交 `feat(review)` ×4 / `perf(review)` ×1 |
-| S3b / S3c | `pnpm typecheck` 通过；`pnpm test` → `Tests 284 passed | 53 todo (337)`；`pnpm build` 生成 `lib/`。真机（Node v22.23.3，隔离 `DSH_HOME`）：`npx @deepseek-ai/dsh@0.2.1-rc.2 plugin --profile web add .` → `+ arbiter link:…`，`dsh.profile.bundles` 追加；`--profile web --dump-config` 第 1230–1308 行为 `arbiter` 与 `preset-arbiter` 两行；`dsh web --no-open` 启动无告警，浏览器中：模式下拉出现「方案审查」、Plugins 页列出插件（启用）、`/` 面板列出 memory / review / rules，`/rules hard` 返回 10 行（CAP-002 CAP-006 INT-001 INT-004 DOC-001 DOC-002 DOC-005 DOC-010 DOC-011 DOC-012），`/review` 返回「暂无审查记录…」，`/memory CAP-001` 返回统计 0/0/0/0。已知 UI 现象：在「新会话」页直接回车命令不会切到会话视图，结果在会话创建后一并显示；带参数提示的命令需回车两次（第一次只是接受补全） |
+| S3b / S3c | `pnpm typecheck` 通过；`pnpm test` → `Tests 284 passed | 53 todo (337)`；`pnpm build` 生成 `lib/`。真机（Node v22.23.3，隔离 `DSH_HOME`）：`npx @deepseek-ai/dsh@0.2.1-rc.2 plugin --profile web add .` → `+ hark link:…`，`dsh.profile.bundles` 追加；`--profile web --dump-config` 第 1230–1308 行为 `hark` 与 `preset-hark` 两行；`dsh web --no-open` 启动无告警，浏览器中：模式下拉出现「方案审查」、Plugins 页列出插件（启用）、`/` 面板列出 memory / review / rules，`/rules hard` 返回 10 行（CAP-002 CAP-006 INT-001 INT-004 DOC-001 DOC-002 DOC-005 DOC-010 DOC-011 DOC-012），`/review` 返回「暂无审查记录…」，`/memory CAP-001` 返回统计 0/0/0/0。已知 UI 现象：在「新会话」页直接回车命令不会切到会话视图，结果在会话创建后一并显示；带参数提示的命令需回车两次（第一次只是接受补全） |
 | P0（2026-10-23） | `pnpm typecheck` 通过；`pnpm test` → `Tests 288 passed | 53 todo (341)`；`pnpm build` 通过。工具输出已含自动登记问题/候选原文/soft 规则/检查清单与计数（`review_check`、`review_status`、`rules_list`）；hybrid 无候选一律 `pending`，`whenNoCandidate: fail` 仅允许 hard；LLM 的 absence 伪引文被 `ABSENCE_NOT_ALLOWED` 拒绝，校验器 absence 统一标注「非引文」。新增 `invalid-hybrid-fail.yaml`、renderer / gate / hybrid 断言；`review_check` 种子期望改为 `建议整改`（3 条 hard 自动登记，CAP-001 / CHN-001 转 pending）。 |
 | S3c 协议回放（2026-10-23） | `pnpm test` → `Tests 299 passed | 37 todo (336)`（较 P0 +11）；`pnpm typecheck` / `pnpm build` 通过。`tests/protocol/protocol.e2e.ts` 用脚本化 agent 跑通 parse → check（3 hard / 7 candidates / 1 pending）→ memory_recall ×7 → record_issue ×8 → status（11 条）→ 批次 5/5/1 → decide ×14 → set_reviewer → set_final_verdict → finalize；正式意见与 `tests/fixtures/expected/opinion-seed.md` 归一化后逐字相等。真机：`DEEPSEEK_API_KEY` + headless + 插件 tools，真实模型完成 `rv_20261023_xnhfjz`（10 条、全部采纳、finalized、`reviews/rv_20261023_xnhfjz.md`）；headless 临时安装已移除。 |
-| S4（2026-10-27） | `pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（`lib/client.js` 46,552 bytes，仅外部化 `react`，无 host 代码）；`pnpm test` → `Tests 337 passed | 15 todo (352)`。`tests/api/routes.spec.ts` 16 passed / 1 todo（路由可匹配性、连接围栏 401/403 透传、规则详情、候选接受草案、配置默认值与 patch 行一致）；`tests/client/dashboard.spec.tsx` 17 passed（tab 定义、纯函数、SSR 渲染四页标记、无 web storage / prompt / 硬编码颜色）；`tests/tools/tools.spec.ts` 51 passed（重复 check 拒绝、adopt_rest 只采纳 confirmed、答案归一化、定稿后修改回 open、stats-only 不算覆盖、改回出厂值撤销覆盖）。headless 真机（Node v22.23.4，隔离 `DSH_HOME`，`npx @deepseek-ai/dsh@0.2.1-rc.2`）：`plugin --profile web add` 成功；`--dump-config` 第 1230 行起为插件行与 preset 行；`dsh web --no-open --port 7788` 首页预加载组含 `arbiter/client.js`（位于 sidebar-right 之后），带 rev 请求返回 200 / 46,594 bytes 且以 `window.__ModuleLoader__.load({ id: "arbiter"` 开头；API：`GET /rules` 28 条、`/rules/CAP-001` 详情含 shipped 与 verifier、PATCH 改级 → `+ov1`、改回 → 覆盖清空版本复原、坏参数 400、跨源 403、无 cookie 401、未知审查 / 候选返回插件 JSON 404；重启后审计保留。修复前 `/rules/:id` 为空 404、PATCH 为 405。 |
+| S4（2026-10-27） | `pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（`lib/client.js` 46,552 bytes，仅外部化 `react`，无 host 代码）；`pnpm test` → `Tests 337 passed | 15 todo (352)`。`tests/api/routes.spec.ts` 16 passed / 1 todo（路由可匹配性、连接围栏 401/403 透传、规则详情、候选接受草案、配置默认值与 patch 行一致）；`tests/client/dashboard.spec.tsx` 17 passed（tab 定义、纯函数、SSR 渲染四页标记、无 web storage / prompt / 硬编码颜色）；`tests/tools/tools.spec.ts` 51 passed（重复 check 拒绝、adopt_rest 只采纳 confirmed、答案归一化、定稿后修改回 open、stats-only 不算覆盖、改回出厂值撤销覆盖）。headless 真机（Node v22.23.4，隔离 `DSH_HOME`，`npx @deepseek-ai/dsh@0.2.1-rc.2`）：`plugin --profile web add` 成功；`--dump-config` 第 1230 行起为插件行与 preset 行；`dsh web --no-open --port 7788` 首页预加载组含 `hark/client.js`（位于 sidebar-right 之后），带 rev 请求返回 200 / 46,594 bytes 且以 `window.__ModuleLoader__.load({ id: "hark"` 开头；API：`GET /rules` 28 条、`/rules/CAP-001` 详情含 shipped 与 verifier、PATCH 改级 → `+ov1`、改回 → 覆盖清空版本复原、坏参数 400、跨源 403、无 cookie 401、未知审查 / 候选返回插件 JSON 404；重启后审计保留。修复前 `/rules/:id` 为空 404、PATCH 为 405。 |
 | S4 V2（2026-10-28） | 提交 `32454c4` docs → `d15758d` test（红灯 5 条：`/overview` 未注册、`set_suggestion` / `reset` 不在枚举、client 模块缺失）→ `06e5864` host → `10677ae` client → `fb8f225` 走查后修正。`pnpm typecheck` / `pnpm build` / `pnpm check:bundle` 通过（76,607 bytes，仅外部化 `react`，sourcemap 只含 `src/client/*` 与纯类型模块 `src/host/api-types.ts`）；`pnpm test` → `Tests 355 passed | 15 todo (370)`：`dashboard.spec.tsx` 31（三处注册与 `openOverview → layout.selectPanel`、按本地日分桶、53×7 日历与级别、30 天趋势、五项指标、列表筛选、助手队列、建议校验与恢复出厂可用性、范例去重、SSR 各视图）；`routes.spec.ts` +2（`GET /overview` 顺序 / 状态 / 计数 / 无原文；PATCH `set_suggestion` 400 `BAD_SUGGESTION` / 成功 / `reset` 恢复与审计、草案 400）；`tools.spec.ts` +2（建议改写影响后续登记、改回出厂撤销；`reset` 一步恢复、保留统计、逐字段审计、草案拒绝）。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：`/overview` 200、PATCH 新动作往返、无 cookie 401；合并脚本含新 client。Chrome 无头走查（种子 23 条，`v2-browser-walk.log`）：左侧栏出现「方案审查」并打开主面板；371 格、21 格非零；指标 23 / 18 / 3（需重新定稿 1）/ 89% / 90%；点 10月28日 → 2 行；趋势 2 条线；展开进行中记录 9 个复核按钮；规则 28 行；深色主题可读；控制台 0 错误。走查发现并修正：空格子在浅色主题不可见、行内计数被截断、同一范例重复 12 行、审计字段为英文、采纳率列换行。复核助手需要真实会话（右侧栏随会话出现），未在无头环境覆盖，列入 §7。 |
-| 分发（2026-10-28） | 提交 `3e81552` docs → `2a8915d` test（红灯：`scripts/release.mjs` 缺失）→ `ff7985e` feat → `185986c` 修正。`pnpm typecheck` 通过；`pnpm test` → `Tests 361 passed | 15 todo (376)`（`tests/host/release.spec.ts` 6：清单去 `scripts` / `devDependencies`、无 `prepare`、`exports` 均被 `files` 覆盖、tag 名、GitHub 安装地址、非 GitHub 拒绝）。`pnpm run release` → tag `arbiter-v0.1.0-dev.0` → 提交 `94002e6`（无父提交），已推送。隔离 `DSH_HOME` 真机（`/opt/cursor/artifacts/github-release-install.log`）：tag 地址安装 65 个依赖、无构建；git 不可用时 sha 地址安装成功、tag 地址失败（pnpm 需 `git ls-remote` 解析 tag）；启动后 client 200 / 79,579 bytes、`/overview` 200、规则 28 条、preset 行存在。Windows 桌面版插件页安装待用户验证 |
-| 第二轮反馈（2026-10-28） | 提交 `e06202d` / `4534cc5` docs → `6e1fbeb` test（红灯 30 条：去重 / 作废 / `REVIEW_CLOSED` / 单条调级别 / 口语答复归一化 / 中文级别 / 看板已作废与规则说明条）→ `f06e587` test 校正（回放 `review_decide` 计 15 次含一次「只说换个说法」被拒、同标题夹具改名、`/review` 状态中文）→ `1054178` feat → `cccca99` 版本 0.1.0-dev.1。`pnpm typecheck` / `pnpm build` / `pnpm run check:bundle` 通过（80,614 bytes，仅外部化 `react`）；`pnpm test` → `Tests 386 passed | 15 todo (401)`。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：在存储里放两条与已有记录同文的「进行中、无决定」副本（其一为 CRLF 换行）后重启 → 两条均 `closed`「被 rv_… 取代」；`POST /reviews/:id/discard` 200、重复作废 400 `REVIEW_CLOSED`；对已取代记录写入 400 并提示新编号；`GET /rules` 带 `minorThreshold`。发布：`pnpm run release --push` → tag `arbiter-v0.1.0-dev.1` → 提交 `c38bfbd`；在装有 dev.0 的隔离 `DSH_HOME` 里 `dsh plugin add <tag 地址>` 原地升级（+1 包），启动后 `/overview` 200、规则 28 条、client 83,988 bytes 含新文案（`github-release-install.log` 末段） |
-| S1 | `plugins/arbiter/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
+| 分发（2026-10-28） | 提交 `3e81552` docs → `2a8915d` test（红灯：`scripts/release.mjs` 缺失）→ `ff7985e` feat → `185986c` 修正。`pnpm typecheck` 通过；`pnpm test` → `Tests 361 passed | 15 todo (376)`（`tests/host/release.spec.ts` 6：清单去 `scripts` / `devDependencies`、无 `prepare`、`exports` 均被 `files` 覆盖、tag 名、GitHub 安装地址、非 GitHub 拒绝）。`pnpm run release` → tag `hark-v0.1.0-dev.0` → 提交 `94002e6`（无父提交），已推送。隔离 `DSH_HOME` 真机（`/opt/cursor/artifacts/github-release-install.log`）：tag 地址安装 65 个依赖、无构建；git 不可用时 sha 地址安装成功、tag 地址失败（pnpm 需 `git ls-remote` 解析 tag）；启动后 client 200 / 79,579 bytes、`/overview` 200、规则 28 条、preset 行存在。Windows 桌面版插件页安装待用户验证 |
+| 第二轮反馈（2026-10-28） | 提交 `e06202d` / `4534cc5` docs → `6e1fbeb` test（红灯 30 条：去重 / 作废 / `REVIEW_CLOSED` / 单条调级别 / 口语答复归一化 / 中文级别 / 看板已作废与规则说明条）→ `f06e587` test 校正（回放 `review_decide` 计 15 次含一次「只说换个说法」被拒、同标题夹具改名、`/review` 状态中文）→ `1054178` feat → `cccca99` 版本 0.1.0-dev.1。`pnpm typecheck` / `pnpm build` / `pnpm run check:bundle` 通过（80,614 bytes，仅外部化 `react`）；`pnpm test` → `Tests 386 passed | 15 todo (401)`。headless 真机（`/opt/cursor/artifacts/headless-smoke.log`）：在存储里放两条与已有记录同文的「进行中、无决定」副本（其一为 CRLF 换行）后重启 → 两条均 `closed`「被 rv_… 取代」；`POST /reviews/:id/discard` 200、重复作废 400 `REVIEW_CLOSED`；对已取代记录写入 400 并提示新编号；`GET /rules` 带 `minorThreshold`。发布：`pnpm run release --push` → tag `hark-v0.1.0-dev.1` → 提交 `c38bfbd`；在装有 dev.0 的隔离 `DSH_HOME` 里 `dsh plugin add <tag 地址>` 原地升级（+1 包），启动后 `/overview` 200、规则 28 条、client 83,988 bytes 含新文案（`github-release-install.log` 末段） |
+| S1 | `plugins/hark/docs/` 六份文档：requirements（FR 31 条 / NFR 9 / AC 10 / T-REQ 20）、design（T-DES 14）、rule-schema（28 条规则分级：hard 10 / hybrid 13 / soft 5；T-RUL 12）、review-protocol（SKILL.md 与 persona 初稿；T-PRO 10）、evaluation（指标 / 合成集 / 消融 7 组 / 脱敏；T-EVA 9）、dashboard（T-DSH 9）。测试要点合计 74 条 |
 | S6 预备（2026-10-29） | 提交 `8259c65`（`paper/innovation-notes.md` §10 复审）→ 英文初稿 `paper/draft-en.md`。初稿体检（脚本，仓库外）：摘要 349 词（刊限 350）；正文约 7,600 词不含表 / 8,500 词含表（刊限 12,000，结果章节占位将再加 1,500–2,500）；参考文献 27 条，在文列表与文内引用双向一致，其中 2025–2026 年 10 条与 2 个脚注网页来源已逐条核实存在；`[[TBD]]` 占位 32 处（摘要 3、§3.9 模型与伦理 2、§4.3–4.6 结果 5、§5 / §6 4、文末声明 5、图 8、作者 2 等）；表 1–9、图 1–8 按首次出现编号；脱敏扫描（业务平台 / 国网 / 支付宝 / state grid / wsgw / deepseek / 江苏 等）无命中。规则分布数字（tier × severity：blocker 0/4/0、major 6/7/3、minor 4/2/2；校验器用量 section 9 / table 3 / statement 16 / quantity 1 / mermaid 3 / cross-ref 3）由 `rules/capability-open-access.rules.yaml` 用 PyYAML 现算 |
 | S5（2026-10-29） | 提交 `a0b8103` test（红灯 46 条 T-EVA-01..11）→ `9f9627a` fix（DOC-002 `listItemPattern` 捕获组）→ `c239c8c` feat（`src/eval/`：metrics / stats / synthetic / dataset / judge / baselines / ablation / anonymize）→ scripts + REPRODUCE。`pnpm typecheck` 通过；`pnpm test` → `Tests 432 passed | 1 todo (433)`（`tests/eval` 46/46）；`pnpm build` 产出 `lib/eval/`。`pnpm run eval:gen`：`synthetic-v1-seed20261029` 100 份 / 253 处植入（missing 98 / negated 37 / placeholder 52 / hollow 66），结论分布 通过 30 / 建议整改 47 / 不通过 23，自检 `violations=0`；按类型 检出 / 待人工 / 漏检 = missing 71/27/0、negated 31/6/0、placeholder 42/5/5、hollow 24/30/12。`pnpm run eval:ablation`（无 adapter，3 次重复逐字节一致）：B0 P 0.275 / R 0.186 / F1 0.222 [0.176, 0.267]、结论准确率 28%、κ −0.04；S-full（flag judge）P 1.000 / R 0.664 / F1 0.798 [0.762, 0.836]、R_w 0.649、hard R 0.88 / hybrid R 0.39、结论准确率 85%、宏 F1 0.832、κ 0.763 / κ_w 0.739、证据有效率 79.2%（11 条 `QUOTE_TOO_SHORT`，全是 <8 字的否定 / 占位短句，降级为待人工）、待人工覆盖 80%；S-verifier 在确定性 judge 下与 S-full 完全相同（ΔF1 0）；B0 vs S-full：Wilcoxon p < 0.001、McNemar b/c 64/7 p < 0.001（Holm 后仍显著）。B1 / S-gate / S-policy 标 `skipped: requires llm adapter`，S-memory 仅在线。产物 `paper/data/public/{synthetic/, eval-runs/*.json, summary.md, skipped.json}`，用法 `paper/REPRODUCE.md`，论文 `paper/draft-en.md` §4.3 已填确定性部分 |
 
@@ -223,7 +224,7 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 
 **GUI 冒烟清单 V2（用户本机执行，结果回填 §6）**
 
-准备：`git pull` → `cd plugins/arbiter && pnpm install && pnpm run build` → 重启 `dsh web`（本次有 host 改动：`/overview` 与规则建议 / 恢复出厂）；之后只改 client 时刷新页面即可。
+准备：`git pull` → `cd plugins/hark && pnpm install && pnpm run build` → 重启 `dsh web`（本次有 host 改动：`/overview` 与规则建议 / 恢复出厂）；之后只改 client 时刷新页面即可。
 
 1. 入口：左侧栏「定时任务」下方出现「方案审查」（剪贴板图标），点开占据中间主区域，标题「方案审查」+「刷新」，页签「审查 / 规则 / 评测」，默认「审查」。点任一会话回到对话，再点「方案审查」回来。
 2. 预审：新会话模式选「方案审查」，粘贴 `tests/fixtures/seed.md` 说「预审这份方案」；完成后回主面板点「刷新」：累计 +1、待处理 +1，日历今天的格子变深，列表首行为新方案「进行中」。
@@ -241,7 +242,7 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 
 **第二轮补充冒烟（0.1.0-dev.1）**
 
-升级：插件页填 `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#arbiter-v0.1.0-dev.1`（无 git 用 `#c38bfbd2d3405980f29a38a8c48e0ede5707c2fa`）→ 重启 DSH。
+升级：插件页填 `https://github.com/yyyyyyzt/dsh-plugin-dev-guide#hark-v0.1.0-dev.1`（无 git 用 `#c38bfbd2d3405980f29a38a8c48e0ede5707c2fa`）→ 重启 DSH。
 
 14. 重复记录：重启后「审查」列表里原来同一文件的 3 条只剩 1 条（已定稿那条）；筛选条出现「已作废」，点开能看到另外 2 条「已被 rv_… 取代」，只读、无按钮；指标卡与日历不再计入它们。
 15. 再预审同一文件（粘贴或路径均可）：agent 说「这份方案之前审过，接着上次的进度来」，列表不新增记录；明确说「从头再审」才新建，旧的未决记录自动变「已作废」。
@@ -249,7 +250,7 @@ S4 当前 🟡：看板 V2 自动化、headless API 与无头浏览器走查已�
 17. 口语化复核：每条问题形如「第 n 条 · 一般」+「……，要改吗？」+ 原文 + 建议改成；选项「要改，按这个建议（推荐）/ 不用改 / 要改，但我换个说法」；只选「换个说法」时 agent 追问「您想怎么写」；说「算轻微」只改这一条级别，看板显示「一般 → 轻微」，规则页不变。
 18. 规则页：表格上方一行说明「严重：出现一条就建议不通过 · 一般：出现一条就建议整改 · 轻微：累计 3 条才建议整改」与判定方式说明；列名「判定方式」、级别显示中文；展开后没有「来源：」和「不在看板修改」提示。
 
-分发：其他机器（含 Windows 桌面版）用 GitHub 发布 tag 安装，见 `plugins/arbiter/docs/design.md` §16 与插件 README；npm 发布仍推迟。
+分发：其他机器（含 Windows 桌面版）用 GitHub 发布 tag 安装，见 `plugins/hark/docs/design.md` §16 与插件 README；npm 发布仍推迟。
 
 S5 评测（🟡，2026-10-29）：确定性配置已出结果（§6 S5 行）。用户本地待办：① 写一个 adapter 模块（`paper/REPRODUCE.md` §2，10 行 fetch 或 DSH `ctx.llm` 包装）→ `pnpm run eval:ablation -- --adapter ./adapter.mjs` 跑 B1 / S-gate / S-policy 与 LLM judge 下的 S-full / S-verifier，产物直接覆盖 `paper/data/public/`；② 真实数据集按 `docs/evaluation.md` §2.5 目录协议放到 `paper/data/private/real/`，`pnpm run eval:anonymize` 后用 `--dataset` 重跑；③ 结果回填 `paper/draft-en.md` §4.3 的 `[[TBD]]` 段与 §6 S5 行。Q12（8 字引文下限）待真实数据再定。
 
