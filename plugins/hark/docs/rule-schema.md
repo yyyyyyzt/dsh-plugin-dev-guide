@@ -213,6 +213,8 @@ verify(doc: Doc, rule: Rule, lexicon: Lexicon): VerifierResult
 
 允许覆盖的字段：`status`、`severity`、`channel`（只允许 `opinion → checklist`，不可反向）、`suggestion`、`params`（仅白名单：`families` 的增删、`minChars`、`minMessages`、`minParticipants`、`whenNoCandidate`、`negationWindow`、`window`）。其余字段不可在运行期改；`whenNoCandidate: fail` 仅 hard 规则可设，hybrid 上设 fail 会被 schema 拒绝。`draft` 字段承载整条新规则（`LRN-*`），结构同 §1.1。
 
+`status` 与 `severity` 是**裁决权字段**：停用一条规则、或把一条 major 提成 blocker，改变的是「系统能独自定案什么」，不只是一种措辞。因此它们的写入必须有据：`rules_propose(action: disable|enable|set_severity)` 必须附 `basis.quote`——专家在对话中的原话，去空白后 ≥8 字；未附或过短一律以 `AUTHORITY_UNCONFIRMED` 拒绝，不落库。写入成功后原话进入 `audit[].basis`，与 `who`、`at`、`reviewId` 一起构成可复核的授权链。`tier` 无论何种路径都不可改（见 §6.2），故「提权」在代码里没有入口，「扩权」也只有一个需要原话的入口。
+
 合并算法（`engine/rules.ts`）：
 
 ```
