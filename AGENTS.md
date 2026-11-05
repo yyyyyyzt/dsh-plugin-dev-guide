@@ -1,16 +1,16 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-11-05（`japan` 分支的审计—修订闭环已合并：`paper/audit/` + 23 页修订稿 + `revision/` 证据；§5.4 同步）。
+> 最后更新：2026-11-05（两仓拆分：论文、投稿材料、审计与评测数据已迁至 **/home/admin/hark**（GitHub `yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge`）；本仓只保留插件与开发指南，§1 与 §5.4 同步）。
 
 ## 0. 这个仓库现在是什么
 
 两个并存、互不耦合的部分：
 
 1. **DSH 插件开发指南**（原有）：`README.md`、`docs/`、`examples/hello-plugin`、`scripts/discover-plugins.mjs`、`plugins.md`。基线 `dsh-v0.2.1-rc.2`，按 `docs/maintenance.md` 维护。
-2. **hark**（新，本指引的主体）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 MDPI *Computers*，见 §5.4）。代码位于 `plugins/hark/`，论文位于 `paper/`。
+2. **hark**（新，本指引的主体）：一个 DSH 插件，用对话完成「技术方案 AI 预审 → 专家复核 → 正式意见 → 回流记忆」，并配一个可复核规则与记忆的 dashboard；最终产出一篇偏工程实践的期刊论文（目标 MDPI *Computers*，见 §5.4）。代码位于 `plugins/hark/`。**论文不在此仓**：稿件、投稿材料、审计存档与评测数据都在独立仓库 `/home/admin/hark`（见 §5.4），本仓的 `paper/` 已于 2026-11-05 移除（git 历史保留）。
 
-旧版 Python 原型已于 2026-10-23 按用户决策从工作区删除；历史结论保留在 §7 与 `paper/`，原始数据不再随仓库分发，**不得 import 或重建**。
+旧版 Python 原型已于 2026-10-23 按用户决策从工作区删除；历史结论保留在 §7 与 hark 仓 `paper/`，原始数据不再随仓库分发，**不得 import 或重建**。
 
 ## 1. 仓库地图
 
@@ -20,7 +20,7 @@
 | `progress.md` | 步骤计划、每步状态与证据、开放问题 | 每步结束必更新 |
 | `plugins/hark/` | 插件工程（docs / rules / src / tests / client） | S1 起创建 |
 | `plugins/hark/docs/` | 需求、设计、规则 schema、对话协议、评测方案——**唯一事实来源** | S1 |
-| `paper/` | 论文大纲、实验脚本、图表、稿件 | S6 |
+| ~~`paper/`~~ | 已迁出：论文、投稿材料、审计与数据在 `/home/admin/hark`（2026-11-05） | — |
 | `docs/`、`examples/`、`scripts/`、`plugins.md` | DSH 插件开发指南（原有内容） | 独立维护 |
 
 ## 2. 项目目标与边界
@@ -57,7 +57,7 @@
 - 历史图片时序图的多模态逆向（离线、不在插件内）。
 - 运行时监控数据（p95/p99/流量）接入：无数据源，相关规则降为 `soft`。
 - 软著说明书、Word 公文模板引擎。
-- 仓库拆分（决策 6）。
+- 代码仓再拆分（决策 6）。2026-11-05 只做了「代码仓 / 论文仓」分离，不是把插件拆成多个包。
 
 ### 2.4 六项决策的结论
 
@@ -69,7 +69,7 @@
 | 3 | 评测是否进这一版 | 进，但改口径：以**专家在对话中的采纳/驳回**作为在线标注（回流即标注），离线指标随之累积；30 条历史意见只用于结论分布校准与规则覆盖分析，不冒充 golden set。指标定义见 §5.3。 |
 | 4 | 专家复核算不算 MVP | 算，且是核心：复核在对话中完成，专家回复即记忆写入。 |
 | 5 | 台账 | 不进产品，不进验收。 |
-| 6 | 仓库 | 不拆；旧版于 2026-10-23 删除。 |
+| 6 | 仓库 | 代码仓不拆；旧版于 2026-10-23 删除。论文与投稿材料自 2026-11-05 起独立到 `/home/admin/hark`（见 §5.4），两仓 `plugins/hark/` 保持同树。 |
 
 ## 3. 技术基线
 
@@ -189,14 +189,16 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 ### 5.4 目标发表渠道与稿件约束
 
-**2026-10-30 定案（用户拍板，取代此前全部渠道决策）**：唯一目标期刊 **MDPI *Computers***（ISSN 2073-431X；EI/Compendex 收录，IF 5.2），用 MDPI 官方模板投稿。投稿稿件在 `paper/mdpi-article/`：`main.tex` + `Definitions/`（官方 `mdpi.cls`/`journalnames.tex`/`mdpi.bst` 随附，`mdpi.cls` 仅改 2 处 logo 引用），`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，ACS 数字引用（41 条，全部内联 `\bibitem`，按首引顺序 1–41），23 页。编译见该目录 `README.md`（`pdflatex main` 两次；`Definitions/logo-mdpi-eps-converted-to.pdf` 需先由 `epstopdf` 生成，脚本已入库）。
-- **2026-11-05 分支修订已合并**：`main.tex` 现为 `japan` 研究机上的审计—修订闭环产物（sha256 `3cbb06b8…`，PDF `0e955f80…`，23 页，0 Overfull，0 undefined），标题为 *HARK: Authority-Typed Review Knowledge for Evidence-Bearing Document Review*；作者区与七项声明已定稿（通讯 Zhitong Yang，ORCID `0009-0002-1803-1529`）。上游只读审计（五席为模型角色、判 Major Revision、`integrity_verdict: FAIL`、DA-C1/C2 与 R2-3 均 validated_unresolved）存档于 `paper/audit/`；统一差异、逐处替换账本与校验记录在 `paper/mdpi-article/revision/`。认证式人工批准、覆盖全部写入口的有效权限上限、内容寻址配置恢复在正文中标为 *target contracts*，**不得再按已实现表述**。
-- Section = **`AI-Driven Innovations`**；Topic 选填，首选 **`AI Agents: Progress, Architecture, and Applications`**，次选 `AI-Driven Software Engineering and Next-Generation Web Services`。理由与逐条 scope 对齐见 `paper/mdpi-submission/submission-drafts.md`。
-- 稿件结构按 MDPI Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Limitations and Future Work / Conclusions + 声明区（Author Contributions（CRediT 14 项）/ Funding / Institutional Review Board / Informed Consent / Data Availability / Generative AI Disclosure / Conflicts of Interest）；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。主张边界：只报已跑出的确定性结果（micro-F1 0.798 vs 关键词基线 0.222、零假阳性、κ=0.763、85 处漏检分解、pending 932 对、gate 42/53），LLM-judge 配置、独立专家、跨文档族泛化、学习增益均写成未做。
-- `paper/ei-conference/`（IOS Press 模板的 EI 会议稿）**已废弃，仅留档**，不得用于投稿；`paper/draft-en.md`（Frontiers 长稿）保留为素材库。
+**仓库边界（2026-11-05）**：论文写作与投稿只发生在 `/home/admin/hark`（GitHub `yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge`），路径写作 `paper/…` 时均指该仓；本仓不再保存稿件、投稿材料、审计或评测数据。两仓的 `plugins/hark/` 代码相同；论文仓以稿件引用的快照 `b566b08` 为准。
+
+**2026-10-30 定案（用户拍板，取代此前全部渠道决策）**：唯一目标期刊 **MDPI *Computers***（ISSN 2073-431X；EI/Compendex 收录，IF 5.2），用 MDPI 官方模板投稿。投稿稿件在 hark 仓的 `paper/mdpi-article/`：`main.tex` + `Definitions/`（官方 `mdpi.cls`/`journalnames.tex`/`mdpi.bst` 随附，`mdpi.cls` 仅改 2 处 logo 引用），`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，ACS 数字引用（41 条，全部内联 `\bibitem`，按首引顺序 1–41），23 页。编译见该目录 `README.md`（`pdflatex main` 两次；`Definitions/logo-mdpi-eps-converted-to.pdf` 需先由 `epstopdf` 生成，脚本已入库）。
+- **2026-11-05 分支修订已合并**：`main.tex` 现为 `japan` 研究机上的审计—修订闭环产物（sha256 `3cbb06b8…`，PDF `0e955f80…`，23 页，0 Overfull，0 undefined），标题为 *HARK: Authority-Typed Review Knowledge for Evidence-Bearing Document Review*；作者区与七项声明已定稿（通讯 Zhitong Yang，ORCID `0009-0002-1803-1529`）。上游只读审计（五席为模型角色、判 Major Revision、`integrity_verdict: FAIL`、DA-C1/C2 与 R2-3 均 validated_unresolved）存档于 hark 仓 `paper/audit/`；统一差异、逐处替换账本与校验记录在 hark 仓 `paper/mdpi-article/revision/`。认证式人工批准、覆盖全部写入口的有效权限上限、内容寻址配置恢复在正文中标为 *target contracts*，**不得再按已实现表述**。
+- Section = **`AI-Driven Innovations`**；Topic 选填，首选 **`AI Agents: Progress, Architecture, and Applications`**，次选 `AI-Driven Software Engineering and Next-Generation Web Services`。理由与逐条 scope 对齐见 hark 仓 `paper/mdpi-submission/submission-drafts.md`（cover letter、中文译述、图形摘要同目录）。
+- 稿件结构按 MDPI Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Limitations and Future Work / Conclusions + 声明区（Author Contributions（CRediT 14 项）/ Funding / Institutional Review Board / Informed Consent / Data Availability / Generative AI Disclosure / Conflicts of Interest）；强调可复现（开源插件 + 合成集 + 评测脚本 + hark 仓 `REPRODUCE.md`）。主张边界：只报已跑出的确定性结果（micro-F1 0.798 vs 关键词基线 0.222、零假阳性、κ=0.763、85 处漏检分解、pending 932 对、gate 42/53），LLM-judge 配置、独立专家、跨文档族泛化、学习增益均写成未做。
+- hark 仓 `paper/ei-conference/`（IOS Press 模板的 EI 会议稿）**已废弃，仅留档**，不得用于投稿；`paper/draft-en.md`（Frontiers 长稿）保留为素材库。
 - 一稿多投禁止：任一时间只投 *Computers* 一处。
 
-**历史（已废弃的决策，勿再引用）**：2026-10-29 的路径 A（ICSE 2027 AGENT 工作坊，8 页 IEEE 双栏，截稿 2026-11-13）、2026-10-30 上午的「EI 会议 + IOS Press 模板」。两次均因用户改口而作废；*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 `paper/innovation-notes.md` §10.7）。
+**历史（已废弃的决策，勿再引用）**：2026-10-29 的路径 A（ICSE 2027 AGENT 工作坊，8 页 IEEE 双栏，截稿 2026-11-13）、2026-10-30 上午的「EI 会议 + IOS Press 模板」。两次均因用户改口而作废；*Frontiers in Computer Science* 因不在 Compendex 且仅 ESCI，不作为毕业用途候选（核对记录见 hark 仓 `paper/innovation-notes.md` §10.7）。
 
 ## 6. 质量门禁
 
@@ -205,7 +207,7 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 - **协议测试**：脚本化 agent 按固定工具调用序列与专家回答跑完一次「预审 → 复核 → 定稿」，断言落库内容与交付文件；真实模型对话由人工冒烟覆盖（清单见 `progress.md`）。
 - **离线校验脚本**：client bundle 结构（banner / footer / 外部化白名单）、规则 YAML schema。
 - 命令（S3 搭好工程后固定写入此处）：`pnpm test`、`pnpm typecheck`、`pnpm build`、`pnpm run check:bundle`。
-- **评测脚本**（S5，`plugins/hark/scripts/eval/`，先 `pnpm run build`）：`pnpm run eval:gen`（合成集 + 真值 + 自检）、`pnpm run eval:ablation`（消融；默认确定性 judge，LLM 配置需 `--adapter`）、`pnpm run eval:anonymize`（脱敏）。输出到 `paper/data/public/`；用法见 `paper/REPRODUCE.md`，口径见插件 `docs/evaluation.md` §5。
+- **评测脚本**（S5，`plugins/hark/scripts/eval/`，先 `pnpm run build`）：`pnpm run eval:gen`（合成集 + 真值 + 自检）、`pnpm run eval:ablation`（消融；默认确定性 judge，LLM 配置需 `--adapter`）、`pnpm run eval:anonymize`（脱敏）。输出到 hark 仓 `paper/data/public/`；用法见该仓 `REPRODUCE.md`，口径见插件 `docs/evaluation.md` §5。
 - 每步完成的证据写入 `progress.md`：测试名、通过数、commit。
 
 ## 7. 历史与决策记录（为什么重做）
