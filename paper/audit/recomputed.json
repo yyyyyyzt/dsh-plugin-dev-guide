@@ -1,0 +1,275 @@
+{
+  "B0": {
+    "TP": 47,
+    "FP": 124,
+    "FN": 206,
+    "F1": 0.22169811320754718,
+    "mean_per_proposal_F1": 0.21612698412698414,
+    "confusion": [
+      [
+        6,
+        7,
+        17
+      ],
+      [
+        10,
+        12,
+        25
+      ],
+      [
+        5,
+        8,
+        10
+      ]
+    ],
+    "accuracy": 0.28,
+    "kappa": -0.042722664735698725,
+    "empty_truth": 13,
+    "empty_truth_no_prediction": 4,
+    "defective": 87,
+    "submitted": 0,
+    "rejected": 0,
+    "pending_total": 0,
+    "pending_min_median_max": [
+      0,
+      0.0,
+      0
+    ],
+    "pending_covered_FN": 0,
+    "F1perfect": 4,
+    "F1median": 0.0
+  },
+  "S-full": {
+    "TP": 168,
+    "FP": 0,
+    "FN": 85,
+    "F1": 0.7980997624703088,
+    "mean_per_proposal_F1": 0.7797611832611833,
+    "confusion": [
+      [
+        30,
+        0,
+        0
+      ],
+      [
+        6,
+        41,
+        0
+      ],
+      [
+        4,
+        5,
+        14
+      ]
+    ],
+    "accuracy": 0.85,
+    "kappa": 0.7625079164027866,
+    "empty_truth": 13,
+    "empty_truth_no_prediction": 13,
+    "defective": 87,
+    "submitted": 53,
+    "rejected": 11,
+    "pending_total": 932,
+    "pending_min_median_max": [
+      6,
+      9.0,
+      13
+    ],
+    "pending_covered_FN": 68,
+    "F1perfect": 42,
+    "F1median": 0.8571428571428571,
+    "hybrid_count_discrepancies": [
+      {
+        "id": "syn-rand-46",
+        "hybrid_predictions": [
+          "SEC-002"
+        ],
+        "submitted": 0,
+        "rejected": 0
+      }
+    ],
+    "severity": {
+      "blocker": {
+        "tp": 17,
+        "fp": 0,
+        "fn": 18
+      },
+      "major": {
+        "tp": 99,
+        "fp": 0,
+        "fn": 42
+      },
+      "minor": {
+        "tp": 52,
+        "fp": 0,
+        "fn": 25
+      }
+    }
+  },
+  "S-verifier": {
+    "TP": 168,
+    "FP": 0,
+    "FN": 85,
+    "F1": 0.7980997624703088,
+    "mean_per_proposal_F1": 0.7797611832611833,
+    "confusion": [
+      [
+        30,
+        0,
+        0
+      ],
+      [
+        6,
+        41,
+        0
+      ],
+      [
+        4,
+        5,
+        14
+      ]
+    ],
+    "accuracy": 0.85,
+    "kappa": 0.7625079164027866,
+    "empty_truth": 13,
+    "empty_truth_no_prediction": 13,
+    "defective": 87,
+    "submitted": 53,
+    "rejected": 11,
+    "pending_total": 932,
+    "pending_min_median_max": [
+      6,
+      9.0,
+      13
+    ],
+    "pending_covered_FN": 68,
+    "F1perfect": 42,
+    "F1median": 0.8571428571428571
+  },
+  "delta_micro_F1": 0.5764016492627616,
+  "delta_mean_proposal_F1": 0.5636341991341991,
+  "pass_partition": {
+    "count": 30,
+    "with_truth": 17,
+    "with_predictions": 15,
+    "prediction_count_distribution": {
+      "2": 3,
+      "0": 15,
+      "1": 12
+    },
+    "defective_predicted_pass": 27,
+    "all_predicted_pass": 40
+  },
+  "theta": {
+    "1": {
+      "accuracy": 0.72,
+      "kappa": 0.5341098169717138,
+      "confusion": [
+        [
+          15,
+          15,
+          0
+        ],
+        [
+          4,
+          43,
+          0
+        ],
+        [
+          3,
+          6,
+          14
+        ]
+      ]
+    },
+    "2": {
+      "accuracy": 0.82,
+      "kappa": 0.7126895450917796,
+      "confusion": [
+        [
+          27,
+          3,
+          0
+        ],
+        [
+          6,
+          41,
+          0
+        ],
+        [
+          4,
+          5,
+          14
+        ]
+      ]
+    },
+    "3": {
+      "accuracy": 0.85,
+      "kappa": 0.7625079164027866,
+      "confusion": [
+        [
+          30,
+          0,
+          0
+        ],
+        [
+          6,
+          41,
+          0
+        ],
+        [
+          4,
+          5,
+          14
+        ]
+      ]
+    },
+    "4": {
+      "accuracy": 0.85,
+      "kappa": 0.7625079164027866,
+      "confusion": [
+        [
+          30,
+          0,
+          0
+        ],
+        [
+          6,
+          41,
+          0
+        ],
+        [
+          4,
+          5,
+          14
+        ]
+      ]
+    },
+    "5": {
+      "accuracy": 0.85,
+      "kappa": 0.7625079164027866,
+      "confusion": [
+        [
+          30,
+          0,
+          0
+        ],
+        [
+          6,
+          41,
+          0
+        ],
+        [
+          4,
+          5,
+          14
+        ]
+      ]
+    }
+  },
+  "repetitions_identical": {
+    "B0": true,
+    "S-full": true,
+    "S-verifier": true
+  }
+}

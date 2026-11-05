@@ -1,0 +1,520 @@
+[
+  {
+    "id": "P001",
+    "section": "Introduction",
+    "start": 55,
+    "end": 55,
+    "text": "Before a change to a large online service platform is built, its technical solution proposal---a templated document describing background, architecture, interfaces, data flows, implementation plan and risk---must be reviewed by a small group of senior experts. The review is checklist-driven, the documents are highly templated, the consequences are real (the expert signs the opinion), and the knowledge is both specialised and changing. These properties make the preliminary review a natural target for LLM assistance; they also make the usual way of building that assistance fragile."
+  },
+  {
+    "id": "P002",
+    "section": "Introduction",
+    "start": 57,
+    "end": 57,
+    "text": "Our starting point is a failed first attempt. A monolithic prototype built in 2025 encoded 24 expert rules as a few keywords each and delegated everything else to an LLM through long prompts. ``Load test'' appearing anywhere counted as the load test having been planned; negations (``no load test is planned for now''), placeholders (``/'', ``N/A'') and empty sections were invisible; the verdict was whatever the model wrote into a single field, so a blocking finding did not change the outcome; and nothing was persisted, so the hundredth review was no better informed than the first. A faithful reimplementation of that design, evaluated below on the same corpus as the design we propose, recovers 18.6\\% of planted defects, produces 2.6 false findings for every true one, and agrees with the expected verdict no better than chance ($=-0.04$). None of this was a failure of the model. All of it was a failure of how the review knowledge had been put into the system."
+  },
+  {
+    "id": "P003",
+    "section": "Introduction",
+    "start": 59,
+    "end": 59,
+    "text": "Take a single rule, ``a load test must be planned before go-live''. In a corpus of real proposals written for this platform, the sentence that satisfies it reads: ``Load testing is completed by the test team one week before go-live and a report is issued.'' Three other formulations appear just as often. The negated one: ``No stress testing is planned for the time being; it will be decided after observing traffic after go-live.'' The hollow one: ``Load testing plan: to be determined'', or ``Load testing: /''. And the satisfied-by-analogy one, in which the required content exists but the keyword family does not: ``Before go-live we run the capacity drill in the pre-production environment; at 500 TPS the average response time must stay below 200 ms.'' All four contain the keyword that a rule-as-substrings implementation keys on. Only one of them is a pass, and the difference between them is not a difference in wording but in what part of the document they occupy and what a reader does with them."
+  },
+  {
+    "id": "P004",
+    "section": "Introduction",
+    "start": 61,
+    "end": 61,
+    "text": "Three ingestion routes dominate practice, and each loses a different property. Keywording turns a rule into substrings and loses its meaning: presence is not satisfaction and absence is not violation. Prompting turns a rule into instructions and loses auditability: the model has seen the rule, but its judgement cannot be traced to the rule or to a document location. Fragmenting---retrieval over past reviews---loses accumulation: knowledge is reassembled at every query and never consolidated. All three treat knowledge as input shown to the model rather than as an asset owned by the system, and all three make the same implicit assumption, that a requirement can be handed to a single mechanism."
+  },
+  {
+    "id": "P005",
+    "section": "Introduction",
+    "start": 63,
+    "end": 63,
+    "text": "Two tensions underlie that assumption. The verifiability tension: requirements span a spectrum from ``the implementation-plan section exists and is not a placeholder'', which a program can check exactly, to ``the risk analysis is adequate'', which is almost entirely judgement. The less verifiable a requirement, the more it needs a model; the more verifiable it is, the less a model should be trusted with it, because models make unexplained errors on deterministic questions and cannot locate them . A representation that assigns every rule to one mechanism must therefore be wrong for most of the rule set, and the error is not random: it concentrates on exactly the rules an organisation cares about most. The growth tension: knowledge must grow from use---every dismissal is information---but where a human signs the outcome, growth cannot be unilateral, and growth in weights or filter thresholds is invisible to those accountable for it."
+  },
+  {
+    "id": "P006",
+    "section": "Introduction",
+    "start": 65,
+    "end": 65,
+    "text": "We present HARK, an open-source implementation of this representation as a plugin of an open agent harness, and evaluate it on a synthetic corpus of 100 proposals and on three internal proposals reviewed in five sessions end to end. We make four contributions:"
+  },
+  {
+    "id": "P007",
+    "section": "Introduction",
+    "start": 67,
+    "end": 72,
+    "text": "We formulate the review-knowledge ingestion problem and derive four design requirements for a solution---auditability, authority follows verifiability, growth, bounded growth---together with the mechanism that enforces each requirement and the instrument that measures it (Table ). A verifiability-typed rule model in which the type decides who may raise a finding: hard rules are owned by deterministic verifiers, hybrid rules admit the model only inside verifier-located spans, and soft rules only queue items for the expert. Absence is a verifier-owned evidence kind, candidates are never a pass, and a deterministic policy computes the suggested verdict from confirmed findings alone (Section , Figure ). Review as feedback: the expert's ordinary review decisions---accept, dismiss, rewrite, add---are the only source of change to a learned layer that the system may tune but never promote, with an effective knowledge version stamped on every review (Section ). A plugin-native implementation with no separate backend, database or front-end build, evaluated on a released synthetic corpus with planted defects against a faithful reimplementation of the keyword prototype, including per-tier, per-severity, per-defect-kind and threshold analyses, an evidence-gate audit and an end-to-end walkthrough (Section )."
+  },
+  {
+    "id": "P008",
+    "section": "Introduction",
+    "start": 74,
+    "end": 74,
+    "text": "The design is assessed one question per property: RQ1 can every finding be traced to a rule and a location in the document? RQ2 does typed authority outperform untyped authority, and does the type predict where the remaining judgement sits? RQ3 does the knowledge measurably grow, and RQ4 is all growth human-attributable and reversible? Section answers RQ1 and RQ2 with measurements on the released corpus, reports what RQ3 and RQ4 would require, and states explicitly which of the four properties this study does not yet measure."
+  },
+  {
+    "id": "P009",
+    "section": "Introduction",
+    "start": 76,
+    "end": 76,
+    "text": "Figure summarises the resulting architecture. A proposal enters as Markdown (Word and PDF are converted upstream); the parser produces a structured document with source offsets; verifiers own everything that can be decided deterministically and prepare candidate spans for everything that cannot; the model sees only those spans and may only propose findings; the evidence gate admits a finding only if its quotation can be located inside the span the verifier chose; the policy turns confirmed findings into a suggested verdict; and the only path back into knowledge is the expert's decisions, which are written to an audited learned layer."
+  },
+  {
+    "id": "P010",
+    "section": "Related Work",
+    "start": 109,
+    "end": 110,
+    "text": "Checklist-based reading has been the backbone of document and code inspection since Fagan , and surveys stress that reading technique, not reviewer talent, determines yield . Verifiability is a defined quality attribute of a requirement , and requirements smells---weak words, placeholders, missing units---are detected with lightweight deterministic analysers precisely because these are cheap, explainable and stable . Recent work keeps the deterministic core and adds recommendation: Veizaga et al.\\ detect smells in natural-language requirements and suggest how to remove them with a tool built on pre-trained language models , and AirReq applies smell detection and elimination to the requirements of commercial aircraft systems, where the cost of a missed ambiguity is measured in certification . Our verifiers inherit this tradition, and like these systems we treat surface cues---negation, placeholders, missing units---as first-class evidence. The difference is scope and authority: smell analysers operate on individual requirement sentences and leave the judgement of a whole document to the reader, whereas our rules address a whole proposal and the type decides which of them may be decided automatically."
+  },
+  {
+    "id": "P011",
+    "section": "Related Work",
+    "start": 112,
+    "end": 113,
+    "text": "Systematic reviews map how NLP and LLMs are used across requirements engineering , and surveys of hallucination supply the failure taxonomy we design against ; a dual-perspective review treats LLMs both as tools for software verification and as artifacts whose output must itself be verified . Multi-agent validators such as MARV retrieve certification standards to check a requirement specification ; ReqPlan-Eval routes requirements to human review on evidence signals, keeps decision authority with the reviewer, and states what its evidence does not establish . Outside requirements engineering the same question is studied as review automation: Pornprasit and Tantithamthavorn compare fine-tuning and prompt engineering for LLM-based code review and find that parameter-efficient fine-tuning dominates prompting at equal or lower cost , while an industrial reviewer is evaluated online for the quality and usefulness of the comments it produces . Two background results frame our design. Model judges are not interchangeable across architectures: the same annotation task yields systematically different polarity for different model families , which is why we do not let a model's confidence stand in for a rule's authority. And evaluation of LLMs is itself an open methodological problem , which is why our corpus separates mechanism correctness from model capability instead of reporting one aggregate score."
+  },
+  {
+    "id": "P012",
+    "section": "Related Work",
+    "start": 115,
+    "end": 116,
+    "text": "PolicyGuard compiles organisational policy into typed relational logic rules whose ground atoms are answered by an LLM from retrieved evidence before a symbolic evaluator applies the rule . It satisfies auditability and partially separates authority, but the separation is symmetric---every atom is answered by the LLM---and it has no notion of a requirement the model must not be asked at all, no feedback loop and no bounded evolution. The same symmetric pattern recurs where symbolic constraints are used to catch abductive errors: Galitsky and Rybalov verify LLM diagnoses in process control against physical and sensor constraints, using the symbolic layer as a rejection filter rather than as an owner of individual checks . Neuro-symbolic integration in general aims to let symbolic components constrain learned ones ; our contribution is a specific and static constraint---evidence must fall inside verifier-located spans, and a package that violates the pattern is refused at load time---plus a type that says, before any document is read, where the model will not be consulted."
+  },
+  {
+    "id": "P013",
+    "section": "Related Work",
+    "start": 118,
+    "end": 119,
+    "text": "The human-in-the-loop literature distinguishes active learning, in which the system keeps control of what it asks, interactive machine learning, in which control is shared, and machine teaching, in which the domain expert decides what is learned and when . Reviewing a proposal is machine teaching whether or not anyone calls it that: the expert knows the rule, the document and the consequence. What such a protocol needs is not a new interaction metaphor but an accounting of authority---which decisions the system may take alone, which it may prepare, and which it must hand over. Our design fixes that accounting per rule, by type, and records it in the rule package rather than in a prompt."
+  },
+  {
+    "id": "P014",
+    "section": "Related Work",
+    "start": 121,
+    "end": 122,
+    "text": "Industrial code review learns from developer reactions: BitsAI-CR runs a rule checker and then a learned filter that suppresses the false positives the rules raise , RovoDev reports an online evaluation of a deployed reviewer at Atlassian , and mining the feedback developers leave on an agentic reviewer in the wild shows that a large share of its comments is rejected, mostly as false positives or misalignment, and that rejection is predictable . In all of these, learning happens in the model, a filter or a vendor-operated pruning step; the reviewer cannot see it or roll it back, and the object of review is code rather than a design document. A second limit concerns the input itself: a document under review is untrusted content, and an attacker who can write into it can address the judge directly---optimisation-based prompt injection against an LLM-as-a-judge succeeds without access to the judge's weights . Any architecture in which the model is the only reader of the document inherits that attack surface, which is a further reason to have the verifier, not the model, decide what the model is allowed to read."
+  },
+  {
+    "id": "P015",
+    "section": "Related Work",
+    "start": 124,
+    "end": 125,
+    "text": "Attributed generation attaches citations to claims , and a claim-level evaluation of verbatim quotation shows that producing a quote and substantiating a claim are not the same operation . We add two constraints the citation literature does not need: quotes must lie in a span chosen by a verifier, and absence can never be claimed by the model. The same reasoning applies to what the system remembers. Agent memory is a productive research direction , but memories extracted from interactions can leak or be inverted to recover the content they summarise ; because our learned layer stores counts, enum-valued overrides, short quotations and exemplar sentences rather than free-form recollections, its exposure is bounded and its entries are individually auditable. Self-refinement and reflection let agents improve their own outputs or memory , and open-ended self-modifying agents exist ; we treat ``which layer of the knowledge may the system change on its own'' as a design decision fixed by type. Our protocol is machine teaching in the strict sense , and the dashboard exposes what has been learned per rule."
+  },
+  {
+    "id": "P016",
+    "section": "Related Work",
+    "start": 127,
+    "end": 128,
+    "text": "Table places the design against the closest families on five properties: the form of the knowledge, who may decide a finding, whether evidence is located in the document, whether knowledge changes from use, and whether that change is bounded by something a reviewer can inspect. No prior system in the table combines per-rule typed authority with a located-evidence gate and a human-bounded learned layer; the closest, PolicyGuard, has the auditability but not the asymmetry, the feedback or the bound."
+  },
+  {
+    "id": "P017",
+    "section": "Materials and Methods",
+    "start": 156,
+    "end": 156,
+    "text": "Let $K$ be a body of review knowledge---rules, phrasing exemplars and past decisions---and $S$ an LLM-based system that, given a document $d$, produces findings and a suggested verdict. The review-knowledge ingestion problem is to choose a representation of $K$ and an assignment of decision authority over it such that:"
+  },
+  {
+    "id": "P018",
+    "section": "Materials and Methods",
+    "start": 158,
+    "end": 163,
+    "text": "Auditability. Every finding traces to an element of $K$ and to a location in $d$, or to an explicit verifier-produced statement that something expected is absent. Authority follows verifiability. Whether $S$ may raise a finding automatically, raise it subject to a check, or only flag it for a human is a function of how deterministically the element of $K$ can be checked against $d$. Growth. $K$ is updated incrementally from the interaction between expert and system, without a separate annotation process. Bounded growth. Every update is attributable to a human decision, constrained by (ii), and reversible."
+  },
+  {
+    "id": "P019",
+    "section": "Materials and Methods",
+    "start": 165,
+    "end": 165,
+    "text": "We use these rather than issue-level accuracy as the primary lens because accuracy against a direct-prompting baseline is overtaken by the next model generation, whereas (i)--(iv) are properties of the organisation, not of the model. Requirements (i)--(iv) are not free-floating desiderata: each is realised by a specific mechanism, and each admits an instrument that a deployment or an offline study can provide (Table ). Naming the instrument matters for reading our results honestly, because the two requirements that concern knowledge in use are the two we do not yet measure."
+  },
+  {
+    "id": "P020",
+    "section": "Materials and Methods",
+    "start": 187,
+    "end": 187,
+    "text": "A rule package is a YAML file validated on load. Each rule has an identifier, a review dimension (capacity, security, interface, channel, data synchronisation, configuration, monitoring, documentation), a severity (blocker, major, minor), a tier, the question put to the LLM and the expert, a rationale, a default remediation, an optional applicability precondition, a verifier specification and a status. The package also carries a lexicon---heading aliases, placeholder tokens, negation tokens and keyword families (e.g.\\ loadtest = load, stress and performance testing in Chinese)---which rules reference by key. Rules never embed vocabulary: the lexicon is the only place where language lives, so a package can be translated or extended without touching verifier code."
+  },
+  {
+    "id": "P021",
+    "section": "Materials and Methods",
+    "start": 189,
+    "end": 189,
+    "text": "The tier is the type of the knowledge (Table ). The criterion is operational: can a deterministic procedure produce located evidence for or against the requirement, including evidence of absence? If yes for every aspect, the rule is hard; if a procedure can locate where the requirement would be addressed and flag surface cues (negation, placeholder, unjustified assertion) but the judgement requires reading, it is hybrid; if no procedure can locate relevant text reliably, it is soft. The three types differ not in confidence but in who is allowed to speak, which is the point of the type: it is a permission, not a probability."
+  },
+  {
+    "id": "P022",
+    "section": "Materials and Methods",
+    "start": 191,
+    "end": 191,
+    "text": "A tier decides who may speak; it does not decide what is worth reading. Each rule therefore also carries an output channel. Findings from opinion rules become numbered clauses of the formal opinion and are decided one by one. Findings from checklist rules---chapter completeness, annex numbering, table columns, sequence-diagram message counts---become a separate annex of correction items that the reviewer accepts or waives in a single action. Both channels are produced by the same verifiers and both count in the verdict policy (Section ); the split separates what blocks a proposal from what merely has to be tidied, so that a reviewer is not asked to adjudicate a dozen facts that are certainly true and rarely decisive."
+  },
+  {
+    "id": "P023",
+    "section": "Materials and Methods",
+    "start": 237,
+    "end": 237,
+    "text": "Two consequences follow. First, absence is verifier-owned: ``load testing is not mentioned'' cannot be quoted, and an LLM claim of it is unverifiable by construction; only hard verifiers emit absence evidence, a hybrid rule with no candidate becomes pending, and an LLM submission of absence---or a quote beginning with ``not mentioned'', ``missing'' and similar---is rejected. This is not a stylistic preference. Absence is the most common defect class in our corpus (98 of 253 planted defects), and it is exactly the claim that a generative model produces fluently and wrongly; a system that accepts it has converted its most frequent true finding into its most frequent false one. Second, candidate existence is not satisfaction: a hybrid statement check never yields pass, and if the LLM registers nothing the checklist says ``reviewed, no issue'' rather than ``pass''."
+  },
+  {
+    "id": "P024",
+    "section": "Materials and Methods",
+    "start": 239,
+    "end": 239,
+    "text": "The type is checked statically when the package loads, and a package is rejected as a whole if a rule breaks an invariant: a soft rule with a verifier; a hard or hybrid rule without one; a hard rule whose verifier tree contains a non-decisive check or a pending no-candidate branch; a hybrid rule whose statement check is decisive or whose no-candidate behaviour is fail; a missing lexicon key; or a duplicate identifier. These invariants are the executable form of (ii): a rule whose stated verifiability and whose authority disagree cannot be shipped. They also survive editing, which matters because the package is edited by domain experts: the check runs on load, so a rule that is retyped without a matching verifier fails the next review rather than silently gaining authority."
+  },
+  {
+    "id": "P025",
+    "section": "Materials and Methods",
+    "start": 241,
+    "end": 241,
+    "text": "Table gives the composition of the package after typing the legacy checklist. The distribution is the empirical core of the paper's diagnosis. Only 10 of 28 rules are deterministically verifiable; 13 need a located passage and a reader; 5 cannot be located at all. More importantly, the four blocker rules---rate limiting and concurrency control, encryption and signing, a closed authorisation chain, data-exposure assessment---are all hybrid, and all ten hard rules are major or minor. Severity and verifiability are inversely related in this domain, which is the opposite of what a checklist that treats all rules as keyword checks implies: the most consequential requirements are the ones a program can locate but not decide. Seven rules carry applicability preconditions, which turns ``not applicable'' into an explicit checklist state rather than a silent pass; the lexicon has 25 keyword families, 11 heading groups, 12 placeholder tokens and 11 negation tokens."
+  },
+  {
+    "id": "P026",
+    "section": "Materials and Methods",
+    "start": 269,
+    "end": 269,
+    "text": "Documents are Markdown; Word and PDF inputs are converted by a pre-existing office plugin of the host, so the review plugin contains no converter and review evidence is always text that the parser saw. The parser builds a heading tree with section paths from both Markdown headings and bold inline headings, tables with cell ranges, Mermaid sequence diagrams with participants and messages, and a normalised text layer (NFKC folding, full-width to half-width punctuation, emphasis removal, whitespace collapsing) with an offset map back to the source, so any match is reported as a source range rather than as a string position in a normalised copy. Proposals in this domain are Chinese with embedded English identifiers, so sentences are split at Chinese and Latin terminators and at table-cell boundaries, and a table cell is itself a candidate unit; absence evidence carries a zero-length range at the position where the expected content would appear, together with the section that should have contained it."
+  },
+  {
+    "id": "P027",
+    "section": "Materials and Methods",
+    "start": 271,
+    "end": 271,
+    "text": "Six verifier families and two combinators cover the package (Table ). The families differ in the kind of evidence they can produce, and that difference, rather than the check itself, is what the type is calibrated against: section can say that a heading is missing, which is an absence record; table can point at a cell; statement can point at a sentence and mark why it is suspicious; quantity can point at a number and its unit; mermaid-sequence can name the participants and messages that are missing; cross-ref can point at a reference that does not resolve. A rule is hard only when every aspect of its requirement is covered by a family that can decide without reading; it is hybrid when the family can localise but not decide."
+  },
+  {
+    "id": "P028",
+    "section": "Materials and Methods",
+    "start": 295,
+    "end": 295,
+    "text": "Three design choices inside the families are worth stating, because each addresses a failure observed in the prototype. Negation is detected within a window around the matched family rather than in the sentence alone, so ``the plan does not include a load test'' and ``load test: not planned'' are both caught. Placeholder detection is lexical and structural: the placeholder tokens from the lexicon, but also a body whose entire content is punctuation, an image, or a phrase such as ``to be determined''. And a Mermaid diagram is required by the two diagram rules while an embedded image is a fail, not a substitute: an image cannot be checked for participants and messages, so accepting it would be an unaudited pass. All three choices move work from the model to the verifier, and each costs recall on prose that is well-formed but unusually phrased---a trade-off we quantify in Section ."
+  },
+  {
+    "id": "P029",
+    "section": "Materials and Methods",
+    "start": 300,
+    "end": 300,
+    "text": "The LLM writes findings only through one tool whose implementation runs the gate (Algorithm ). A finding is confirmed only if every step passes; otherwise it is stored as pending with the full list of reasons, so the agent can repair the quote once and the reasons can be analysed later. Gate decisions are deterministic and recorded per review, which is what makes ``evidence validity'' a measurable quantity rather than a claim."
+  },
+  {
+    "id": "P030",
+    "section": "Materials and Methods",
+    "start": 324,
+    "end": 324,
+    "text": "Two properties of the gate deserve emphasis, because they are what distinguishes it from a prompt instruction to ``quote the document''. First, the gate is positional: it checks that the quotation lies inside the span the verifier chose for that rule, not merely that it occurs somewhere in the document. Without that check a model can satisfy a traceability requirement by quoting a true but irrelevant sentence, which is the failure mode reported for citation-generating models where quotes exist for most claims yet substantiate far fewer . Second, the gate is authority-aware: it refuses findings on hard rules and on soft rules before looking at the evidence, so a model that ignores the type cannot gain authority by quoting well. The cost of the design is visible in the algorithm---a rejected finding is downgraded rather than deleted, so the expert still sees the item and the gate's own error rate can be audited."
+  },
+  {
+    "id": "P031",
+    "section": "Materials and Methods",
+    "start": 328,
+    "end": 341,
+    "text": "The suggested verdict is a function of the confirmed findings, never of anything the model writes: Soft and pending items are listed but never counted; checklist-channel findings are counted like any other confirmed finding but are rendered outside the numbered clauses, as correction items. Before review only verifier- and gate-confirmed findings count; after review dismissed findings drop out, accepted and rewritten ones stay, and expert-added findings (tier expert) count. The policy is recomputed after every decision and shown as the recommendation when the final verdict is requested. The final verdict is written by a single tool action that requires a named reviewer, so no other code path can write it, and the difference between recommended and final verdict is stored as a measure of rubber-stamping."
+  },
+  {
+    "id": "P032",
+    "section": "Materials and Methods",
+    "start": 343,
+    "end": 343,
+    "text": "The policy has one free parameter, the minor threshold $$ (three in the shipped configuration). It is exposed rather than learned, and we report its sensitivity in Section : the alternative---letting the model decide how many minor findings are enough---would return the verdict to the component whose reliability the design is meant to bound. The asymmetry between blocker, major and minor is not a modelling convenience: it encodes the organisation's rule that any blocker is disqualifying, and because all four blockers are hybrid, that rule can only fire after the expert has confirmed the blocker. The policy therefore cannot over-call on an unconfirmed blocker, and Section shows that it also does not over-call in practice."
+  },
+  {
+    "id": "P033",
+    "section": "Materials and Methods",
+    "start": 347,
+    "end": 347,
+    "text": "The review happens in one conversation with a preset of the agent harness---a persona, a skill document and a tool allow-list---that prescribes three phases. In preliminary review the expert pastes Markdown, gives a path or attaches a Word file; the agent parses it (resuming a re-reviewed proposal by content hash), runs the checks, and for each hybrid candidate first recalls the rule's acceptance statistics, recent dismissal reasons and phrasing exemplars, then judges the candidate snippets only and registers findings with a verbatim quote. The gate decides. The status view renders the suggested verdict with counts, findings ordered by severity with quotation and section, the items needing judgement, and a one-line checklist summary."
+  },
+  {
+    "id": "P034",
+    "section": "Materials and Methods",
+    "start": 349,
+    "end": 349,
+    "text": "In expert review the agent presents findings in batches of at most five through the harness's structured question tool, each with the quotation and the proposed remediation and with three options: fix as suggested, no change needed, fix but in my words. Free text is normalised by the tool rather than by the model: ``agreed'' becomes accept; ``not an issue'' or ``already covered'' becomes dismiss with the remainder stored as the reason; ``change it to:'' becomes rewrite; ``make it minor'' becomes accept with a per-finding severity override that does not touch the rule; ``you missed'' becomes add, matched to the closest rule if any. ``Accept the rest'' accepts only confirmed findings, and pending items must each be looked at. In finalisation the system renders the formal opinion, delivers it as a file and atomically updates the knowledge layer; a later decision reopens the record and requires a new version. The protocol is machine teaching by ordinary work : the expert never labels anything, and every decision the expert must take anyway becomes a typed event."
+  },
+  {
+    "id": "P035",
+    "section": "Materials and Methods",
+    "start": 351,
+    "end": 351,
+    "text": "Knowledge lives in two layers. The shipped layer is the rule package; the learned layer is a set of records merged over it at read time (Table ). Every write appends an audit entry, and an effective knowledge version pack@ver+ovN is stamped on every review, where $N$ counts rules with an active override, so a review can be reproduced against the knowledge that produced it."
+  },
+  {
+    "id": "P036",
+    "section": "Materials and Methods",
+    "start": 353,
+    "end": 353,
+    "text": "Not every learned edit is a parameter tuning. Changing a rule's severity, or retiring it, changes what the system may settle on its own, so the tools refuse such a write unless it carries the expert's instruction verbatim: the call must include the sentence the expert used, the sentence is stored in the audit entry beside the operator, the time and the review, and a call without one is rejected before anything is written. An operator acting directly in the review console is its own authorising act and is recorded by identity instead. A rule's tier has no edit path at all, from the agent or from the console."
+  },
+  {
+    "id": "P037",
+    "section": "Materials and Methods",
+    "start": 376,
+    "end": 376,
+    "text": "The boundary is deliberately asymmetric. The system may change parameters within the whitelist, phrasing, severity and status, and may draft new soft rules, but it can never raise a rule's tier: a draft claiming to be hybrid or hard must carry a verifier a human has reviewed. Promotion of authority is thus a human act by construction, which is our reading of (iv). Reversal is symmetric: setting a field back to its shipped value deletes the override, so ``changed back'' and ``never changed'' are indistinguishable in the effective version, and a reset removes all overrides of a rule in one audited step while keeping its statistics."
+  },
+  {
+    "id": "P038",
+    "section": "Materials and Methods",
+    "start": 380,
+    "end": 380,
+    "text": "We implemented the design as HARK (Human-Gated Authority-Typed Review Knowledge) , a plugin bundle for an open-source conversational agent harness that already provides the conversation loop, model access, file access, a structured question tool, a delivery tool, a persona/skill mechanism, a JSON-backed storage service, a web server with access control and layout slots. The plugin adds a pure-function engine (parser, verifiers, gate, policy, memory aggregation, opinion renderer; no I/O and no clock), a storage domain with the seven tables of Table , nine tools exposed only inside the review preset (Table ), three slash commands that query state without the model, an HTTP API under the host's access control, and a dashboard with an overview, a rules page and a sidebar assistant. There is no separate backend, database, embedding index or front-end build; the client is a single 84 kB bundle."
+  },
+  {
+    "id": "P039",
+    "section": "Materials and Methods",
+    "start": 403,
+    "end": 403,
+    "text": "Tool contracts are schema-checked with thirteen typed error codes, re-running a check after a decision is refused (it would orphan feedback), and an already reviewed proposal is resumed rather than duplicated. The engine's purity is what makes the offline evaluation of Section possible: the same functions that answer a live review are called by the evaluation script over a corpus, with the model replaced by a deterministic judge, so the mechanism is measured without model variance. On the reference machine the full corpus of 100 proposals $$ 23 verifiable rules is processed in about 1.6 s, well under a millisecond per rule--document pair, which is negligible next to the model latency of a single hybrid judgement; the review cost is dominated by the number of candidate spans that reach the model, not by the deterministic layer."
+  },
+  {
+    "id": "P040",
+    "section": "Materials and Methods",
+    "start": 405,
+    "end": 405,
+    "text": "The plugin is installed, like any other, as a profile plugin of the harness; the rule package is data, so a second domain is a second YAML file plus a lexicon, and rule edits take effect on the next review without a restart. The dashboard is served by the host's own web server under the host's access control, so no additional authentication surface is introduced; the left panel shows the review overview (calendar, trend, proposal list with in-place decision), the rule state (shipped, learned, candidates) and the evaluation runs, and a right sidebar tab keeps the active review beside the conversation."
+  },
+  {
+    "id": "P041",
+    "section": "Results",
+    "start": 412,
+    "end": 413,
+    "text": "The released generator (seed 20261029) produced 100 proposals with 253 planted defects over the 23 verifiable rules---98 absent, 37 negated, 52 placeholder and 66 keyword-present-but-empty---from phrase pools in which each rule has at least three satisfied and four unsatisfied phrasings, including at least one that avoids the lexicon keywords. Expected verdicts are 30 Pass, 47 Revise and 23 Fail, with 30 proposals shaped on the 15/14/1 verdict distribution of 30 historical expert opinions. The corpus is synthetic because the original proposals could not be released; it measures mechanism correctness and relative baselines, not business-semantic judgement. The released self-check recomputes, for every proposal, that each satisfied rule passes its verifier and that each planted rule fails it, so a reported false positive is attributable to the mechanism rather than to the corpus."
+  },
+  {
+    "id": "P042",
+    "section": "Results",
+    "start": 415,
+    "end": 416,
+    "text": "The self-check also caught a defect in the shipped package rather than in the baseline. The first generator run failed on every proposal that listed a prototype attachment: the annex-list pattern of DOC-002 captured the word after the annex numeral rather than the numeral itself, so the cross-reference resolver compared ``prototype'' with ``1'' and reported a correctly listed attachment as absent from the list. The pattern was corrected to capture the numeral, and the case is now part of the released self-check. A defect of this shape is invisible in a single review and unmissable across a hundred, which is the practical argument for shipping the corpus next to the rules."
+  },
+  {
+    "id": "P043",
+    "section": "Results",
+    "start": 418,
+    "end": 419,
+    "text": "We compare B0, which replicates the 2025 prototype (3--5 substrings per rule, no negation detection, no structure, no evidence) but applies the same verdict policy more leniently than the prototype, with the typed design S-full (verifiers, candidates, gate, policy, memory) and with S$-$verifier, where hybrid statements are evaluated over the whole document. The plugin ships no model client; hybrid judgements go through a pluggable judge. We report the deterministic flag judge, which raises a finding on a candidate span exactly when the verifier marked it negated, assertion-only or placeholder. It measures the mechanism, not LLM capability; the LLM-judge configurations (direct prompting, gate disabled, model-stated verdict) are left to a companion report rather than approximated. Alignment is at (review, rule) granularity, and we separate two quantities that are often conflated: in-pack agreement, a predicted rule that matches a planted defect or a satisfied requirement, and out-of-pack additions, expert findings for which no rule exists. Only the first is comparable with the baseline; the second is reported separately as candidate rules (Section ) and never folded into precision or $$. We report precision, recall, F1 with bootstrap intervals over proposals, severity-weighted recall (weights 3/2/1), verdict accuracy, macro-F1, Cohen's $$ unweighted and quadratically weighted , evidence validity (share of model registrations that passed the gate) and pending coverage (share of misses shown to the expert as open items). Three repetitions of each configuration produced byte-identical metrics, so the intervals are bootstrap intervals over proposals, not repetition variance."
+  },
+  {
+    "id": "P044",
+    "section": "Results",
+    "start": 460,
+    "end": 460,
+    "text": "Both configurations are judged by the same deterministic, structure-only judge, so the comparison isolates the mechanism rather than model behaviour; what a large model would add or lose inside the same spans is left to the ablation named in Section . B0 produced 47 true, 124 false and 206 missed findings; S-full produced 168 true findings, no false finding and 85 misses, a gain of $$F1 $=+0.564$ (paired Wilcoxon signed-rank over per-proposal F1, $p<0.001$; McNemar on verdict correctness $b/c=64/7$, $p<0.001$; both survive Holm correction). S-full reaches F1 $=1.0$ on 42 of 100 proposals and its per-proposal F1 has median 0.857."
+  },
+  {
+    "id": "P045",
+    "section": "Results",
+    "start": 462,
+    "end": 462,
+    "text": "The aggregate hides an asymmetry that matters more than F1. No clean proposal receives a finding, but the policy is not symmetrical in its errors: 15 defective proposals are under-called and none is over-called, and of the 23 proposals that should have failed, four are suggested as a pass and five as a revision. The verdict error is therefore one-sided---the design is conservative about what it asserts and permissive about what it lets through---and the mistakes concentrate where the rules are hybrid: 18 of the 35 blocking defects that the corpus plants are never confirmed, which is what a 0.486 blocker recall means in counts. A reader who only sees ``no false positive'' would miss that a review can look clean while a blocking defect remains unadjudicated."
+  },
+  {
+    "id": "P046",
+    "section": "Results",
+    "start": 464,
+    "end": 464,
+    "text": "B0's errors have the shape the typing predicts, and the shape is quantitative. On the 13 rules whose keyword is uninformative (negated, placeholder or hollow phrasings dominate), B0's precision is exactly 0.00; all 124 of its false positives come from six rules, three of which key on vocabulary that satisfied text uses just as often (encryption, channel identifiers, rate limiting). Recall is no better: below 0.15 on 15 of 23 rules, including the sequence-diagram rule (0.13) and the load-test rule (0.29), because the satisfied phrasings often avoid the lexicon---the capacity drill that never says ``load test''. Its verdict agreement is at chance ($=-0.04$; 17 of 30 Pass proposals rated Fail), reproducing the 2025 failure in which a declared-but-unverifiable checklist drove the verdict."
+  },
+  {
+    "id": "P047",
+    "section": "Results",
+    "start": 466,
+    "end": 466,
+    "text": "Table breaks the same findings down by tier and severity. The tier result is the mechanism claim of the paper: hard rules are decided with precision 1.000 and recall 0.880, hybrid rules with precision 1.000 and recall 0.387; under B0 the corresponding precisions are 0.698 and 0.085. Typing thus does not merely improve the aggregate; it removes the failure mode that produced false findings, and what remains is a recall cost that is concentrated where judgement is genuinely needed."
+  },
+  {
+    "id": "P048",
+    "section": "Results",
+    "start": 492,
+    "end": 492,
+    "text": "The severity rows carry a warning for the organisation. Best recall is not on the blockers but on the majors (0.702 against 0.486), because the four blocker rules are precisely the rules whose satisfaction cannot be read off the surface: an authorisation chain that is closed, an encryption scheme that is sound and a rate-limiting policy that is adequate all require a reader. A checklist deployed as keyword checks therefore fails most often on the findings that block a release, which is the empirical form of the verifiability tension."
+  },
+  {
+    "id": "P049",
+    "section": "Results",
+    "start": 496,
+    "end": 496,
+    "text": "All 85 misses are either planned pending states or a documented limit of decisive verifiers; none is a silent pass on a located defect. Sixty-eight are hybrid defects reported as pending---27 absent and 30 hollow phrasings the flag judge cannot decide, plus 11 negated or placeholder spans rejected by the gate---so 80\\% of all misses are shown to the expert as open items rather than hidden; a review surfaces 6--13 pending items, median 9. The remaining 17 are hard rules decisive on keyword presence (load-test statement 7, channel identifier 5, change-list table 5) that miss placeholder or hollow phrasings, the documented trade-off for making these rules fully automatic."
+  },
+  {
+    "id": "P050",
+    "section": "Results",
+    "start": 498,
+    "end": 498,
+    "text": "Table and Figure separate the mechanism's reach by defect kind, and the contrast with the keyword baseline is the clearest single statement of what typing buys. The keyword baseline finds absence only when the keyword is missing entirely (45 of 98) and essentially nothing of the three other kinds (1 of 37 negated, 0 of 52 placeholder, 1 of 66 hollow)---its apparent capability on absence is also the source of its false positives, because it cannot distinguish ``the keyword is missing because the requirement is unmet'' from ``the keyword is missing because the author used another word''. The typed design moves all four kinds upward, and the ordering that remains---absent 0.72, negated 0.84, placeholder 0.81, hollow 0.36---is the ordering of what structure alone can decide."
+  },
+  {
+    "id": "P051",
+    "section": "Results",
+    "start": 541,
+    "end": 541,
+    "text": "The deterministic judge submitted 53 hybrid findings; 42 passed and 11 (20.8\\%, in 10 proposals) were rejected as too short, because negated or placeholder sentences fall below the eight-character quote floor. The rejected findings were downgraded to pending rather than discarded---they are the negated and placeholder spans the judge could not quote---so the gate cost 11 located true findings (recall $-0.043$) and no false one, and each stays visible to the expert. No absence, not-found or out-of-candidates rejection occurred, as expected for a judge that quotes the verifier's own span. Evidence validity is therefore 79.2\\%: one registration in five fails the first attempt, and the failure is always a property of the evidence supplied, never of the finding's underlying truth."
+  },
+  {
+    "id": "P052",
+    "section": "Results",
+    "start": 543,
+    "end": 543,
+    "text": "That number should be read as an upper bound on the gate's usefulness with a real model, not a lower one. The deterministic judge already quotes the verifier's span and still trips the length floor; a generative model quoting from memory will also trip the location test, and the gate's purpose is to make that failure visible and repairable instead of silent. The result also identifies the quote floor, chosen to stop one- or two-word ``evidence'', as a parameter to revisit for whole-sentence placeholder spans."
+  },
+  {
+    "id": "P053",
+    "section": "Results",
+    "start": 547,
+    "end": 547,
+    "text": "S$-$verifier is identical to S-full under the deterministic judge ($$F1 $=0$, $b/c=0/0$): widening the search region added candidate spans but none carried a cue, and the judge never cites outside a region, so the contribution of span scoping is a property of an LLM judge and is measured there. S-full's suggested verdict agreed with the planted verdict in 85 of 100 proposals ($=0.76$; confusion over Pass/Revise/Fail $[[30,0,0],[6,41,0],[4,5,14]]$). All 15 disagreements are under-calls caused by pending hybrid findings---nine Fail proposals whose blocker defect was hybrid, six Revise proposals whose major defects were hybrid---and there is no over-call, consistent with a policy that counts only confirmed findings."
+  },
+  {
+    "id": "P054",
+    "section": "Results",
+    "start": 549,
+    "end": 549,
+    "text": "The one free parameter behaves the way a policy parameter should (Table ): at $=1$ a single minor finding already forces Revise, which over-calls on 15 Pass proposals; from $=3$ onward the recommendation is unchanged, because in this corpus proposals with three or more minor findings also carry a major finding. We keep $=3$ and note the plateau as evidence that the verdict is not sensitive to the exact value within a plausible range---a property that a model-written verdict would not have."
+  },
+  {
+    "id": "P055",
+    "section": "Results",
+    "start": 569,
+    "end": 569,
+    "text": "Table follows a single proposal (syn-hist-30, a balance-query capability opened to third-party channels) through the four authority paths. Quotations are translated from the original Chinese; the untranslated text is in the released corpus. The case is chosen because it exercises every path at once: a hard fail the model never saw, three confirmed hybrid findings, and one pending item that keeps a miss visible."
+  },
+  {
+    "id": "P056",
+    "section": "Results",
+    "start": 592,
+    "end": 592,
+    "text": "The walkthrough also shows what the design does not claim. The tracking defect is missed by the mechanism---the phrase plans tracking but does not implement it, and no verifier could decide that---so it is handed over as an open item. A reviewer who reads the pending list sees five findings, not four, and the difference between the four that count and the one that does not is explicit in the interface rather than implicit in a model's confidence."
+  },
+  {
+    "id": "P057",
+    "section": "Results",
+    "start": 597,
+    "end": 597,
+    "text": "Beyond the corpus we ran the system on three technical solution proposals written for the platform, one reviewed twice after revision and once re-run to exercise resumption: five runs in total. The runs were performed by the team that built the system, so they document mechanics, not an independent expert study. Across the five runs the system raised 58 findings: 40 located by verifiers, 12 judged by the model inside candidate spans, and 6 added by the operator. The gate refused 3 of the 12 model-judged findings, all with the same reason---the quote fell outside the spans the verifier had located---so the refusal path of Section was exercised on real prose and not only on planted defects. Hard and typed rules rated every proposal fail; the two reviews carried to a final verdict kept it, the operator accepting 15 of the 18 findings that required a decision and rejecting 3, none rewritten. The learned layer was written: after five runs it held statistics for 13 rules and 21 exemplars, and no rule had changed tier."
+  },
+  {
+    "id": "P058",
+    "section": "Discussion",
+    "start": 603,
+    "end": 604,
+    "text": "In this corpus the tension is not hypothetical but measurable, and it has a direction: the rules that decide a release are the rules least decidable by structure. All four blocker rules are hybrid; recall on blockers (0.486) is below recall on majors (0.702) and minors (0.675). A checklist that is tuned to be fully automatic will therefore be automated and lenient exactly where leniency is expensive, while a checklist tuned to be strict about blockers will produce machine findings that a human must adjudicate anyway. The three-way typing is the smallest mechanism we found that makes this tension explicit instead of average it away: it assigns each rule an authority path first, and only then measures the path."
+  },
+  {
+    "id": "P059",
+    "section": "Discussion",
+    "start": 606,
+    "end": 607,
+    "text": "Typing removed the failure mode rather than merely reducing it. Under B0 the association between rule declarations and reported findings is broken in both directions: 124 false findings and 206 misses, verdicts at chance. Under S-full, no finding lacks a located quote, and recall rises to 0.664 with severity weighting at 0.649 and verdict agreement at $=0.76$. The interesting part is not the F1 gap but its composition: the gain is concentrated on negated (2.7\\% $$ 83.8\\%) and placeholder phrasings (0\\% $$ 80.8\\%), that is, on text that contains the keyword and means the opposite of it. Keyword logic fails there by construction; structure alone recovers most of it, and the model is needed for the rest."
+  },
+  {
+    "id": "P060",
+    "section": "Discussion",
+    "start": 609,
+    "end": 610,
+    "text": "The gate did not make the mechanism more accurate; it made it auditable, and the audit is what changed our own behaviour. One registration in five failed the gate, and the failure was always a property of the evidence rather than of the finding: too short a quote, never a mislocated one, because the deterministic judge quotes the span it was given. We therefore do not claim that the gate improves precision in this configuration---precision was already saturated---but that it produces a signal a reviewer can act on, and that it makes the weakest link in the chain (a model that quotes from memory) visible as a rejection rather than as an unverifiable claim. Whether it improves a real model's precision is the first question of the planned LLM-judge ablation."
+  },
+  {
+    "id": "P061",
+    "section": "Discussion",
+    "start": 612,
+    "end": 613,
+    "text": "The mechanism stores decisions, not preferences: each review decision is written with an issue identifier, a verdict, an optional rewrite and a timestamp, and the aggregate recall per rule is a query over those rows, not a retrained parameter. That design has a cost we did not pay down---no expert reviewed the 100 synthetic proposals, so the memory layer is exercised only by the deterministic judge---and a benefit we can state precisely: the memory cannot drift from the rules, because it is keyed by the same rule identifiers, and an expert can see and correct any single row. Where the learning lives is therefore a design choice with an audit trail, not an emergent property of a model."
+  },
+  {
+    "id": "P062",
+    "section": "Discussion",
+    "start": 617,
+    "end": 617,
+    "text": "The arithmetic of the two directions is not symmetric. A false finding costs reviewer trust and, if it reaches the formal letter, an argument with the submitting team; enough of them end the deployment. A missed finding costs one line in the reviewer's own memory---provided the reviewer still has the habit of reading the document, which the pending list is designed to keep. The policy encodes that asymmetry: the system may conclude Fail only from confirmed blockers, but it can always be overruled, and it never writes the final verdict. This is also why we do not use the model's own verdict anywhere in the policy: a model-stated verdict is a single point of failure with no audit trail, whereas the policy's inputs are rows a human can inspect one by one."
+  },
+  {
+    "id": "P063",
+    "section": "Discussion",
+    "start": 619,
+    "end": 619,
+    "text": "The asymmetry has a limit we should state. It assumes the reviewer reads the pending list. In our walkthrough the missed tracking defect is one item in a list of five, and a reviewer who trusts the four confirmed findings will sign a Fail for the right reason and still never see the fifth. The interface, not the policy, carries that risk; the plugin addresses it by making pending items first-class objects in the review store and by requiring the reviewer's confirmation to be recorded per item, but a field study is needed to know whether that is enough."
+  },
+  {
+    "id": "P064",
+    "section": "Discussion",
+    "start": 623,
+    "end": 623,
+    "text": "Recent work has largely measured automated review as a text-generation task: given a diff or a design, produce comments that a developer accepts . That framing optimises for agreeableness, and the largest industrial deployment we know of reports acceptance by developers on individual review comments, a metric that suits a diff and a comment stream rather than a verdict. Our framing is the complement: the artifact is not a comment stream but a verdict with an auditable derivation, and the unit of correctness is a rule, which makes the system comparable with a compliance checklist rather than with a human reviewer. The two framings meet where the checklist itself is written in prose: neuro-symbolic verification of design documents shares our impulse to constrain the model with a structure, but uses the structure to check a model's extraction; we use it to decide who is allowed to speak."
+  },
+  {
+    "id": "P065",
+    "section": "Discussion",
+    "start": 625,
+    "end": 625,
+    "text": "The compliance context also sets a constraint we have not fully exploited. Security-requirement reviews and certification audits are already organised around control catalogues , and a traced requirement is the artifact those processes treat as evidence . A rule pack whose identifiers match the catalogue would let a review quote a control number directly, and would let the memory aggregate at the level a certification body cares about. We keep the rule schema aligned with that possibility (each rule carries a dimension and a provenance field) but leave the mapping to future work, because it changes the ontology of a review, not its implementation."
+  },
+  {
+    "id": "P066",
+    "section": "Discussion",
+    "start": 627,
+    "end": 627,
+    "text": "Two risks of this framing deserve naming. The first is regulatory: if a review supports a decision that a regulation covers, the artefact and its provenance may acquire legal weight, which is why the AI Act's documentation duties are a plausible next constraint on the design. The second is the model itself: a judge that reads untrusted proposals is a prompt-injection target , and a memory that accumulates expert rewrites is a privacy target . Neither is solved by the gate; both are reasons to keep the model's authority narrow, which is the design's main defence."
+  },
+  {
+    "id": "P067",
+    "section": "Limitations and Future Work",
+    "start": 631,
+    "end": 632,
+    "text": "The 100 proposals are generated from phrase pools, so they measure mechanism correctness against planted defects, not judgement quality against real design intent. Three consequences are unavoidable: a satisfied phrasing is satisfied by construction, the vocabulary is narrower than field text, and the verdict labels are correct by construction rather than by expert agreement. We mitigate the third by planting defects at the clause level and deriving the expected verdict from the policy itself (a proposal is Fail iff a blocker is planted), so accuracy measures the policy's execution rather than a taste. The mitigation does not remove the gap; a corpus of anonymised real proposals with two independent expert labels is the natural next step, and the anonymisation procedure is already specified in the released pipeline."
+  },
+  {
+    "id": "P068",
+    "section": "Limitations and Future Work",
+    "start": 634,
+    "end": 635,
+    "text": "Hybrid recall (0.387) is a lower bound, since the flag judge decides only on structural cues and leaves semantic cases pending by design; conversely precision (1.000) is an upper bound, because the same judge never invents a quote. Span scoping showed no effect precisely because the judge only cites the span it is given, so the effect that spans are meant to have---keeping a generative model from wandering---is untested here. We did not measure stability across models or prompts: no number in this paper says how two large models, or one model at two temperatures, would disagree on the same candidate span. The planned ablation covers three judge settings (direct prompting over the whole document, prompting over candidate spans, and prompting with the gate disabled) with two open models, fixed decoding parameters and the same corpus, and reports the gate's rejection taxonomy as the primary outcome."
+  },
+  {
+    "id": "P069",
+    "section": "Limitations and Future Work",
+    "start": 637,
+    "end": 638,
+    "text": "The online form of the contribution---that review decisions become memory, and that memory improves later reviews---is not tested. The five internal runs of Section show that the loop closes and that the learned layer is written, but the operator was the team that wrote the rules, so their acceptance rate says nothing about an outside expert, and five runs cannot measure a learning curve. What the runs exercise is the plumbing (decision recording, memory aggregation, exemplar retrieval) and the offline aggregator, not the claim that expert recall per rule rises with exposure. That claim needs a longitudinal deployment: the same reviewers, the same capability, a baseline period without memory and a treatment period with it, with per-rule recall, dismissal rate and rewrite rate as the outcomes. We describe the measurement plan and the schema rather than report the effect, and we consider this the paper's largest open question."
+  },
+  {
+    "id": "P070",
+    "section": "Limitations and Future Work",
+    "start": 640,
+    "end": 641,
+    "text": "Twenty-eight rules covering one capability's review checklist are not a review standard. The typing mechanism is agnostic to the rules---it takes any rule with a declared verifier---but the composition table (Section ) shows that the balance of tiers is a property of the domain: documentation rules are mostly mechanical, security rules are mostly semantic. A different domain will need a different balance, and the question of how to choose tiers without taste is open; our practice was to write the verifier first and the tier second, which makes the choice traceable but not automatic."
+  },
+  {
+    "id": "P071",
+    "section": "Limitations and Future Work",
+    "start": 643,
+    "end": 644,
+    "text": "The corpus, the lexicon and the rules are in Chinese, for the electricity-service deployment; the mechanism is language-agnostic but the cue lists are not. Porting is a configuration task, not a code change, and the lexicon is versioned with the pack, but each port needs its own self-check, because a cue list calibrated on one domain's phrasing fails silently on another's, and only a per-domain self-check catches that."
+  },
+  {
+    "id": "P072",
+    "section": "Limitations and Future Work",
+    "start": 646,
+    "end": 647,
+    "text": "The verdict policy is deterministic and its threshold is insensitive in this corpus, but it assumes a reviewer who reads pending items, and we have not measured that. Nor have we measured whether an expert overrides the suggested verdict more often when it is wrong in the lenient direction, which is the asymmetry the design leans on. Both are study designs, not implementation gaps, and both belong with the longitudinal deployment."
+  },
+  {
+    "id": "P073",
+    "section": "Conclusions",
+    "start": 651,
+    "end": 651,
+    "text": "A review system built on large language models tends to give the model one of two roles: generate the comments, or decide the verdict. We have argued for a third arrangement in which the model never decides alone, the program never decides what it cannot check, and the expert's decisions are the knowledge the system accumulates. Its unit of construction is the rule, its unit of evidence is the quote, its unit of authority is the tier, and its unit of learning is the decision row."
+  },
+  {
+    "id": "P074",
+    "section": "Conclusions",
+    "start": 653,
+    "end": 653,
+    "text": "On a corpus of 100 proposals with 253 planted defects, the arrangement produces no false finding, recovers two thirds of the defects, under-calls 15 of the 70 defective proposals (four to a pass) and agrees with the planted verdict on 85\\% of proposals ($=0.76$), against a keyword baseline at chance. The more instructive result is where it loses: the rules that block a release are the rules whose satisfaction needs a reader, and the misses that remain are concentrated on prose that plans rather than implements. The loop also closed outside the corpus: five runs on three internal proposals, 58 findings and 18 operator decisions, with the gate refusing three model-judged findings on real prose. We read all of this as evidence that the design constraint is right---the model's job is to read, not to conclude---and as the agenda that follows: a judge worth trusting, a longitudinal test of whether decisions improve later reviews, and a mapping between rule packs and the control catalogues that compliance work already uses."
+  }
+]

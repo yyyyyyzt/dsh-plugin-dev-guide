@@ -1,7 +1,7 @@
 # AGENTS.md — 工作区总指引
 
 > 本文件同时被 Cursor 与 DSH（`@deepseek-ai/dsh-agent-instructions`）作为工作区指令加载。任何 agent 在本仓库动手前先读完本文，再读 `progress.md` 找到当前步骤。
-> 最后更新：2026-10-30（发表渠道定案：唯一目标 MDPI *Computers*（EI），官方模板投稿稿落 `paper/mdpi-article/`；IOS Press 会议稿废弃留档；§5.4 同步）。
+> 最后更新：2026-11-05（`japan` 分支的审计—修订闭环已合并：`paper/audit/` + 23 页修订稿 + `revision/` 证据；§5.4 同步）。
 
 ## 0. 这个仓库现在是什么
 
@@ -189,9 +189,10 @@ ai_verdict = 不通过   若 ∃ blocker ∈ confirmed
 
 ### 5.4 目标发表渠道与稿件约束
 
-**2026-10-30 定案（用户拍板，取代此前全部渠道决策）**：唯一目标期刊 **MDPI *Computers***（ISSN 2073-431X；EI/Compendex 收录，IF 5.2），用 MDPI 官方模板投稿。投稿稿件在 `paper/mdpi-article/`：`main.tex` + `Definitions/`（官方 `mdpi.cls`/`journalnames.tex`/`mdpi.bst` 原样随附），`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，ACS 数字引用（23 条），11 页。编译见该目录 `README.md`（`pdflatex main` 两次；`Definitions/logo-mdpi-eps-converted-to.pdf` 需先由 `epstopdf` 生成，脚本已入库）。
+**2026-10-30 定案（用户拍板，取代此前全部渠道决策）**：唯一目标期刊 **MDPI *Computers***（ISSN 2073-431X；EI/Compendex 收录，IF 5.2），用 MDPI 官方模板投稿。投稿稿件在 `paper/mdpi-article/`：`main.tex` + `Definitions/`（官方 `mdpi.cls`/`journalnames.tex`/`mdpi.bst` 随附，`mdpi.cls` 仅改 2 处 logo 引用），`\documentclass[computers,article,submit,moreauthors]{Definitions/mdpi}`，ACS 数字引用（41 条，全部内联 `\bibitem`，按首引顺序 1–41），23 页。编译见该目录 `README.md`（`pdflatex main` 两次；`Definitions/logo-mdpi-eps-converted-to.pdf` 需先由 `epstopdf` 生成，脚本已入库）。
+- **2026-11-05 分支修订已合并**：`main.tex` 现为 `japan` 研究机上的审计—修订闭环产物（sha256 `3cbb06b8…`，PDF `0e955f80…`，23 页，0 Overfull，0 undefined），标题为 *HARK: Authority-Typed Review Knowledge for Evidence-Bearing Document Review*；作者区与七项声明已定稿（通讯 Zhitong Yang，ORCID `0009-0002-1803-1529`）。上游只读审计（五席为模型角色、判 Major Revision、`integrity_verdict: FAIL`、DA-C1/C2 与 R2-3 均 validated_unresolved）存档于 `paper/audit/`；统一差异、逐处替换账本与校验记录在 `paper/mdpi-article/revision/`。认证式人工批准、覆盖全部写入口的有效权限上限、内容寻址配置恢复在正文中标为 *target contracts*，**不得再按已实现表述**。
 - Section = **`AI-Driven Innovations`**；Topic 选填，首选 **`AI Agents: Progress, Architecture, and Applications`**，次选 `AI-Driven Software Engineering and Next-Generation Web Services`。理由与逐条 scope 对齐见 `paper/mdpi-submission/submission-drafts.md`。
-- 稿件结构按 MDPI Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Conclusion + 声明区（Author Contributions / Funding / IRB / Informed Consent / Data Availability / Conflicts of Interest）；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。
+- 稿件结构按 MDPI Article 模板：Introduction / Related Work / Materials and Methods / Results / Discussion / Limitations and Future Work / Conclusions + 声明区（Author Contributions（CRediT 14 项）/ Funding / Institutional Review Board / Informed Consent / Data Availability / Generative AI Disclosure / Conflicts of Interest）；强调可复现（开源插件 + 合成集 + 评测脚本 + `paper/REPRODUCE.md`）。主张边界：只报已跑出的确定性结果（micro-F1 0.798 vs 关键词基线 0.222、零假阳性、κ=0.763、85 处漏检分解、pending 932 对、gate 42/53），LLM-judge 配置、独立专家、跨文档族泛化、学习增益均写成未做。
 - `paper/ei-conference/`（IOS Press 模板的 EI 会议稿）**已废弃，仅留档**，不得用于投稿；`paper/draft-en.md`（Frontiers 长稿）保留为素材库。
 - 一稿多投禁止：任一时间只投 *Computers* 一处。
 

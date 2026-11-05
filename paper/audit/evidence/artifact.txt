@@ -1,0 +1,359 @@
+{"imports":{"react":"https://github.githubassets.com/assets/react-fa5e2e82e6e0ecc0.js","react-dom":"https://github.githubassets.com/assets/react-dom-c7f52540bb6b77ed.js","react-dom/client":"https://github.githubassets.com/assets/react-dom-client-35b308126995de85.js","react-is":"https://github.githubassets.com/assets/react-is-e0b593954b4706d8.js","react-reconciler":"https://github.githubassets.com/assets/react-reconciler-8e99e505c4429605.js","react/compiler-runtime":"https://github.githubassets.com/assets/react-compiler-runtime-4610bd6d3de9c049.js","react/jsx-dev-runtime":"https://github.githubassets.com/assets/react-jsx-dev-runtime-ea55d68667d559e5.js","react/jsx-runtime":"https://github.githubassets.com/assets/react-jsx-runtime-4915cb0f5b3aff04.js","scheduler":"https://github.githubassets.com/assets/scheduler-58b860b049ca307c.js"}}
+:root {
+      --tab-size-preference: 4;
+    }
+
+    pre, code {
+      tab-size: var(--tab-size-preference);
+    }
+{"locale":"en","featureFlags":["actions_enable_background_steps","actions_new_hosted_runner_image_select_sizes_and_versions","agent_author_search_expansion","agent_author_search_expansion_ui_pulls","ahp_v1_wire_protocol","ai_resource_search","alternate_user_config_repo","billing_billable_licenses_cost_center_bucket_fix","billing_budget_expiration","billing_cost_center_list_assigned_resources","billing_discount_threshold_notification","billing_shared_compute_usage","branches_sidebar_layout","code_quality_enablement_banner_targeting","code_quality_remove_preview","code_view_raf_sticky_lines","code_view_skip_unchanged_wrap_preference","codespaces_prebuild_region_target_update","coding_agent_third_party_model_ui","copilot-software-factories","copilot_agent_snippy","copilot_api_agentic_issue_marshal_yaml","copilot_automation_continuous_history","copilot_automation_repo_mcp_servers","copilot_automations_pagination","copilot_background_shell_workbench","copilot_base_model_policy_row","copilot_chat_auto_mode_v2","copilot_chat_clear_model_selection_for_default_change","copilot_chat_vision_dotcom_chat_ga_gate","copilot_css_textarea_autosize","copilot_custom_copilots","copilot_custom_copilots_feature_preview","copilot_duplicate_thread","copilot_extensions_removal_on_marketplace","copilot_fix_failed_workflows_all_skus","copilot_hide_hovercard","copilot_immersive_task_hyperlinking","copilot_managed_settings_validation_file_links","copilot_mission_control_agent_merge_fix_ci","copilot_mission_control_agent_merge_resolve_conflicts","copilot_mission_control_agents_repository_task_detail","copilot_mission_control_agents_task_detail","copilot_mission_control_ahp_diff","copilot_mission_control_ahp_diff_workbench","copilot_mission_control_ahp_local_images","copilot_mission_control_automation_grouping","copilot_mission_control_awps_batching","copilot_mission_control_create_pull_request_client_tool","copilot_mission_control_create_repository_client_tool","copilot_mission_control_early_stop","copilot_mission_control_environment_task_destination_startup","copilot_mission_control_environments_web_kickoff","copilot_mission_control_independent_mode_controls","copilot_mission_control_messaging_app_dm_steering","copilot_mission_control_needs_attention","copilot_mission_control_pinned_tasks","copilot_mission_control_reasoning_effort","copilot_mission_control_reserved_sandbox_tasks","copilot_mission_control_reuse_project_workspace","copilot_mission_control_sandbox_request_image_override","copilot_mission_control_session_client_attribution","copilot_mission_control_task_alive_updates","copilot_mission_control_task_sharing","copilot_mission_control_use_api_gateway","copilot_org_policy_page_focus_mode","copilot_policy_ui_refresh","copilot_pr_chat_thread_persistence","copilot_quick_chat_default_chat_scope","copilot_quick_chat_project_sessions","copilot_quick_chat_recent_artifact_sessions","copilot_share_active_subthread","copilot_spaces_ga","copilot_spaces_individual_policies_ga","copilot_swe_agent_authorization_status_ui","copilot_swe_agent_automation_completed_trigger","copilot_swe_agent_automation_failed_trigger","copilot_swe_agent_automation_repository_owned","copilot_swe_agent_automation_resource_scoped_writes","copilot_swe_agent_code_scanning_alert_trigger","copilot_swe_agent_dependabot_alert_trigger","copilot_swe_agent_discussion_comment_trigger","copilot_swe_agent_discussion_opened_trigger","copilot_swe_agent_discussion_updated_trigger","copilot_swe_agent_hide_model_picker_if_only_auto","copilot_swe_agent_issue_assigned_trigger","copilot_swe_agent_issue_closed_trigger","copilot_swe_agent_issue_comment_trigger","copilot_swe_agent_issue_labeled_trigger","copilot_swe_agent_issue_reopened_trigger","copilot_swe_agent_merge_conflict_trigger","copilot_swe_agent_pr_comment_model_picker","copilot_swe_agent_pull_request_assigned_trigger","copilot_swe_agent_pull_request_closed_trigger","copilot_swe_agent_pull_request_comment_trigger","copilot_swe_agent_pull_request_converted_to_draft_trigger","copilot_swe_agent_pull_request_labeled_trigger","copilot_swe_agent_pull_request_merged_trigger","copilot_swe_agent_pull_request_opened_trigger","copilot_swe_agent_pull_request_ready_for_review_trigger","copilot_swe_agent_pull_request_reopened_trigger","copilot_swe_agent_pull_request_review_dismissed_trigger","copilot_swe_agent_pull_request_review_requested_trigger","copilot_swe_agent_pull_request_review_submitted_trigger","copilot_swe_agent_pull_request_review_thread_resolved_trigger","copilot_swe_agent_pull_request_review_thread_unresolved_trigger","copilot_swe_agent_pull_request_synchronize_trigger","copilot_swe_agent_secret_scanning_alert_trigger","copilot_swe_agent_sub_issue_added_trigger","copilot_swe_agent_use_subagents","copilot_task_api_github_rest_style","copilot_task_scoped_alive_channel","copilot_token_based_billing","copilot_unconfigured_is_inherited","copilot_user_can_upgrade_plan_field","fgpat_permissions_selector_redesign","glc_code_quality_repo_settings_workflow_config","global_issues_filtered_list_layout","global_nav_user_menu_fetch_on_intent","hyperspace_2025_logged_out_batch_1","hyperspace_2025_logged_out_batch_2","hyperspace_2025_logged_out_batch_3","in_product_messaging_datadog_monitoring","ipm_ubb_individual_budget_banner","issue_fields_multi_select","issue_inline_avatars","issue_relative_time_micro","issues_hide_closed_sub_issues","issues_lazy_load_comment_box_suggestions","issues_react_chrome_container_query_fix","issues_structural_quick_filter_updates","labels_archiving","labels_archiving_info","landing_pages_ninetailed","lifecycle_label_name_updates","marketing_cookie_consent_banner","marketing_pages_search_explore_provider","memex_default_issue_create_repository","memex_live_update_hovercard","memex_mwl_filter_field_delimiter","memex_remove_deprecated_type_issue","merge_queue_restricted_pushers_warning","merge_status_header_feedback","milestone_closed_issues_prioritization","new_batched_queries_hook","notifyd_issue_custom_subscription_events_notify","octocaptcha_origin_optimization","one_copilot_chat_owner_split_picker","one_copilot_chat_queue_submit_while_reconnecting","one_copilot_grouped_tool_calls","one_copilot_simplified_environment_picker","primer_react_css_anchor_positioning","primer_react_merged_forwarded_refs","primer_react_timeline_list_semantics","prs_contextual_comment_controls","prs_copilot_app_open_action","prs_copilot_assignee_session_indicator","prs_css_anchor_positioning","prs_overview_for_you_refresh","pull_request_file_tree_prefetch_on_hover_50ms","pull_request_persister","pull_request_stacks_auto_merge_stack_permission","pull_request_stacks_copy_links","pull_request_stacks_navigation_shortcuts","pull_request_virtualization_image_estimate","pull_request_virtualization_loader_batching","pull_request_virtualization_scroll_compensation","pull_request_virtualization_scroll_intent","pull_requests_deferred_highlight_fallback","pull_requests_persistent_whitespace_preferences","pull_requests_stacks_view_ui","pull_requests_stacks_view_ui_checks","pull_requests_structural_quick_filter_updates","react_blob_isolate_code_lines","react_blob_ssr_content_visibility","react_data_router_nonblocking_revalidation","react_data_router_tanstack_allowed","react_query_props_with_key","react_sandbox_future_tanstack","repo_app_turbo","repo_deployments_sidebar_layout","repo_issues_sidebar_layout","repos_contributors_limited_default_range","rulesets_actor_list_editor","sample_network_conn_type","scribe_artifacts_api","secret_scanning_public_monitoring_hide_preview_labels","secret_scanning_public_monitoring_hide_validity_coming_soon","security_center_artifact_filters_popover","see_who_reacted","selector_observer_skip_detached_adds","semantic_similarity_duplicate_issue_detection","session_logs_ungroup_reasoning_text","set_sha256_on_repo_creation_form","site_banner_desktop_copilot_app","site_copilot_consolidation_page","site_ghca_pixel_mona","site_github_app_ga_page","site_github_app_ga_page_highlight","site_github_app_mobile_native_share","site_global_banner_ghe_copilot","site_global_banner_technology_partner_of_the_year_2026","site_homepage_refresh_2026","site_landing_pages_stable_canvas_position","speculation_rules_ui_service","suggest_custom_property_values_copilot","suppress_automated_browser_vitals","swp_forms_disable_octocaptcha","thread_resolution_reason","trusted_types_policies","trusted_types_worker","turbo_link_eligibility_optimization","ui_commands_fast_modal_check","ui_service_code_view_budget_banner_eligibility","ui_service_code_view_overview_data","universe26_banners_post_on-d","update_issue_suggestions","viewscreen_sandbox","warn_inaccessible_attachments","webp_support","workstream_plugin_bootstrap"],"githubDomain":"https://github.com","copilotApiOverrideUrl":"https://api.githubcopilot.com","cmcApiUrl":"https://api.github.com/cmc_internal/api"}
+GitHub - yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge: HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review · GitHub
+Skip to content
+{"props":{"docsUrl":"https://docs.github.com/get-started/accessibility/keyboard-shortcuts"}}
+{"props":{}}
+{"props":{"color_mode":"dark","logged_in":false,"marketing_page":false,"home_path":"/","login_path":"/login?return_to=https%3A%2F%2Fgithub.com%2Fyyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge","signup_path":"/signup?ref_cta=Sign+up\u0026ref_loc=header+logged+out\u0026ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E\u0026source=header-repo\u0026source_repo=yyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge","signup_enabled":true,"is_signup_controller":false,"show_search_and_nav":true,"hide_search":false,"private_mode_enabled":false,"should_use_dotcom_links":true,"auth_hydro_click":"{\"event_type\":\"authentication.click\",\"payload\":{\"location_in_page\":\"site header menu\",\"repository_id\":null,\"auth_type\":\"SIGN_UP\",\"originating_url\":\"https://github.com/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge\",\"user_id\":null}}","auth_hydro_click_hmac":"b8ffa08afeacf8551a11c3b58574c93803606b1ad8f26f1d0f997ee1c98db07a"}}
+Navigation Menu
+Sign in
+Products
+Platform
+GitHub
+Repository hosting, code review, and collaboration
+Copilot
+AI coding agent for tasks, projects and automated work
+Build & Ship
+Actions
+CI/CD and automation
+Code Quality
+Quality analysis, fixes, and enforcement
+Codespaces
+Cloud development environments
+Secure
+Code Security
+Vulnerability detection and remediation
+Secret Protection
+Secret scanning and leak prevention
+All Features
+Developers
+Learn
+Documentation
+Training
+Certifications
+Build
+Build with Copilot
+Customize Copilot
+Integrations
+Explore
+Trending repos
+GitHub Sponsors
+Developer articles
+Changelog
+Changelog
+Your source for the latest features, improvements, and fixes across GitHub products, all in one place.
+Businesses
+By Stage
+Enterprises
+Team
+Startups
+Nonprofits
+By Industry
+Healthcare
+Financial services
+Manufacturing
+Government
+See all industries
+Evaluate GitHub
+Why GitHub
+Customer Stories
+Business insights
+Trust Center
+Add-ons
+GitHub Advanced Security
+Enterprise-grade code security
+Copilot for business
+Enterprise-grade AI features
+Premium Support
+Enterprise-grade 24/7 support
+Resources
+Learn & Connect
+Documentation
+Resource center
+Blog
+Events & webinars
+Community Forum
+Customer Stories
+Integrations
+Support
+Customer support
+Training
+GitHub Status
+Company
+About
+Partners
+Changelog
+GitHub Universe
+GitHub Universe
+The event for developers, by developers — talks, workshops, and what’s next for GitHub.
+Pricing
+Search
+/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window.
+Reload
+to refresh your session.
+You signed out in another tab or window.
+Reload
+to refresh your session.
+You switched accounts on another tab or window.
+Reload
+to refresh your session.
+Dismiss alert
+{{ message }}
+{"props":{"contextRegion":{"crumbs":[{"crumb_type":"user","label":"yyyyyyzt","is_root":false,"href":"/yyyyyyzt"},{"crumb_type":"repository","label":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","is_root":false,"href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge"}],"localNavigation":[{"id":"code","icon":"code","label":"Code","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge","selectedLinks":["repo_source","repo_downloads","repo_commits","repo_releases","repo_tags","repo_branches","repo_packages","repo_deployments","repo_attestations"],"popoverTarget":false,"commandId":"repositories:go-to-code","reactNav":{"appTarget":"code-view","anchor":"code-view-repo-link"},"turboNav":{"frame":"repo-content-turbo-frame"}},{"id":"issues","icon":"issue-opened","label":"Issues","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/issues","selectedLinks":["repo_issues","repo_labels","repo_milestones"],"count":0,"popoverTarget":false,"commandId":"repositories:go-to-issues","reactNav":{"appTarget":"repo","anchor":null},"turboNav":{"frame":"repo-content-turbo-frame"}},{"id":"pull-requests","icon":"git-pull-request","label":"Pull requests","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/pulls","selectedLinks":["repo_pulls","checks"],"count":0,"popoverTarget":false,"commandId":"repositories:go-to-pull-requests","reactNav":{"appTarget":null,"anchor":null},"turboNav":{"frame":"repo-content-turbo-frame"}},{"id":"actions","icon":"play","label":"Actions","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/actions","selectedLinks":["repo_actions"],"popoverTarget":false,"commandId":"repositories:go-to-actions","reactNav":{"appTarget":"actions-workflows","anchor":null},"turboNav":{"frame":"repo-content-turbo-frame"}},{"id":"projects","icon":"table","label":"Projects","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/projects","selectedLinks":["repo_projects","new_repo_project","repo_project"],"popoverTarget":false,"commandId":"repositories:go-to-projects","reactNav":{"appTarget":"repo","anchor":null},"turboNav":{"frame":"repo-content-turbo-frame"}},{"id":"security-and-quality","icon":"shield","label":"Security and quality","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/security","selectedLinks":["security","overview","alerts","policy","token_scanning","code_scanning"],"count":0,"popoverTarget":false,"commandId":"repositories:go-to-security","reactNav":{"appTarget":null,"anchor":null},"turboNav":{"frame":"repo-content-turbo-frame"}},{"id":"insights","icon":"graph","label":"Insights","href":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/pulse","selectedLinks":["repo_graphs","repo_contributors","dependency_graph","dependabot_updates","pulse","people","community"],"popoverTarget":false,"commandId":"repositories:go-to-insights","reactNav":{"appTarget":null,"anchor":null},"turboNav":{"frame":"repo-content-turbo-frame"}}],"localNavigationUpdateChannel":null,"selectedLink":"repo_source"},"owner":null,"headerLogo":{"href":"/","aria-label":"Homepage "},"notifications":{"indicatorMode":"disabled","websocketChannel":null,"fetchIndicatorSrc":"/notifications/indicator","fetchIndicatorEnabled":false},"issues":{"href":"/issues"},"pulls":{"href":"/pulls"},"contributedRepos":{"href":"/repos"},"copilot":{"show":false,"showAgentsButton":false,"showRelaunchAnnouncement":false,"copilotChatUrl":null,"copilotApiUrl":"https://api.githubcopilot.com"},"search":{"show":true,"showCommandPalette":false,"isSearchPage":false,"isJumpToSearch":false,"searchContext":{"scope":"repo:yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge","current_repo_name":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","current_repo_nwo":"yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge","user_id":"yyyyyyzt"}},"commandPalette":null,"enterpriseBar":{"show":false},"globalTransactionalMessage":[],"payloadsUrl":"/_global-navigation/payloads.json?can_toggle_site_admin_and_employee_status=0\u0026is_admin_mode_on=0\u0026is_ui_opted_out=0\u0026show_ui_opt_out=0\u0026v=8","contextRegionUrl":"/_global-navigation/context-region.json"}}
+yyyyyyzt
+HARK-Human-Gated-Authority-Typed-Review-Knowledge
+Repository navigation
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+More
+items
+{"payload":{"codeViewRepoRoute":{"path":"/","refInfo":{"name":"main","listCacheKey":"v0:1793795597.0","canEdit":false,"refType":"branch","currentOid":"b566b08de2976451747215af4dc874a0846f6173"},"tree":{"items":[{"name":"paper","path":"paper","contentType":"directory"},{"name":"plugins/hark","path":"plugins/hark","contentType":"directory","hasSimplifiedPath":true},{"name":".gitignore","path":".gitignore","contentType":"file"},{"name":".zenodo.json","path":".zenodo.json","contentType":"file"},{"name":"CITATION.cff","path":"CITATION.cff","contentType":"file"},{"name":"LICENSE","path":"LICENSE","contentType":"file"},{"name":"README.md","path":"README.md","contentType":"file"},{"name":"RELEASE.md","path":"RELEASE.md","contentType":"file"},{"name":"REPRODUCE.md","path":"REPRODUCE.md","contentType":"file"}],"totalCount":9,"templateDirectorySuggestionUrl":null,"readme":null,"showBranchInfobar":false},"userNameDisplayConfiguration":null,"treeExpanded":false,"symbolsExpanded":false,"copilotSWEAgentEnabled":false,"copilotAccessAllowed":false,"isOverview":true,"overview":{"banners":{"shouldRecommendReadme":false,"isPersonalRepo":false,"showUseActionBanner":false,"actionSlug":null,"actionId":null,"showProtectBranchBanner":false,"requiredCustomPropertyValuesMissingCount":0,"transactionalMessageBanner":null,"publishBannersInfo":{"dismissActionNoticePath":"/settings/dismiss-notice/publish_action_from_repo","releasePath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/releases/new?marketplace=true","showPublishActionBanner":false},"interactionLimitBanner":null,"showInvitationBanner":false,"inviterName":null,"actionsMigrationBannerInfo":{"releaseTags":[],"showImmutableActionsMigrationBanner":false,"initialMigrationStatus":null},"copilotSurveyBanner":null,"showSpammyBanner":false,"blockedContributorsBanner":null,"codespacesSurveyBanner":null},"codeButton":{"contactPath":"/contact","isEnterprise":false,"local":{"protocolInfo":{"httpAvailable":true,"sshAvailable":null,"httpUrl":"https://github.com/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge.git","showCloneWarning":null,"sshUrl":null,"sshCertificatesRequired":null,"sshCertificatesAvailable":null,"ghCliUrl":"gh repo clone yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge","defaultProtocol":"http","newSshKeyUrl":"/settings/ssh/new","setProtocolPath":"/users/set_protocol?protocol_type=clone"},"platformInfo":{"cloneUrl":"https://desktop.github.com","showVisualStudioCloneButton":false,"visualStudioCloneUrl":"https://windows.github.com","showXcodeCloneButton":false,"xcodeCloneUrl":"xcode://clone?repo=https%3A%2F%2Fgithub.com%2Fyyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge","zipballUrl":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/archive/refs/heads/main.zip"}},"newCodespacePath":"/codespaces/new?hide_repo_select=true\u0026repo=1445355414"},"popovers":{"rename":null,"renamedParentRepo":null},"commitCount":"9","overviewFiles":[{"displayName":"README.md","repoName":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","refName":"main","path":"README.md","preferredFileType":"readme","tabName":"README","richText":"\u003carticle class=\"markdown-body entry-content container-lg\" itemprop=\"text\"\u003e\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch1 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eHARK — authority-typed review knowledge for LLM-assisted proposal review\u003c/h1\u003e\u003ca id=\"user-content-hark--authority-typed-review-knowledge-for-llm-assisted-proposal-review\" class=\"anchor\" aria-label=\"Permalink: HARK — authority-typed review knowledge for LLM-assisted proposal review\" href=\"#hark--authority-typed-review-knowledge-for-llm-assisted-proposal-review\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003eArtifact repository for the paper\u003c/p\u003e\n\u003cblockquote\u003e\n\u003cp dir=\"auto\"\u003e\u003cstrong\u003eHARK: Authority-Typed Review Knowledge with Human-Gated Evolution for LLM-Assisted\nProposal Review\u003c/strong\u003e — submitted to \u003cem\u003eComputers\u003c/em\u003e (MDPI).\u003c/p\u003e\n\u003c/blockquote\u003e\n\u003cp dir=\"auto\"\u003eThe system is a plugin for DeepSeek Harness (DSH), an open-source conversational agent harness.\nIt performs preliminary review of technical solution proposals (Markdown) and returns a suggested\nverdict plus per-rule findings, each carrying a located quote from the document or an explicit\nabsence record. An expert decides every finding in the conversation; each decision is written to a\npersistent learned layer that may retune parameters and collect phrasing exemplars but never changes\na rule's type or promotes it to a higher-authority tier.\u003c/p\u003e\n\u003cp dir=\"auto\"\u003e\u003ca href=\"https://doi.org/10.5281/zenodo.23955205\" rel=\"nofollow\"\u003e\u003cimg src=\"https://camo.githubusercontent.com/36de9785a20cd268d1b65ee89e8af43c1fbf2295862da14a31b4df3e7c45d402/68747470733a2f2f7a656e6f646f2e6f72672f62616467652f313434353335353431342e737667\" alt=\"DOI\" data-canonical-src=\"https://zenodo.org/badge/1445355414.svg\" style=\"max-width: 100%;\"\u003e\u003c/a\u003e\u003c/p\u003e\n\u003cp dir=\"auto\"\u003e\u003cstrong\u003eRepository:\u003c/strong\u003e \u003ca href=\"https://github.com/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge\"\u003ehttps://github.com/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge\u003c/a\u003e ·\n\u003cstrong\u003eRelease:\u003c/strong\u003e \u003ccode\u003ev1.0.0\u003c/code\u003e · \u003cstrong\u003eDOI:\u003c/strong\u003e \u003ca href=\"https://doi.org/10.5281/zenodo.23955205\" rel=\"nofollow\"\u003e10.5281/zenodo.23955205\u003c/a\u003e (v1.0.0; all versions: 10.5281/zenodo.23955204)\u003c/p\u003e\n\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch2 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eWhat is in this repository\u003c/h2\u003e\u003ca id=\"user-content-what-is-in-this-repository\" class=\"anchor\" aria-label=\"Permalink: What is in this repository\" href=\"#what-is-in-this-repository\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cmarkdown-accessiblity-table\u003e\u003ctable\u003e\n\u003cthead\u003e\n\u003ctr\u003e\n\u003cth\u003ePath\u003c/th\u003e\n\u003cth\u003eContents\u003c/th\u003e\n\u003c/tr\u003e\n\u003c/thead\u003e\n\u003ctbody\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003ccode\u003eplugins/hark/\u003c/code\u003e\u003c/td\u003e\n\u003ctd\u003ethe plugin: pure-function engine (\u003ccode\u003esrc/engine\u003c/code\u003e), tools (\u003ccode\u003esrc/tools\u003c/code\u003e), storage domain (\u003ccode\u003esrc/store\u003c/code\u003e), HTTP API and dashboard (\u003ccode\u003esrc/host\u003c/code\u003e, \u003ccode\u003esrc/client\u003c/code\u003e), rule package and lexicon (\u003ccode\u003erules/\u003c/code\u003e), review preset and skill (\u003ccode\u003eskills/\u003c/code\u003e), design documents (\u003ccode\u003edocs/\u003c/code\u003e)\u003c/td\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003ccode\u003eplugins/hark/rules/capability-open-access.rules.yaml\u003c/code\u003e\u003c/td\u003e\n\u003ctd\u003ethe shipped rule package: 28 rules (10 hard, 13 hybrid, 5 soft) with declarative verifiers and a 25-family cue lexicon\u003c/td\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003ccode\u003epaper/data/public/synthetic/\u003c/code\u003e\u003c/td\u003e\n\u003ctd\u003ethe evaluation corpus: 100 proposals, 253 planted defects, ground truth, generator manifest and the generator's self-check output\u003c/td\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003ccode\u003epaper/data/public/eval-runs/\u003c/code\u003e\u003c/td\u003e\n\u003ctd\u003ethe nine published runs (three configurations × three repetitions) as raw JSON, plus \u003ccode\u003esummary.md\u003c/code\u003e and \u003ccode\u003eskipped.json\u003c/code\u003e\u003c/td\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003ccode\u003eplugins/hark/scripts/eval/\u003c/code\u003e\u003c/td\u003e\n\u003ctd\u003ecorpus generator, ablation runner, anonymiser\u003c/td\u003e\n\u003c/tr\u003e\n\u003ctr\u003e\n\u003ctd\u003e\u003ccode\u003epaper/mdpi-article/\u003c/code\u003e\u003c/td\u003e\n\u003ctd\u003ethe manuscript source (\u003ccode\u003emain.tex\u003c/code\u003e, \u003ccode\u003ebib.tex\u003c/code\u003e, MDPI class files) and the compiled PDF\u003c/td\u003e\n\u003c/tr\u003e\n\u003c/tbody\u003e\n\u003c/table\u003e\u003c/markdown-accessiblity-table\u003e\n\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch2 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eReproduce the results\u003c/h2\u003e\u003ca id=\"user-content-reproduce-the-results\" class=\"anchor\" aria-label=\"Permalink: Reproduce the results\" href=\"#reproduce-the-results\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003eRequirements: Node.js ≥ 22.19.\u003c/p\u003e\n\u003cdiv class=\"highlight highlight-source-shell notranslate position-relative overflow-auto\" dir=\"auto\" data-snippet-clipboard-copy-content=\"# 1. build the plugin (the evaluation imports lib/, not src/)\ncd plugins/hark\npnpm install --ignore-scripts     # or: npm install\npnpm run build\n\n# 2. regenerate the corpus and its self-check (deterministic, seed 20261029)\nnode scripts/eval/gen-synthetic.mjs --out ../../paper/data/public/synthetic\n\n# 3. run the three deterministic configurations, three repetitions each\nnode scripts/eval/run-ablation.mjs --out out\"\u003e\u003cpre\u003e\u003cspan class=\"pl-c\"\u003e\u003cspan class=\"pl-c\"\u003e#\u003c/span\u003e 1. build the plugin (the evaluation imports lib/, not src/)\u003c/span\u003e\n\u003cspan class=\"pl-c1\"\u003ecd\u003c/span\u003e plugins/hark\npnpm install --ignore-scripts     \u003cspan class=\"pl-c\"\u003e\u003cspan class=\"pl-c\"\u003e#\u003c/span\u003e or: npm install\u003c/span\u003e\npnpm run build\n\n\u003cspan class=\"pl-c\"\u003e\u003cspan class=\"pl-c\"\u003e#\u003c/span\u003e 2. regenerate the corpus and its self-check (deterministic, seed 20261029)\u003c/span\u003e\nnode scripts/eval/gen-synthetic.mjs --out ../../paper/data/public/synthetic\n\n\u003cspan class=\"pl-c\"\u003e\u003cspan class=\"pl-c\"\u003e#\u003c/span\u003e 3. run the three deterministic configurations, three repetitions each\u003c/span\u003e\nnode scripts/eval/run-ablation.mjs --out out\u003c/pre\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003e\u003ccode\u003erun-ablation.mjs\u003c/code\u003e writes \u003ccode\u003eout/eval-runs/*.json\u003c/code\u003e and \u003ccode\u003eout/summary.md\u003c/code\u003e. Expected output for the\n\u003ccode\u003eS-full\u003c/code\u003e configuration: precision 1.000, recall 0.664, F1 0.798, weighted recall 0.649, verdict\naccuracy 85.0 %, macro-F1 0.832, Cohen's κ 0.763; for the \u003ccode\u003eB0\u003c/code\u003e keyword baseline: 0.275 / 0.186 /\n0.222, accuracy 28.0 %, κ −0.043. The whole ablation takes about 15 s on a laptop-class machine, and\nthe three repetitions of each configuration are byte-identical because no model is involved.\u003c/p\u003e\n\u003cp dir=\"auto\"\u003eThe four model-dependent configurations (\u003ccode\u003eB1\u003c/code\u003e, \u003ccode\u003eS-gate\u003c/code\u003e, \u003ccode\u003eS-policy\u003c/code\u003e, \u003ccode\u003eS-memory\u003c/code\u003e) are listed in\n\u003ccode\u003epaper/data/public/skipped.json\u003c/code\u003e with the reason each is not part of the published numbers: they\nneed an LLM adapter (\u003ccode\u003e--adapter ./your-adapter.mjs\u003c/code\u003e) or online expert feedback.\u003c/p\u003e\n\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch2 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eInstall the plugin (optional)\u003c/h2\u003e\u003ca id=\"user-content-install-the-plugin-optional\" class=\"anchor\" aria-label=\"Permalink: Install the plugin (optional)\" href=\"#install-the-plugin-optional\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003eThe plugin runs inside a DSH installation; see \u003ccode\u003eplugins/hark/README.zh.md\u003c/code\u003e for the\nChinese installation guide (profile install, desktop client, release tags). The paper's evaluation\ndoes \u003cstrong\u003enot\u003c/strong\u003e require a DSH installation — the engine is a pure function library.\u003c/p\u003e\n\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch2 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eData and confidentiality\u003c/h2\u003e\u003ca id=\"user-content-data-and-confidentiality\" class=\"anchor\" aria-label=\"Permalink: Data and confidentiality\" href=\"#data-and-confidentiality\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003eThe synthetic corpus is generated by this repository and is released in full. The three internal\nproposals discussed in the paper's pilot subsection and the 30 historical expert opinions are\ninternal documents of an operating utility: only aggregate statistics derived from them are\nreported, and the anonymisation procedure is implemented in\n\u003ccode\u003eplugins/hark/scripts/eval/anonymize.mjs\u003c/code\u003e.\u003c/p\u003e\n\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch2 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eCitation\u003c/h2\u003e\u003ca id=\"user-content-citation\" class=\"anchor\" aria-label=\"Permalink: Citation\" href=\"#citation\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003e\u003ccode\u003eCITATION.cff\u003c/code\u003e carries the metadata. Machine-readable archival DOI is minted by Zenodo on release;\nthe badge in this README is filled in when the DOI is issued.\u003c/p\u003e\n\u003cdiv class=\"markdown-heading\" dir=\"auto\"\u003e\u003ch2 tabindex=\"-1\" class=\"heading-element\" dir=\"auto\"\u003eLicence\u003c/h2\u003e\u003ca id=\"user-content-licence\" class=\"anchor\" aria-label=\"Permalink: Licence\" href=\"#licence\"\u003e\u003csvg data-component=\"Octicon\" class=\"octicon octicon-link\" viewBox=\"0 0 16 16\" version=\"1.1\" width=\"16\" height=\"16\" aria-hidden=\"true\"\u003e\u003cpath d=\"m7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z\"\u003e\u003c/path\u003e\u003c/svg\u003e\u003c/a\u003e\u003c/div\u003e\n\u003cp dir=\"auto\"\u003eMIT — see \u003ccode\u003eLICENSE\u003c/code\u003e.\u003c/p\u003e\n\u003c/article\u003e","loaded":true,"timedOut":false,"errorMessage":null,"headerInfo":{"toc":[{"level":1,"text":"HARK — authority-typed review knowledge for LLM-assisted proposal review","anchor":"hark--authority-typed-review-knowledge-for-llm-assisted-proposal-review","htmlText":"HARK — authority-typed review knowledge for LLM-assisted proposal review"},{"level":2,"text":"What is in this repository","anchor":"what-is-in-this-repository","htmlText":"What is in this repository"},{"level":2,"text":"Reproduce the results","anchor":"reproduce-the-results","htmlText":"Reproduce the results"},{"level":2,"text":"Install the plugin (optional)","anchor":"install-the-plugin-optional","htmlText":"Install the plugin (optional)"},{"level":2,"text":"Data and confidentiality","anchor":"data-and-confidentiality","htmlText":"Data and confidentiality"},{"level":2,"text":"Citation","anchor":"citation","htmlText":"Citation"},{"level":2,"text":"Licence","anchor":"licence","htmlText":"Licence"}],"siteNavLoginPath":"/login?return_to=https%3A%2F%2Fgithub.com%2Fyyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge"}},{"displayName":"LICENSE","repoName":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","refName":"main","path":"LICENSE","preferredFileType":"license","tabName":"MIT","richText":null,"loaded":false,"timedOut":false,"errorMessage":null,"headerInfo":{"toc":null,"siteNavLoginPath":"/login?return_to=https%3A%2F%2Fgithub.com%2Fyyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge"}}],"overviewFilesProcessingTime":0,"copilotSWEAgentEnabled":false,"sidebarAboutData":{"description":"HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review","formattedDescription":"HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review","topics":[],"showInsights":true,"canOpenStargazersAndWatchers":false,"stargazerCount":0,"watcherCount":0,"forksCount":0,"stargazersPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/stargazers","watchersPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/watchers","forkNetworkPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/forks","activityPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/activity","reportPath":"/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2Fyyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge\u0026report=yyyyyyzt+%28user%29","canEditMetadata":false,"ownerLogin":"yyyyyyzt","repoName":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","isOrg":false,"sections":{"releases":{"releaseCount":1,"tagCount":1},"sponsors":false,"deployments":false,"packages":true,"usedBy":false,"contributors":true,"languages":true,"cta":false,"suggestedWorkflows":false},"hasCitation":true,"repo":{"ownerAvatarUrl":"https://avatars.githubusercontent.com/u/25400206?s=60\u0026v=4","ownerId":25400206,"isPrivate":false,"isTemplate":false,"isFork":false,"isMirror":false,"isArchived":false,"visibilityLabel":"Public","license":{"spdxId":"MIT","name":"MIT License"},"isAdvisoryWorkspace":false},"star":{"viewerHasStarred":false,"canStar":false},"fork":{"canFork":false,"forkabilityError":"not_logged_in"},"pin":{"canPin":false,"isPinned":false,"isOrgOwned":false,"pinItemsRemaining":6},"watch":{"canWatch":false,"watchData":{"repositoryId":"1445355414","repositoryName":"yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge","watchersCount":0,"subscriptionType":"none","subscribableThreadTypes":[{"name":"Issue","enabled":true,"subscribed":false},{"name":"PullRequest","enabled":true,"subscribed":false},{"name":"Release","enabled":true,"subscribed":false},{"name":"Discussion","enabled":false,"subscribed":false},{"name":"SecurityAlert","enabled":true,"subscribed":false}],"showLabelSubscriptions":false,"subscribedLabels":[]}},"viewer":{"isLoggedIn":false,"isSiteAdmin":false,"emuContributionBlocked":false},"showSponsorButton":false,"showTemplateButton":false,"showDemoNotification":false}}},"codeViewLayoutRoute":{"repo":{"id":1445355414,"defaultBranch":"main","name":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","ownerLogin":"yyyyyyzt","currentUserCanPush":false,"isFork":false,"isEmpty":false,"createdAt":"2026-11-04T08:23:39.000Z","ownerAvatar":"https://avatars.githubusercontent.com/u/25400206?v=4","public":true,"private":false,"isOrgOwned":false,"isArchived":false},"currentUser":null,"uploadToken":"SUK5GqohWwZu6FoMUAgUyaQMI8uJvloejCe2UPHg3mZmg9vMaVkygsn2eudUtINXVB1NakjEkNHEiXbZb4DMyw","allShortcutsEnabled":false,"treeExpanded":true,"path":"/","symbolsExpanded":false,"refInfo":{"name":"main","listCacheKey":"v0:1793795597.0","canEdit":false,"currentOid":"b566b08de2976451747215af4dc874a0846f6173"},"helpUrl":"https://docs.github.com","githubDevUrl":null},"sidebarAbout":{"description":"HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review","formattedDescription":"HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review","topics":[],"showInsights":true,"canOpenStargazersAndWatchers":false,"stargazerCount":0,"watcherCount":0,"forksCount":0,"stargazersPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/stargazers","watchersPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/watchers","forkNetworkPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/forks","activityPath":"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/activity","reportPath":"/contact/report-content?content_url=https%3A%2F%2Fgithub.com%2Fyyyyyyzt%2FHARK-Human-Gated-Authority-Typed-Review-Knowledge\u0026report=yyyyyyzt+%28user%29","canEditMetadata":false,"ownerLogin":"yyyyyyzt","repoName":"HARK-Human-Gated-Authority-Typed-Review-Knowledge","isOrg":false,"sections":{"releases":{"releaseCount":1,"tagCount":1},"sponsors":false,"deployments":false,"packages":true,"usedBy":false,"contributors":true,"languages":true,"cta":false,"suggestedWorkflows":false},"hasCitation":true,"repo":{"ownerAvatarUrl":"https://avatars.githubusercontent.com/u/25400206?s=60\u0026v=4","ownerId":25400206,"isPrivate":false,"isTemplate":false,"isFork":false,"isMirror":false,"isArchived":false,"visibilityLabel":"Public","license":{"spdxId":"MIT","name":"MIT License"},"isAdvisoryWorkspace":false},"star":{"viewerHasStarred":false,"canStar":false},"fork":{"canFork":false,"forkabilityError":"not_logged_in"},"pin":{"canPin":false,"isPinned":false,"isOrgOwned":false,"pinItemsRemaining":6},"watch":{"canWatch":false,"watchData":{"repositoryId":"1445355414","repositoryName":"yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge","watchersCount":0,"subscriptionType":"none","subscribableThreadTypes":[{"name":"Issue","enabled":true,"subscribed":false},{"name":"PullRequest","enabled":true,"subscribed":false},{"name":"Release","enabled":true,"subscribed":false},{"name":"Discussion","enabled":false,"subscribed":false},{"name":"SecurityAlert","enabled":true,"subscribed":false}],"showLabelSubscriptions":false,"subscribedLabels":[]}},"viewer":{"isLoggedIn":false,"isSiteAdmin":false,"emuContributionBlocked":false},"showSponsorButton":false,"showTemplateButton":false,"showDemoNotification":false},"csrf_tokens":{"/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge/branches":{"post":"7-PxgCmPNNia71MLhrA12ntiUJRxARizUTRF5CUwMYVSwSDo1svNNrOl1sINBWZZaCbbiwJcq_Q-nLQ7IoJz8A"}}},"title":"GitHub - yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge: HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review","appPayload":{},"meta":{"title":"GitHub - yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge: HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review"}}
+HARK-Human-Gated-Authority-Typed-Review-Knowledge
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+0
+(
+0
+)
+Star
+0
+(
+0
+)
+You must be signed in to star a repository
+About
+HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review
+Resources
+Readme
+MIT license
+Cite this repository
+Activity
+Stars
+0
+stars
+Watchers
+0
+watching
+Forks
+0
+forks
+Report repository
+main
+Branches
+Tags
+Go to file
+Code
+Open more actions menu
+Latest commit
+History
+9 Commits
+9 Commits
+Folders and files
+Name
+Name
+Last commit message
+Last commit date
+paper
+paper
+plugins/
+hark
+plugins/
+hark
+.gitignore
+.gitignore
+.zenodo.json
+.zenodo.json
+CITATION.cff
+CITATION.cff
+LICENSE
+LICENSE
+README.md
+README.md
+RELEASE.md
+RELEASE.md
+REPRODUCE.md
+REPRODUCE.md
+View all files
+Repository files navigation
+README
+MIT license
+More
+items
+HARK — authority-typed review knowledge for LLM-assisted proposal review
+Artifact repository for the paper
+HARK: Authority-Typed Review Knowledge with Human-Gated Evolution for LLM-Assisted
+Proposal Review
+— submitted to
+Computers
+(MDPI).
+The system is a plugin for DeepSeek Harness (DSH), an open-source conversational agent harness.
+It performs preliminary review of technical solution proposals (Markdown) and returns a suggested
+verdict plus per-rule findings, each carrying a located quote from the document or an explicit
+absence record. An expert decides every finding in the conversation; each decision is written to a
+persistent learned layer that may retune parameters and collect phrasing exemplars but never changes
+a rule's type or promotes it to a higher-authority tier.
+Repository:
+https://github.com/yyyyyyzt/HARK-Human-Gated-Authority-Typed-Review-Knowledge
+·
+Release:
+v1.0.0
+·
+DOI:
+10.5281/zenodo.23955205
+(v1.0.0; all versions: 10.5281/zenodo.23955204)
+What is in this repository
+Path
+Contents
+plugins/hark/
+the plugin: pure-function engine (
+src/engine
+), tools (
+src/tools
+), storage domain (
+src/store
+), HTTP API and dashboard (
+src/host
+,
+src/client
+), rule package and lexicon (
+rules/
+), review preset and skill (
+skills/
+), design documents (
+docs/
+)
+plugins/hark/rules/capability-open-access.rules.yaml
+the shipped rule package: 28 rules (10 hard, 13 hybrid, 5 soft) with declarative verifiers and a 25-family cue lexicon
+paper/data/public/synthetic/
+the evaluation corpus: 100 proposals, 253 planted defects, ground truth, generator manifest and the generator's self-check output
+paper/data/public/eval-runs/
+the nine published runs (three configurations × three repetitions) as raw JSON, plus
+summary.md
+and
+skipped.json
+plugins/hark/scripts/eval/
+corpus generator, ablation runner, anonymiser
+paper/mdpi-article/
+the manuscript source (
+main.tex
+,
+bib.tex
+, MDPI class files) and the compiled PDF
+Reproduce the results
+Requirements: Node.js ≥ 22.19.
+#
+1. build the plugin (the evaluation imports lib/, not src/)
+cd
+plugins/hark
+pnpm install --ignore-scripts
+#
+or: npm install
+pnpm run build
+#
+2. regenerate the corpus and its self-check (deterministic, seed 20261029)
+node scripts/eval/gen-synthetic.mjs --out ../../paper/data/public/synthetic
+#
+3. run the three deterministic configurations, three repetitions each
+node scripts/eval/run-ablation.mjs --out out
+run-ablation.mjs
+writes
+out/eval-runs/*.json
+and
+out/summary.md
+. Expected output for the
+S-full
+configuration: precision 1.000, recall 0.664, F1 0.798, weighted recall 0.649, verdict
+accuracy 85.0 %, macro-F1 0.832, Cohen's κ 0.763; for the
+B0
+keyword baseline: 0.275 / 0.186 /
+0.222, accuracy 28.0 %, κ −0.043. The whole ablation takes about 15 s on a laptop-class machine, and
+the three repetitions of each configuration are byte-identical because no model is involved.
+The four model-dependent configurations (
+B1
+,
+S-gate
+,
+S-policy
+,
+S-memory
+) are listed in
+paper/data/public/skipped.json
+with the reason each is not part of the published numbers: they
+need an LLM adapter (
+--adapter ./your-adapter.mjs
+) or online expert feedback.
+Install the plugin (optional)
+The plugin runs inside a DSH installation; see
+plugins/hark/README.zh.md
+for the
+Chinese installation guide (profile install, desktop client, release tags). The paper's evaluation
+does
+not
+require a DSH installation — the engine is a pure function library.
+Data and confidentiality
+The synthetic corpus is generated by this repository and is released in full. The three internal
+proposals discussed in the paper's pilot subsection and the 30 historical expert opinions are
+internal documents of an operating utility: only aggregate statistics derived from them are
+reported, and the anonymisation procedure is implemented in
+plugins/hark/scripts/eval/anonymize.mjs
+.
+Citation
+CITATION.cff
+carries the metadata. Machine-readable archival DOI is minted by Zenodo on release;
+the badge in this README is filled in when the DOI is issued.
+Licence
+MIT — see
+LICENSE
+.
+About
+HARK: Human-Gated Authority-Typed Review Knowledge for LLM-Assisted Proposal Review
+Resources
+Readme
+MIT license
+Cite this repository
+Activity
+Stars
+0
+stars
+Watchers
+0
+watching
+Forks
+0
+forks
+Report repository
+Releases
+Packages
+Contributors
+Languages
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

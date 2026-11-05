@@ -1,0 +1,1580 @@
+## PAGE 1
+Academic Editor: Paolo Bellavista
+Received: 27 December 2025
+Revised: 6 January 2026
+Accepted: 8 January 2026
+Published: 12 January 2026
+Copyright: © 2026 by the authors.
+Licensee MDPI, Basel, Switzerland.
+This article is an open access article
+distributed under the terms and
+conditions of the Creative Commons
+Attribution (CC BY) license.
+Systematic Review
+Artificial Intelligence in K-12 Education: A Systematic Review of
+Teachers’ Professional Development Needs for AI Integration
+Spyridon Aravantinos 1
+ , Konstantinos Lavidas 1
+ , Vassilis Komis 1
+ , Thanassis Karalis 1
+and Stamatios Papadakis 2,*
+1 Department of Educational Sciences and Early Childhood Education, University of Patras Greece,
+26504 Patras, Greece; aravantinos_spyridon@upatras.gr (S.A.); lavidas@upatras.gr (K.L.);
+komis@upatras.gr (V .K.); karalis@upatras.gr (T.K.)
+2 Department of Preschool Education, University of Crete, 74100 Rethymno, Greece
+* Correspondence: stpapadakis@uoc.gr
+Abstract
+Artificial intelligence (AI) is reshaping how learning environments are designed and experi-
+enced, offering new possibilities for personalization, creativity, and immersive engagement.
+This systematic review synthesizes 43 empirical studies (Scopus, Web of Science) to examine
+the training needs and practices of primary and secondary education teachers for effective
+AI integration and overall professional development (PD). Following PRISMA guidelines,
+the review gathers teachers’ needs and practices related to AI integration, identifying key
+themes including training practices, teachers’ perceptions and attitudes, ongoing PD pro-
+grams, multi-level support, AI literacy, and ethical and responsible use. The findings show
+that technical training alone is not sufficient, and that successful integration of AI requires
+a combination of pedagogical knowledge, positive attitudes, organizational support, and
+continuous training. Based on empirical data, a four-level, process-oriented PD framework
+is proposed, which bridges research with educational practice and offers practical guidance
+for the design of AI training interventions. Limitations and future research are discussed.
+Keywords: AI; primary education; secondary education; K-12 education; teacher training;
+AI literacy; transformative learning
+1. Introduction
+Artificial intelligence (AI) is already present in educational environments and is in-
+fluencing the educational landscape, placing teachers at the center of these developments.
+However, the pivotal role of teachers as mediators and facilitators of interactions between
+students and AI tools as not been sufficiently explored [1,2]. Digital literacy in AI is essen-
+tial for teachers to effectively integrate it into their teaching practices [3], and professional
+development (PD) programs should explicitly link learning theories with the practical
+implementation of AI to successfully support this integration [ 4]. AI literacy, which is
+also important for students’ learning, can enhance teachers’ ability to incorporate AI tech-
+nologies into the learning process, and its development has become a priority in many
+countries [5], following directives from international organizations, such as AI competency
+frameworks for teachers and students from United Nations Educational, Scientific and
+Cultural Organization (UNESCO) [6]. Building on the conceptualization of knowledge
+necessary for integrating emerging technologies into education [7], the Technological Ped-
+agogical Content Knowledge (TPACK) framework underscores the dynamic interaction
+Computers 2026, 15, 49 https://doi.org/10.3390/computers15010049
+
+## PAGE 2
+Computers 2026, 15, 49 2 of 30
+among technology, pedagogy, and content knowledge, which is critical for effective tech-
+nology adoption [8]. Recent extensions of this framework, such as Intelligent-TPACK [9]
+and AI-TPACK [10], aim to align teacher competencies with the evolving demands of AI.
+Nowadays, teachers are called to participate in AI PD programs, the majority of which
+focus on the utilization of continuously emerging AI applications. Such PD programs
+emerge in rapid succession, a phenomenon attributable both to economic incentives and
+to the growing demand for AI-based tools. Practical training that lacks pedagogical orien-
+tation does not ensure that teachers will ultimately integrate AI into classroom practice.
+Such approaches, unfortunately, do little to support the effective integration of AI into
+pedagogical design, nor do they contribute to the development of teachers’ pedagogi-
+cal competence in relation to AI [ 11]. Moreover, to the best of our knowledge, previous
+systematic reviews do not synthesize empirical evidence for tangible and immediately
+implementable AI-focused teacher PD. To cover this gap, this systematic review aims to
+investigate teachers’ views of AI and its implementation in teaching and learning processes
+by documenting their training needs as shaped by the rapidly evolving technological
+landscape. Furthermore, the collection of empirical evidence from the papers analyzed in
+this systematic review will inform the development of a process-oriented PD framework.
+This systematic literature review investigates teachers’ training needs for AI use and
+corresponding PD in primary and secondary education. Training needs are conceptualized
+as the knowledge, skills, and support required for the pedagogically effective and ethical
+integration of AI in classroom practice. The focus on primary and secondary education
+reflects the developmental characteristics of these levels, where learning is structured and
+AI use is predominantly teacher-driven [12].
+The findings of this study could serve the best interests of multiple stakeholders [13]:
+teachers, who strengthen their professional resilience; school leaders, who enhance institu-
+tional performance; educational consultants, who organize training programs supporting
+teachers; and students, who benefit from AI-literate teachers capable of personalizing
+learning. The necessity of continuous PD for teachers across diverse domains, including AI
+integration, is well established. Consequently, AI competence should be embedded within
+PD programs by policymakers and educational leaders through the design of training
+initiatives that strengthen teachers’ knowledge and skills for the effective use of AI in
+school settings [14].
+2. Previous Systematic Literature Reviews
+In Table A3, there is a list of previous systematic reviews referenced to in this section,
+along with their basic findings. Ref. [ 15] systematically reviewed 67 articles related to
+AI-powered chatbots in education and highlighted enhancements in personalization and
+feedback, but also the need for PD training for teachers and the demand to implement
+measures for ethical use and the promotion of awareness among students. ChatGPT’s use in
+K-12 education was also investigated by ref. [16], who synthesized 13 articles and performed
+strengths, weaknesses, opportunities, and threats (SWOT) analysis, underscoring the
+importance of thoughtful integration and highlighting the practices of teachers. Ethical
+and regulatory concerns of Generative Artificial Intelligence (GenAI) in education were the
+focus of a systematic review of 53 peer-reviewed articles, which underlined that addressing
+these challenges can ensure responsible AI use [17]. Additionally, on the use of GenAI in
+K-12 education, ref. [18] conducted a systematic review with 197 studies, highlighting gaps
+in teachers’ PD and demonstrating the potential of AI to transform educational systems,
+while noting that dependency and ethical concerns need to be addressed. It also stated that
+teacher training, both pre-service and ongoing, must be collaborative, innovative, inclusive,
+https://doi.org/10.3390/computers15010049
+
+## PAGE 3
+Computers 2026, 15, 49 3 of 30
+and transparent to ensure the effectiveness of AI-enhanced education and to improve AI
+literacy among students [18].
+Another aspect of teacher education, human–machine dialogic learning, was the focus
+of ref. [19] in their systematic review of 22 studies. They revealed three core elements:
+pedagogy, technological tools, and learning environment, three types of affordances: teach-
+ing skill and practice, learning experience and participation, and teaching interaction and
+communication, and four key aspects: dialogic purpose, dialogic medium, dialogic mode,
+and dialogic application [19]. This review revolved around pre-service teacher education,
+but dialogic teaching aids can also be a critical tool for in-service teacher PD, allowing them
+to engage in collaborative conversations and self-reflection, enhance professional skills,
+and contribute to their professional growth and development [19]. A systematic literature
+review of 24 papers by ref. [20] provided guidance for the application of human-centered
+AI (HCAI) in policy formulation, teacher training, and the promotion of technology appli-
+cations, emphasizing data privacy and ethical issues, algorithmic bias, and guidance for
+teachers to design personalized instruction with ongoing training at a practical level. In
+addition, ref. [21] conducted a systematic review of 40 empirical studies unpacking key
+characteristics of human-centered AI and identifying essential stakeholders, underscoring
+the necessity of collaborative efforts to ensure that AI does not dehumanize learning and
+has sustainable and positive outcomes in education.
+Regarding AI literacy, ref. [22], in a systematic review of 25 empirical studies, em-
+phasized the critical construct of AI ethics in AI literacy and underscored the need for
+more diverse and innovative pedagogies, and the development of an inclusive AI literacy
+competency framework. Key themes identified in diverse conceptualizations of AI literacy
+include the development of curricula and literacy frameworks tailored to different edu-
+cational levels [22]. As highlighted by ref. [ 23] in a systematic review of 87 articles, the
+integration of AI literacy in K-12 education emerges as a critical priority—one that must
+cultivate not only technical competencies but also address the ethical dimensions of AI
+use. A systematic review of 22 studies on AI literacy in K-12 education underscored its
+absence in the context of teacher education and the research gap for factors influencing AI
+literacy among students and teachers, for whom AI literacy constitutes a core element of
+AI-enhanced learning [24]. Evidence from in-service teachers indicates generally positive
+attitudes toward AI and given its critical role in facilitating the integration of AI-driven
+applications, AI literacy should be prioritized within PD initiatives [24].
+As for the establishment of clear guidelines and regulatory frameworks, it has been
+expressed that integrated mechanisms for ongoing assessment are required to balance
+technological progress and individual rights, through the collaboration of all stakeholders:
+policymakers, teachers, and technologists [17]. Ref. [25] reviewed and classified AI compe-
+tence frameworks for teachers, emphatically stating the need for both theoretical policy and
+teacher-driven approaches, while noting challenges such as the avoidance of redundancy
+with digital competency models. Furthermore, a systematic review of 14 publications on
+AI and PD emphasized significant gaps in AI PD programs regarding AI tool integration,
+underscoring the need to promote teachers’ teaching skills with AI rather than limiting PD
+programs to AI content alone [26]. It also highlighted the significance of a guiding frame-
+work in AI PD, the need to balance pedagogical, content, and technological knowledge,
+and the gap in addressing ethical dimensions of AI technologies in teacher PD [ 26]. AI
+PD features, formats, and active learning approaches should be further explored, while
+structured feedback and support mechanisms, practical application with specific AI-based
+tools, balance between technical expertise and pedagogical effectiveness, incorporation
+of acquired skills and knowledge in daily teaching routines, and the establishment of an
+https://doi.org/10.3390/computers15010049
+
+## PAGE 4
+Computers 2026, 15, 49 4 of 30
+evidence-based conceptual framework have a great impact on teacher outcomes, can inform
+stakeholders in decision-making, and are crucial for the design of AI PD [26].
+All previous systematic reviews agree on the benefits of AI [27] and GenAI [28] such as
+personalization, accessibility, teaching and learning support, improved learning outcomes,
+flexibility, and enhanced interaction. They also recognize ethical challenges [ 27,28] like
+algorithmic bias, academic integrity, privacy, digital divide, lack of emotional intelligence,
+and dependence on technology. Some have proposed human-centered approaches to AI
+to promote equality and social justice through personalization and call for the integration
+of AI into curricula, the development of guidelines, and AI literacy. The emphasis is
+placed on pedagogical dimensions, the obligation for cooperation among the stakeholders
+involved, and the need for continuous teacher PD. Although they recognize the challenges
+of AI integration and the need for teacher PD, all these systematic reviews are limited in
+synthesizing empirical evidence for tangible and immediately implementable guidelines.
+Objective of This Study
+According to the previous discussion, the objective of this study is to systematically
+review empirical studies to identify the training needs and practices of primary and
+secondary education teachers for efficient AI integration and overall PD.
+3. Methods
+This review adopts a qualitative thematic synthesis rather than an effectiveness-
+focused meta-analysis. To maintain the integrity of this systematic literature review, the
+Preferred Reporting Items for Systematic Reviews and Meta-Analyses (PRISMA) guidelines
+(Figure 1) [29] were followed. During identification, two of the most robust and rigorously
+validated databases of research—Scopus and Web of Science—both of which cover only
+peer-reviewed journals and provide extensive indexing across many disciplines, were used.
+Because each database includes unique journal content, the utilization of both reduced the
+potential to omit vital studies. Additionally, their combined search capability enables repro-
+ducible queries as per PRISMA standards, thereby enhancing methodological quality. Both
+databases offer comprehensive coverage within the topic area specific to this review and
+are globally recognized for containing high-quality scholarly content, thereby capturing
+a broad body of literature. Table 1 shows the search string queries performed across all
+databases in February 2025, targeting online literature produced up to the end of the last day
+of December 2024. A few articles were published in January 2025 but were already online
+in late December 2024 and were therefore included. The findings of previous systematic
+reviews focused on the positive aspects of using AI in the educational process [15,16,19],
+but they also highlighted many challenges [17,22,23], with most of them emphasizing the
+significant gap in teacher training, which could mitigate these difficulties [18,20,24,26]. As
+a result, the search terms were set after screening the relevant systematic reviews and were
+similar or synonymous with “teacher training”, “professional development”, and terms
+related to the teachers’ educational levels that were the focus of our study.
+During screening, English peer-reviewed articles with empirical data and explicit
+discussion of teachers and AI integration in K–12 classrooms were included. To assess
+eligibility, articles were screened based on pre-specified inclusion and exclusion criteria
+(Table 2), first by title and abstract and, if necessary, by full text. Materials excluded con-
+sisted of books, conference proceedings, systematic reviews, meta-analyses, and theoretical
+articles without empirical evidence, as well as studies published in languages other than En-
+glish, articles in disciplines unrelated to the subject area (e.g., Pharmacology, Immunology,
+Architecture, Law, Tourism, Ergonomics, and Business) and duplicate documents.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 5
+Computers 2026, 15, 49 5 of 30
+Figure 1. Selection of empirical studies process.
+Table 1. Scopus and Web of Science search strings.
+Scopus search string
+PUBYEAR bef 2025 (TITLE-ABS-KEY(“artificial intelligence” AND (“primary school” OR “elementary school” OR
+“primary education” OR “elementary education” OR “secondary school” OR “high school” OR “middle school” OR
+“upper school” OR “secondary education” OR “secondary level” OR educator OR “K-12” OR k12) AND (“professional
+development” OR “teacher training” OR “continuous education” OR “professional learning” OR “lifelong learning”))
+AND TITLE-ABS-KEY(“empirical study” OR “case study” OR survey OR interview OR “data collection” OR
+“qualitative research” OR “quantitative research” OR “mixed methods” OR “experimental research”))
+Web of Science search string
+Timespan: 1 January 1970 to 31 December 2024 (Publication Date)
+TS = (“artificial intelligence” AND (“primary school” OR “elementary school” OR “primary education” OR
+“elementary education” OR “secondary school” OR “high school” OR “middle school” OR “upper school” OR
+“secondary education” OR “secondary level” OR educator OR “K-12” OR k12) AND (“professional development” OR
+“teacher training” OR “continuous education” OR “professional learning” OR “lifelong learning”))
+Combined with:
+TS = (“empirical study” OR “case study” OR survey OR interview OR “data collection” OR “qualitative research” OR
+“quantitative research” OR “mixed methods” OR “experimental research”)
+https://doi.org/10.3390/computers15010049
+
+## PAGE 6
+Computers 2026, 15, 49 6 of 30
+Table 2. Inclusion and exclusion criteria for Scopus- and Web of Science-indexed articles.
+Inclusion Criteria Exclusion Criteria
+Empirical studies (peer-reviewed articles) published
+online up to December 2024
+Systematic reviews and meta-analyses, conference papers,
+and books
+Studies focusing on training regarding AI
+implementation for K-12 teachers
+Studies about teaching the subject of AI (except if
+teaching about AI occurred with the use of AI or if
+a study referred to both)
+Sample: teachers of primary and secondary education
+(studies with mixed participants were included only if
+their results were categorized accordingly)
+Sample: only students and/or parents
+Scientific fields: Arts and Humanities, Computer Science,
+Mathematics, Multidisciplinary, Neuroscience,
+Psychology, and Social Sciences
+Irrelevant scientific fields: Agricultural and Biological
+Sciences, Biochemistry, Genetics and Molecular Biology,
+Business, Management and Accounting, Chemical
+Engineering, Chemistry, Decision Sciences, Dentistry,
+Earth and Planetary Sciences, Economics, Econometrics
+and Finance, Energy, Engineering, Environmental Science,
+Health Professions, Immunology and Microbiology,
+Materials Science, Medicine, Nursing, Pharmacology,
+Toxicology and Pharmaceutics, Physics and Astronomy,
+and Veterinary
+Written in English All other languages
+The search in the databases yielded 240 papers, of which 74 were duplicates, 26 were
+excluded by title, 22 by abstract, and 10 were reviews of all kinds (systematic, literature,
+scoping, bibliometric analyses, meta-analyses, and theoretical). Of the remaining 108 papers,
+2 were unavailable, 4 could not be retrieved, and 1 was retracted. In the last stage of
+screening, we assessed for eligibility 101 articles of which 11 were excluded due to different
+educational level, 27 due to a different focus, 19 did not have eligible participants, and
+1 was an incomplete paper, leading to the final 43 included articles (Table A1).
+For the purposes of data analysis, a spreadsheet was designed for the systematic
+organization of important findings guided by the research question of this study. The
+spreadsheet included identification numbers for all articles and important bibliographic
+and methodological data such as author(s), title, year of publication, DOI, abstract, key-
+words, aims of the studies, methodological design and procedures, sample of participants,
+country of origin, and important findings. The study utilized a reflexive thematic analy-
+sis [30]. In this analysis, two researchers independently conducted close readings of the
+included studies and systematically extracted and coded findings using a shared data ex-
+traction spreadsheet. This initial phase focused on data familiarization and inductive code
+generation. Inter-rater reliability was assessed at this stage and indicated high agreement
+(85%), which corresponds to a substantial level of reliability (Cohen’s κ ≈ 0.8). Divergen-
+cies in coding were addressed through review by a third researcher, whose contribution
+supported reflexive dialog and further code refinement. The research team then engaged in
+an iterative analytic process, examining codes and data to identify patterns of meaning rele-
+vant to the study’s focus, particularly teacher training needs and practices. The final codes
+were organized into broader analytic categories, leading to the inductive development of
+themes grounded in the empirical evidence.
+Descriptives of the Studies
+The year of publication of the empirical studies was as follows: 2025 (n = 6), 2024 (n = 31),
+2023 (n = 3), 2022 (n = 2), and 2021 (n = 1). Most research took place in China (n = 9), the USA
+https://doi.org/10.3390/computers15010049
+
+## PAGE 7
+Computers 2026, 15, 49 7 of 30
+(n = 6), Turkey (n = 5), Indonesia (n = 2), the Philippines (n = 2), Republic of Korea (n = 3),
+Vietnam (n = 2), Saudi Arabia (n = 2), and in the following countries (n = 1): Brazil, Cyprus,
+Estonia, Hong Kong, Iran, Israel, Japan, Kazakhstan, Kenya, Nepal, Nigeria, Norway, the
+Russian Federation, Sweden, Taiwan (Republic of China), and Ukraine. Asia was the
+continent with the most research ( n = 32), followed by Europe ( n = 7), North America
+(n = 7), Africa (n = 2), Oceania (n = 1), and South America (n = 1). The research methods
+were qualitative (n = 15), quantitative ( n = 14), and mixed ( n = 14), and the participant
+sample size across the 43 final articles exceeded 7500 in-service teachers.
+More specifically, according to whether researchers mentioned educational level or
+the way they categorized school ages in relevance to each country’s system, the number
+of teachers was as follows: preschool (n = 11), primary (n = 1.638), secondary (n = 4.240),
+mixed (n = 595), K-12 (n = 386), higher education (n = 264), and N/A (n = 297). Since this
+review focuses only on primary and secondary education, results for preschool and higher
+education levels were not taken into consideration; however, the articles were included
+because they also contained participants at the levels of interest. In some studies, parents
+and students were also participants, but their results were not mentioned. Whenever there
+was a distinction between teachers and school principals, administrators, or curriculum
+leaders (n = 213), their opinions were recorded, as they were also teachers.
+4. Results
+Figure 2 presents the contribution of themes indicated in this systematic review.
+Table A2 in the Appendix A presents all themes with their corresponding codes. The next
+section analytically presents these themes and their codes.
+ 
+ 
+Figure 2. Teachers’ professional development needs.
+4.1. Training Practices
+Table 3 presents the corresponding codes of this theme with the related references.
+Teacher training practices were the most mentioned theme in the empirical studies and
+consist of the ways in which teachers were trained for AI integration in school settings.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 8
+Computers 2026, 15, 49 8 of 30
+These practices were often constrained by existing gaps in teachers’ AI literacy, which are
+analyzed in detail in Section 4.5.
+Table 3. Codes in category: training practices.
+4.1.1. Professional Learning Communities (n = 10) [31–40]
+4.1.2. Self-Reflection and Prompting (n = 4) [41–44]
+4.1.3. Case-Based and Application-Focused Learning (n = 3) [45–47]
+4.1.4. Differentiation in Level, Subject and Needs (n = 3) [48–50]
+Note: All these codes can be found in various empirical studies.
+4.1.1. Professional Learning Communities
+There seems to be a strong convergence among studies for the improvement of AI
+integration through teachers participating in collaborative practices, even though existing
+knowledge gaps about AI can limit the high motivation for sharing AI practices. Institu-
+tional and social norms influenced teachers and predicted AI readiness, with some studies
+highlighting structured CoP and others informal sharing networks.
+Teachers displayed a keen interest in enhancing their proficiency in AI and facilitated
+the creation of networks to share good practice examples [38] and exchange knowledge
+and experiences regarding benefits, challenges, and solutions with other instructors [31].
+To reduce resistance in integrating AI, communities of practice (CoP) [ 32,33] and peer
+collaboration [34,39] could help teachers share best practices and benefit from mutual
+learning. CoP and group activities with teachers who share common interests and concerns
+were identified as professional learning opportunities that could enhance understanding
+of AI, a common barrier, generate new levels of knowledge, and translate into new indi-
+vidual practices [40]. In addition, mentorship in learning communities and teacher-led
+resource-building networks that share AI use cases and guidebooks could support them in
+integrating AI into their teaching methods [37]. A collaborative approach to AI integration
+in schools, involving colleagues, administrators, and other educational stakeholders was
+indicated, as subjective norms significantly predicted AI readiness [35]. Additionally, oppor-
+tunities to learn from others’ feedback and PD experts could improve teachers’ instructional
+practices and the quality of lecture design [39]. Teachers also stated that they wanted to
+be part of sharing knowledge about best practices, student education, expectations, ways
+to use ChatGPT for efficiency, lesson planning, student growth, verifying the academic
+integrity of papers, and other subjects that can benefit from ChatGPT [ 36]. The positive
+outcomes of such collaborative learning environments (CoP) in PD, where teachers and
+administrators could discuss difficulties, solve problems, and gain help in understanding
+and applying AI, were enhanced individual learning, collective growth, the promotion of
+solidarity, and effective instructional strategies [33].
+4.1.2. Self-Reflection and Prompting
+For the effectiveness of PD, there is a strong indication from the studies that GenAI is
+of great importance, as teachers should exercise their prompt engineering practices and
+construct their knowledge with AI-driven reflection, aligning with constructivist learning
+theories. On the contrary, despite being efficient, AI reflection depends on high-quality
+and contextualized data, making accuracy and pedagogical relevance challenging, while
+its use differs between experienced and novice teachers. Furthermore, it is obvious that
+knowledge about balancing autonomy and support regarding AI-enhanced PD is limited.
+The importance of teachers’ expertise in utilizing GenAI and designing effective
+prompts and activities with accuracy and efficiency was highlighted, as PD programs
+played a significant role in this regard [43]. Teachers used AI tools like ChatGPT for contin-
+https://doi.org/10.3390/computers15010049
+
+## PAGE 9
+Computers 2026, 15, 49 9 of 30
+uous self-reflection, evaluating their teaching practices and enhancing professional growth.
+Teacher–AI collaboration (TAC) reflection was more flexible, less time-consuming, and
+self-directed compared with reflective practices that included class observation and consul-
+tation with colleagues [41]. However, more support is needed in this area, as this type of
+reflection requires high-quality data on practices, students, and outcomes, which must be
+analyzed thoroughly and contextualized for specific instructional settings. Prompting Chat-
+GPT helped introspection, reflection, and an increased desire to evolve teaching practices,
+utilizing constructivist approaches for assimilating new information, and as participants
+clearly mentioned, through continuous cycles of questioning, reflecting, and adapting, they
+constructed knowledge [42]. This practice signified continuous adjustment of technologi-
+cal, pedagogical, and content knowledge, making connections to the TPACK framework
+and promoting holistic PD [42]. The benefits of chatting with conversational agents were
+also visible when using ChatPDF, especially for novice teachers, to read materials, gain
+pedagogical knowledge, receive practical guidance, and facilitate ongoing PD [44].
+4.1.3. Case-Based and Application-Focused Learning
+For the improvement of teachers’ AI integration practices, case-based learning, hands-
+on activities, and real-world problem-solving are required to balance theoretical instruction
+with practical application. However, there are some inconsistencies among studies about the
+degree of structure needed in learning experiences to optimize teacher learning and efficacy.
+Teachers who participated in PD training benefited most from real-world problem-
+solving and case-based learning, especially when these were balanced with direct instruc-
+tions and lectures that helped them process knowledge about the technology and integrate
+it with prior pedagogical and content knowledge [ 46]. The researchers who ran the PD
+also recommended presenting teachers with additional cases and well-structured problems
+between lectures and case-based discussions, helping them apply new theories and tools
+in context and develop solutions [46]. Moderately structured and ill-structured problems
+could be used to engage teachers in solving, leading to more AI-related problem-finding
+and problem-solving discussions, while keeping a balance between direct instruction and
+case-based dialog in AI teacher PD programs [46]. To increase Computer Science teachers’
+AI teaching efficacy beliefs, TPACK-based PD programs could be employed with group-
+based lesson planning focused on project-based learning and hands-on activities, which
+could have a positive impact on teaching practices and students’ learning outcomes [47].
+Similarly, ref. [45] proposed that teacher PD activities could guide them to create self-
+directed learning tasks with AI, as this technology provides immediate feedback and
+suggestions to remediate unsuccessful learning.
+4.1.4. Differentiation in Level, Subject, and Needs
+Teachers require tailored PD rather than uniform approaches for efficient AI implemen-
+tation in the classroom, with the focus on technical training to overcome technostress and
+limited understanding barriers. However, practical knowledge for utilizing AI-powered
+tools alone is not sufficient for pedagogically sound integration in school settings.
+The need for tailored support to address challenges and PD opportunities for teachers
+to enhance their practices [49], as well as AI integration strategies in regard to educational
+stage, was underscored due to differences in AI implementation frequency in teaching
+across primary, secondary, and higher education [48]. Most teachers identified technical
+training as their primary need for effective ChatGPT implementation, with pedagogical
+training coming second in the instructional application of ChatGPT in mathematics educa-
+tion, underscoring that the greatest barrier was teachers’ comfort with and understanding
+of the AI tool, while simultaneously recognizing that operational knowledge of the tool
+https://doi.org/10.3390/computers15010049
+
+## PAGE 10
+Computers 2026, 15, 49 10 of 30
+was not enough [50]. The need for targeted exposure and training among mathematics
+teachers to raise awareness, deepen understanding, and enhance practical knowledge of AI
+tool application in classrooms was obvious [50].
+4.2. Teachers’ Perceptions and Attitudes
+Table 4 presents this theme and the corresponding codes, as included in various
+empirical studies one or more times. It seems that negative perceptions of AI, such as
+teachers’ fear of being replaced by it, anxiety, disbelief, and dishonesty, might be linked
+with misconceptions about AI’s capabilities or previous negative experiences and play
+a significant role in challenging AI adoption practices. The fear of replacement by AI
+stems from concerns about loss of professional autonomy, uncertainty about the changing
+role of the teacher, and a limited understanding of how AI is intended to support rather
+than replace teaching. PD could shift these teachers’ beliefs and emotions and enhance
+autonomy and self-efficacy, but the design of effective programs that address technical,
+affective, and pedagogical aspects can be difficult, yet essential for modern education.
+Table 4. Codes in category: teachers’ perceptions and attitudes.
+AI knowledge
+AI understanding
+Autonomy
+Awareness
+Behavioral intentions to learn AI
+Beliefs and attitudes
+Conceptions of AI education
+Familiarity
+Self-efficacy
+Trust in AI
+Understanding of AI
+(n = 11) [31,32,34,39,46–48,51–54]
+Anxiety
+Disbelief
+Fear of being replaced by AI
+Misconceptions
+(n = 5) [5,51,55–57]
+Need for PD ( n = 5) [5,34,35,58,59]
+Note: All these codes can be found in various empirical studies.
+Teachers demonstrated disbelief in AI, which may come from previous negative expe-
+riences and a lack of training [5]. Fear of replacement by AI was mentioned in many studies
+and persisted among teachers who agreed that ChatGPT cannot fulfill emotional bonding
+with students, highlighting their critical roles such as role modeling, individualized teach-
+ing, and empathy [56]. In ref. [55], participants were afraid of ChatGPT, which they had
+connected with cheating, and expressed feelings of anxiety, agreeing that it could cause
+more harm than good if left without PD and guidance. PD programs could help minimize
+or eliminate K-12 teachers’ anxiety about the complications and unpredictability of AI and
+enhance their self-efficacy and behavioral intentions to learn about AI [51]. The exploration
+of ways to implement PD programs that teach K-12 teachers about AI remains a big chal-
+lenge and complex task but is necessary to enhance knowledge and self-efficacy regarding,
+understanding of, and trust in AI, while addressing common misconceptions [57].
+Training programs that were based on actionable frameworks that guide the integra-
+tion of AI into teaching and learning without putting aside the human elements supported
+teachers’ autonomy, enhanced self-efficacy in AI use, favored positive attitudes, had a sig-
+nificant effect on the quality of lectures, and improved adoption [39,46,47,52,54]. In-service
+training for the practical application of AI through experiencing its use could be reflected in
+https://doi.org/10.3390/computers15010049
+
+## PAGE 11
+Computers 2026, 15, 49 11 of 30
+teachers’ beliefs and attitudes, and therefore made it more likely for teachers to implement
+AI in their courses [ 48]. The findings pointed out that comprehensive and targeted PD
+programs should not only enhance TPACK but also address TAM (Technology Accep-
+tance Model) factors such as teachers’ attitudes to bridge the gap between knowledge
+and integration of AI, as positive attitudes towards it were very crucial for adoption [53].
+Training courses for familiarization with tools and procedures, utilization techniques, and
+effective strategies for ChatGPT demonstrated that they could ensure awareness among
+female mathematics teachers in Saudi Arabia in a sex-oriented study [31]. In some cases,
+awareness and familiarity with AI-based tools came from various channels, including
+personal interest, workshops, and colleagues, as exposure to educational technology and
+training was insufficient [34].
+The conceptions of AI education, highlighted by teachers’ internal barriers, were very
+important in informing teachers’ design and integration of AI in their classrooms [ 32].
+Therefore, it was necessary to debunk myths about AI being a threat to humans and
+underscore its potential by explaining to teachers the technology behind its decision-
+making capabilities and gaining their trust to use it with their students [5]. In most cases,
+teachers expressed the need for PD and interventions to improve their AI integration [35,58],
+stated that a modern educator should master AI technologies to use them effectively [5],
+shared strategies to overcome challenges in problem-solving capabilities in mathematics
+education [34], and, even though some were experts, expressed the need to learn more,
+update their knowledge, and be advised by experts in multiple fields and subjects [ 59].
+These perceptions are closely linked to the availability and quality of PD opportunities,
+which are discussed in detail in Section 4.3. The significance of these patterns is undeniable,
+as recognizing them allows us to explain why certain perceptions and negative feelings
+about AI exist among teachers and to seek ways to change them into more positive views
+and attitudes.
+4.3. Ongoing PD Programs
+Table 5 presents this theme and the corresponding codes as they were found in
+the empirical studies one or more times. In this theme, there is also repeated evidence
+that structured and continuous PD can facilitate teachers’ AI integration by enhancing
+conceptual understanding, strategies, and the capacity for AI utilization across educational
+levels and subjects. The emerging divergences, however, concern the duration and design
+of PD, and inconsistencies between the acknowledged necessity of PD and the institutional
+support for implementation in practice.
+The importance of providing professional training about GenAI to in-service teachers
+was highlighted, as study results showed increased conceptual understanding, improved
+strategies, and enhanced ability among teachers to integrate AI into lesson planning [52].
+Continuous PD [32] and mentoring services for teachers could increase their competences in
+pedagogically integrating AI tools, such as ChatGPT, under Sustainable Development Goal
+4.c.1 (SDG 4.c.1) [56]. Structured, continuous, context-centric, and on-demand PD programs
+for all levels of education [62], ensured effective AI implementation, especially if they were
+aligned with the needs of teachers, including their subject areas, curriculum objectives,
+and digital skills [ 5]. Results indicated an urgent need for structured PD to bridge the
+gap in familiarity with AI in mathematics instruction and to provide skills and confidence
+for pedagogical integration, addressing skepticism about ChatGPT in math education
+and education more broadly [36,50]. It was underlined by ref. [ 50] that enhancement of
+learning experiences must be the target of PD initiatives that will not only increase teachers’
+knowledge and skills for the integration of AI tools such as ChatGPT but will also demystify
+AI and encourage critical engagement with technology, providing practical strategies to
+https://doi.org/10.3390/computers15010049
+
+## PAGE 12
+Computers 2026, 15, 49 12 of 30
+enrich mathematics education. In ref. [ 33], the importance of structured training and
+information curation in PD programs, as well as the critical evaluation of AI sources, was
+also mentioned, empowering teachers to rely on themselves when assessing knowledge
+and on clear guidelines for AI applications.
+Table 5. Codes in category: ongoing PD programs.
+Benefits (n = 17)
+Address skepticism
+AI literacy
+Conceptual understanding
+Confidence
+Demystify AI
+Effective AI implementation
+Efficient assessment
+Encourage critical engagement
+Enhanced ability to integrate AI
+Enhanced knowledge
+Enhanced learning experiences
+Familiarity with AI
+Improved strategies
+Increased competences
+Increased self-efficacy
+Increased skills
+Maximum efficacy
+[5,46,52,56,60–62]
+Type (n = 9)
+Additional PD
+Context-centric PD
+Continuous PD
+Long-term PD
+On-demand PD
+Ongoing training
+Short-term PD
+Structured PD
+Targeted PD
+[32,33,38,46,50,55,57,62,63]
+Challenges (n = 4)
+Constant engagement
+Critical evaluation of AI sources
+Information curation
+Lack of policies
+[33,41,55]
+Methods (n = 4)
+Case-based learning
+Implementation of AI in curriculum
+Learning community
+Practical application
+[46,63,64]
+Negative aspects (n = 3)
+Policy-related courses
+Professors’ lack of knowledge
+Theory-driven courses
+[64]
+Note: All these codes can be found in various empirical studies.
+Ref. [46] explained the structure of a PD program about AI, which should have four
+domains to increase self-efficacy of participants: Knowledge and Understanding of AI
+(foundational knowledge of AI concepts and technologies), Applying AI Applications (em-
+ploying AI in instructional activities), Evaluation of AI Applications (implications, ethical
+considerations, guidelines), and AI Ethics (data privacy, plagiarism, ethical guidelines, re-
+sponsible use). They also suggested short-term introductory PD programs with case-based
+learning to introduce AI basics and its advantages and disadvantages, to provoke teachers’
+desire to increase their AI literacy, followed by extended AI teacher PD programs according
+to their technical skills, subjects, and experience to support AI integration [ 46]. On the
+https://doi.org/10.3390/computers15010049
+
+## PAGE 13
+Computers 2026, 15, 49 13 of 30
+other hand, teachers saw short-term programs as insufficient for the learning process and
+emphasized the benefits of long-term PD, which included enhanced knowledge and skills
+in AI, space for a learning community in schools, and practical classroom application, while
+also mentioning negative aspects of teacher training programs such as impractical, theory-
+driven courses, redundant policy-related courses, and professors’ lack of understanding of
+school realities [64].
+Teachers recognized that ongoing training [38] was necessary for AI usage optimiza-
+tion and maximum efficacy [60], agreeing that additional PD, regardless of mixed expe-
+riences with district policies or the lack thereof across participants, would be useful [55].
+Targeted PD programs could also highlight the long-term benefits of AI in education,
+in contexts where teachers emphasize virtues focused on the future [ 57]. Furthermore,
+Teacher–AI collaboration (TAC) required constant engagement for teachers to keep up with
+the latest developments in AI use, understanding ways to combine content, pedagogy, and
+technology [41], while training institutions also had to implement AI technologies more
+extensively into their curricula, along with application training [63]. Assessment processes
+could also become more efficient with AI, and PD was crucial in motivating teachers to
+accomplish this, primarily by developing AI knowledge and understanding and ensuring
+that teaching changes apply to all pedagogical possibilities [ 61]. Ongoing PD programs
+are very important for teachers’ efficiency, and their form and methodology must consider
+the context to which they refer to be successful. In addition, several studies reported that
+ongoing PD played a mediating role in addressing previously identified anxieties and
+misconceptions toward AI (see Section 4.2).
+4.4. Multi-Level Support
+Table 6 presents this theme and the corresponding codes, as they were included in
+various empirical studies one or more times. Teacher readiness for AI integration cannot
+be sufficient without the existence of frameworks and policies to guide it, considering the
+lack of leadership and infrastructure support to confidently drive curriculum-aligned AI
+adoption. A culture of collaboration in organizations, and leadership vision and roles,
+can encourage innovation and reduce barriers, although material support and equitable
+investments are also needed.
+Table 6. Codes in category: multi-level support.
+Policies and guidelines (n = 8) [32,36–38,43,50,55,65]
+Leadership and organization (n = 8) [32,45,53,59,66,67]
+Support with PD (n = 6) [38,40,59,65,67,68]
+Technical support (n = 4) [37,38,45,53]
+Community (n = 1) [53]
+Note: All these codes can be found in various empirical studies.
+Analytically, governmental support based on the Teacher Digital Competence frame-
+work (TDC) for new teaching methodologies was necessary, along with a human-centered
+use of AI to enhance teacher competencies [37]. External barriers made teachers consider
+a lack of AI guidance, as participants demonstrated mixed experiences regarding AI imple-
+mentation, a concern that was addressed differently depending on schools and districts,
+with leaders creating a policy for or against the use of AI [55]. Clear guidelines and bound-
+aries for using GenAI in educational contexts [43,65] and updated educational policies [38],
+following the needs of teachers, were in great demand to support sustainable AI integration
+in education [37]. Establishing clear curriculum guidelines could help teachers embrace AI
+with confidence and develop enhanced learning environments [32], as many teachers had
+https://doi.org/10.3390/computers15010049
+
+## PAGE 14
+Computers 2026, 15, 49 14 of 30
+vague ideas for AI implementation and needed clarification [50]. Many teachers mentioned
+the desire for a district or school policy; therefore, government policymakers had to design
+the required guidelines [36].
+Digital leadership and pedagogical and administrative support [53] could significantly
+contribute to learning about AI, enhancing teachers’ competence and comfort in using
+AI-powered content, and aiding them in navigating difficulties with AI effectively, in an age-
+appropriate and engaging way [32]. The personal resources of leaders [69], and their vision
+and strategic direction to support innovation in school, were essential for AI integration and
+educational progress [66]. Therefore, school leaders could remove barriers and difficulties
+by creating supportive partnerships that helped and motivated teachers to share effective
+practices [32]. Teachers of the same subject could work as teaching groups and design
+common AI activities, raising their willingness to explore and incorporate AI, reducing
+stress, and fostering a pedagogical culture of collaboration, support, and innovation [67].
+Also, on the other hand, teachers of different subjects could form professional learning
+communities to share knowledge and information and to recognize effective AI practices
+from a broader disciplinary perspective [59].
+Teachers expressed the need for support in their own PD [65], mentioning insufficient
+PD in AI and skills that they would like to develop in order to work efficiently in technology-
+rich environments [68]. Many teachers were aware of the dynamic nature of AI and the
+need for refining their assessment strategies, but they also urged for PD [38] and training
+programs to continuously support them in developing AI knowledge and applying it in
+practice [59]. School support was very crucial for teachers to use AI technologies and
+develop within a suitably supported environment with appropriate PD activities [67]. It
+was highlighted in ref. [40] that the digital transformation of schools needed investments
+such as initiative piloting of AI and PD programs to enhance teachers’ understanding of AI,
+as this was a common barrier connected with many issues. This level of support reinforces
+the need for structured and continuous PD programs (see Section 4.3).
+However, support cannot be only organizational, in the form of learning communities
+or effective leadership, but must also come from available resources and infrastructure that
+can sustain the ethical and safe use of high-quality AI services [37]. In the study by ref. [45],
+it was stated that TPACK and UTAUT (Unified Theory of Acceptance and Use of Technol-
+ogy) could be synthesized in a new way, as the importance of facilitating conditions, like
+technical and expert support, was revealed in the early stages of AI adoption. The demand
+for robust and adequate technological infrastructure [38], ongoing technical support, and
+the prioritization of investments, especially in areas of low socio-economic status (SES),
+was underscored to ensure equity in access to AI technologies [53]. Additionally, schools
+could foster strong community ties and parental involvement in AI-related activities and
+discussions [53].
+4.5. AI Literacy
+Table 7 presents this theme and the corresponding codes, as they were included in
+various empirical studies one or more times. The primary challenge for AI integration,
+as many studies agree, is the substantial gap in AI literacy, which influences pedagogical
+application, confidence, self-efficacy, and willingness, even though it is not sufficient
+without instructional transformation. Traditional pedagogical frameworks like TPACK
+are frequently used, although they have limitations, which fuels the debate over which
+framework is the most appropriate for improving AI classroom implementation.
+Elementary and secondary school teachers from various contexts and disciplines
+agreed that a big gap exists in understanding AI, identifying a strong demand for AI
+literacy [72]. Adequate knowledge and literacy in utilizing ChatGPT for teachers and
+https://doi.org/10.3390/computers15010049
+
+## PAGE 15
+Computers 2026, 15, 49 15 of 30
+learners was underscored in ref. [56], while ref. [45] found that EFL teachers were more
+likely to continue integrating AI in their teaching when they had more technological
+knowledge about AI-based language applications. Addressing misconceptions about AI,
+equipping teachers with relevant knowledge, and aiming to improve basic understanding
+rather than providing unnecessary in-depth courses about AI, could enhance teachers’
+self-efficacy and help them understand it realistically as a tool with both benefits and
+disadvantages, making them more willing to try teaching with it [57].
+Table 7. Codes in category: AI literacy.
+AI knowledge (n = 10) [45–47,53,54,56,57,67,70,71]
+TPACK (n = 5) [37,47,53,54,67]
+AI understanding (n = 3) [46,57,72]
+AI literacy in PD (n = 2) [5,51]
+AI pedagogical implementation (n = 2) [70,71]
+Note: All these codes can be found in various empirical studies.
+The integration of AI into existing pedagogical models and frameworks was men-
+tioned in 43 articles with the following frequencies and percentages: TPACK (n = 11, 26%),
+TAM (n = 4, 9%), and TDC (Teacher Digital Competence) (n = 1, 2%). The study by ref. [37]
+highlighted the limitations of TPACK and suggested adopting TDC. Technological content
+knowledge (TCK) and technological pedagogical knowledge (TPK) had a strong impact on
+TPACK, emphasizing the need for comprehensive programs that could improve teachers’
+integrated knowledge, a crucial factor for AI implementation [53]. PD programs could be
+designed to promote teachers’ AI-related TPACK and also provide them with the required
+technological knowledge so they could use technology’s affordances for subject teaching
+and student learning through appropriate pedagogy, thereby improving AI adoption and
+integration in practice [67]. In ref. [47], a TPACK-based PD program improved Computer
+Science teachers’ pedagogical content knowledge related to AI, their programming skills,
+an important element of technological AI-related knowledge, and teaching self-efficacy
+in terms of outcomes and beliefs (see Section 4.2). Likewise, another TPACK-based PD
+program had a positive impact on English language teachers’ knowledge of AI-powered
+tools and on their self-efficacy in teaching with these tools [54].
+The training of teachers on AI integration could not only focus on how the provided
+tools work but also on concepts like understanding AI functionalities, machine learning,
+and classification, as after a case-based AI PD program that aimed at improving AI literacy,
+teachers reported increased self-efficacy [46] The significance of AI literacy in the profes-
+sional learning of K-12 teachers and the need to empower it as a central element were also
+stated in the study by ref. [51], while participants in the study by ref. [5] agreed that teacher
+training and PD courses should include modules that improve AI literacy, and that teachers
+should be trained in AI and provided with methods to apply it in the classroom. AI literacy
+would help teachers acquire foundational knowledge about AI, which would further affect
+its pedagogical application [70]. In ref. [ 71], it was emphasized that preparing teachers
+with AI knowledge as the basis of AI literacy was very important for understanding how
+they could transform aspects of that knowledge into pedagogical design. Teachers who
+had support to implement AI-related content into their pedagogical design were more
+effective in delivering knowledge to students, deepening their understanding of AI, and
+simultaneously enhancing their confidence in class management and in designing and
+teaching AI lessons [71]. AI literacy gaps underscore the importance of ongoing, structured
+PD programs (see Section 4.3).
+https://doi.org/10.3390/computers15010049
+
+## PAGE 16
+Computers 2026, 15, 49 16 of 30
+4.6. Ethical and Responsible Use
+Table 8 presents this theme and the corresponding codes, as they were included in
+various empirical studies one or more times. The ethical and safe use of AI is absolutely
+necessary; therefore, AI ethics should be integrated into teacher training programs as
+a cross-sectional principle. Ethics is a foundational component of AI competence, and
+the transformation of ethical principles into classroom practices is required. The safe and
+ethical AI use, focusing on transparency, responsibility, and equity to avoid potential risks
+from irresponsible use, can be promoted through policy guidelines, the creation of required
+infrastructure, and the implementation of AI ethics in teacher training [37,73]. In the study
+by ref. [71], it was suggested that PD programs should contain different types of knowledge
+and focus on empowering teachers to transform AI knowledge into pedagogical design
+and AI ethics education, which in turn can strengthen teachers’ confidence in teaching AI
+and encourage their continued intention to learn and design AI courses. Integration of AI
+ethics in teacher training could improve their confidence and prepare them adequately [35],
+while also providing space to discuss social, ethical, and rights implications of AI and
+equipping teachers with the necessary knowledge [ 5]. Teachers need to be prepared to
+teach the ethical use of AI to students by integrating it into classroom activities and policies.
+As GenAI could play a central role in redefining educational practices, the development
+of comprehensive guidelines and ethical considerations to address this new reality with
+equity and alignment with educational goals is critical [43]. PD programs could also help
+teachers understand AI for social good and use it to help their students, while following AI
+ethical principles like justice and sustainability, as a part of their core content [51].
+Table 8. Codes in category: ethical and responsible use.
+Ensure ethical use of AI (n = 1) [73]
+AI ethical education (n = 1) [71]
+AI ethics and ethical principles
+AI for social good (n = 1) [51]
+AI ethics in PD (n = 1) [35]
+Strict regulations and expert controls for safe usage (n = 1) [5]
+Guidelines for safe, ethical, and equitable AI use
+Professional and ethical competencies in training (n = 1) [37]
+Guidelines to safeguard the educational process (n = 1) [43]
+Note: All these codes can be found in various empirical studies.
+The application of AI is fraught with various interconnected ethical challenges, which
+can be described in terms of four main dimensions. The first is derived from privacy and
+data protection concerns arising from the extensive use of data, necessitating effective data
+governance practices. The second is found in bias and fairness concerns, pointing to the
+possibility of perpetuating and/or exacerbating existing inequalities in society through
+the use of unfair datasets or the development of unfair algorithms. Third, the need for
+transparency and explainability in the functioning of these AI systems is essential both for
+control and user trust. The fourth concerns accountability and responsibility, pinpointing
+efforts to identify individuals responsible for decisions made using AI. Such ethical con-
+siderations are ratified within larger global governance and policy regulatory frameworks.
+Specifically, the United Nations Educational Scientific and Cultural Organization (UN-
+ESCO) Recommendation on the Ethics of Artificial Intelligence [74] highlights irreducible
+principles of human rights protection, fairness, transparency, and accountability. These
+considerations and priorities are also encapsulated within other regulatory frameworks of
+global and regional promulgations, such as the Organization for Economic Cooperation
+https://doi.org/10.3390/computers15010049
+
+## PAGE 17
+Computers 2026, 15, 49 17 of 30
+and Development (OECD) AI principles [ 75] and the EU regulation on artificial intelli-
+gence, the AI ACT [ 76], with an emphasis on effectively embedding ethical safeguards
+across the entire life cycle of AI systems, including design and development, use, and
+continuous assessment.
+5. Discussion
+In this systematic review, findings from empirical studies regarding teachers’ training
+needs for future PD were categorized into themes. Across all themes, there were observable
+patterns like the requirement for professional training, knowledge gaps in AI literacy, and
+affective issues like anxiety and skepticism. To overcome redundancy, these points are
+highlighted within their pertinent sections. The heavy concentration of included studies
+on Asian countries has vital implications for the generalizability of the findings. The
+findings are of paramount significance for achieving insight into both the implementation
+and impact of AI on educational institutions, but the results are of limited universality in
+geographical terms, possibly representing institutional, cultural, or pedagogical specifics
+that are difficult to compare with others. The importance of differentiating applied edu-
+cational contexts in analytical structures, evaluation schemes, digital maturity levels, and
+the regulation of digitalization also draws attention to the need for detailed interpretation
+of the findings, and possibly for expanding the results by involving a larger number of
+geographical regions in forthcoming studies concerning the use of AI in the mentioned
+establishments. The most frequently cited challenges to AI integration were related to
+teacher training [38,50,60] and AI literacy [46,49,72], therefore focusing on both will help
+overcome many practical obstacles. ChatGPT and GenAI in general accounted for a large
+percentage of the studies in our review, which is relevant with the fact that many existing
+systematic reviews focus on this specific AI tool. Thus, our findings are consistent with the
+ones in ref. [28] for improvements in GenAI for teaching and with the SWOT analysis of
+ref. [16] for ChatGPT’s use in K-12 education. Many of the presented themes are linked to
+traditional technology integration frameworks such as TPACK, TDC, and SAMR; never-
+theless, the findings suggest a paradigm shift towards human–AI collaboration in school
+settings, where AI enhances rather than replaces teachers’ agency, creativity, and critical
+thinking for the benefit of their students, as previously seen in the proposed theoretical
+framework for human-centered AI (HCAI) in the systematic review by ref. [20].
+This review highlights the importance of contextual factors for AI implementation and
+moves beyond traditional frameworks, agreeing with ref. [23], who noted differences in AI
+literacy definitions ranging from technical to socio-ethical frameworks, although a more
+balanced approach to their development would be better, considering not only educational
+level but also ethical aspects. Regarding ethical concerns, although they were the least cited
+category in our review, ref. [22] emphasized the critical construct of AI ethics in AI literacy
+and the need to develop an inclusive AI literacy competency framework. It is worth noting
+that issues of AI ethics do not seem to have been fully developed within an educational
+framework that would guide the integration of AI technology into learning, as the results of
+this review demonstrate that ethics was supported by the fewest references from empirical
+studies. This point is supported by the highlights of ref. [2], who emphasized that ethical
+and developmentally effective AI use requires teacher engagement as a mediating factor,
+hence reaffirming the importance of teacher PD and emphasizing pedagogy and ethics
+over automation. Violations of ethics, data security, privacy, academic integrity, and
+algorithmic bias must be addressed as a set of beliefs and values, even at a philosophical
+level [37,55,60,65]. Concerns about using AI and the role of teachers should be directed
+with clear guidelines and a critical approach to pedagogical and ethical issues such as
+https://doi.org/10.3390/computers15010049
+
+## PAGE 18
+Computers 2026, 15, 49 18 of 30
+security, overdependence, bias and fairness, transparency and explainability, accountability,
+and privacy protection.
+This study showed that AI literacy is impacted by many factors, reinforcing the
+findings of ref. [24], who mentioned, among others, the digital divide, perceptions and
+attitudes, and educational opportunities, highlighting that AI literacy is absent in teacher
+education, is crucial for AI learning, and should be the focus of PD. Different types of AI
+literacy should be identified and targeted through PD programs, such as foundational
+knowledge of AI terms and basic uses, and pedagogical literacy for teaching AI and using AI
+in teaching. In teacher training practices, self-reflection with AI was an effective and critical
+tool for in-service teachers’ PD, which is relevant to the systematic review by ref. [19] on
+human–machine dialogic learning with teaching aids. In line with humanizing approaches
+to AI use in education, empirical evidence from primary school settings indicates that
+AI implementation remains teacher-led, as educators determine how the technology is
+implemented to education-related goals [ 2]. The need for ongoing PD programs and
+collaborative learning methods was eminent through most of our studies, agreeing with
+ref. [18], who underscored both the gap in teachers’ PD and the potential of AI to transform
+educational systems. The findings of this review coincide with the ones from [26] and can be
+seen as complementary, adding insights from the theoretical foundations of AI integration
+that can be connected to empirical data for the proposed training framework. Ref. [25] stated
+the need for theoretical policy and teacher-driven initiatives for AI competence frameworks,
+based on empirical data from teachers and extending traditional technology integration
+theories. The practical use of the proposed framework is to serve teachers’ educational
+goals with AI by providing guidance for its application not only in teacher training but
+also by bridging real classroom practices with AI technology integration. Teachers need
+to respond to the requirement to learn AI-based smart technologies, innovative ways of
+teaching and assessment, and the demand for classroom restructuring, as old pedagogies
+have become obsolete [70] and innovative education models should be developed [38].
+5.1. Proposed Teacher Training Framework in AI Integration
+Regarding this systematic review, we propose a potential framework for teachers’
+PD in AI integration. We explicitly cross-referenced each element of the framework with
+the corresponding research findings in the Section 4. The proposed framework has many
+practical implications for the design of AI-related teacher PD, extending from a purely
+technological view to a more pedagogically sound and ethical integration of AI. It is
+feasible to implement the proposed framework on a gradual scale based on levels of teacher
+readiness. From school leadership and policy-making standpoints, the proposed framework
+has serious implications for the role of leadership, infrastructure, and policies in the ethical
+integration of AI. From a research standpoint, the proposed framework also has many
+practical implications for the design of future PD. Analytically, this framework consists of
+four interrelated levels: (1) conditions for AI professional learning, (2) pedagogical design
+of AI-focused PD, (3) pedagogical AI integration in K-12 classrooms, and (4) ethical and
+sustainable embedding of AI.
+5.1.1. Conditions for AI Professional Learning
+The first level concerns the necessary conditions for teachers to participate effectively
+in PD programs. The findings of the review show that the absence of these conditions is
+a key reason for the failure of professional development interventions. At the primary
+level, preconditions such as basic AI knowledge and understanding, beliefs, self-efficacy,
+and support for teacher PD are required. AI literacy in this context [51] can incorporate AI
+knowledge [54] and AI understanding [37] to enable pedagogical AI implementation [70],
+https://doi.org/10.3390/computers15010049
+
+## PAGE 19
+Computers 2026, 15, 49 19 of 30
+based on the traditional TPACK framework [67] and ethical AI use [71]. Additionally, focus-
+ing on teachers’ perceptions and attitudes can give stakeholders a headstart in designing
+training, as these factors influence barriers and shortcomings [48,53]. Teachers’ attitudes
+and perceptions can be recorded, including their fears, reservations, and expectations,
+emphasizing the importance of psychological/emotional factors and the need to conduct
+action research to adapt the training framework. Support for teachers’ PD in AI, as already
+mentioned, must start at the individual level, but its multidimensional nature must also
+assign responsibilities where they belong. Difficulties such as lack of support [53] and the
+absence of guidelines [65], have challenged AI use in schools, therefore, teachers cannot
+be effective without the necessary infrastructure, technical support, or adequate forms
+of leadership at either the school or regional level [ 37,59,66]. The creation of a culture
+of cooperation, mutual support, and collective responsibility among teachers working
+in the same school is essential to transform the organization into a learning community.
+Additionally, networking between schools, universities, and other institutions could help,
+as national and international programs can provide the continuous feedback required,
+while education leaders are responsible for providing tools and guidelines, considering the
+important role of technical and organizational support.
+5.1.2. Pedagogical Design of AI-Focused PD
+The second level focuses on how PD programs for AI are designed. The results show
+that effective training is not based on the transmission of technical knowledge but on
+pedagogically documented learning experiences. Training practices, which were the most
+cited theme in this review, provided instances of professional learning communities [33],
+employment of self-reflection practices and prompting [43], and learning with differentiated
+approaches [50], in case-based and application-focused scenarios [ 46]. Using AI in PD
+practices could also be beneficial, especially when training teachers on how to use it, as
+AI-mediated reflection can adequately support them [42]. PD programs that incorporate
+reflection activities and hands-on practice to improve teachers’ confidence and teaching
+efficiency could be designed, including courses about learning analytics. Professional
+learning communities (PLCs) can be created to aid teachers in sharing good practices,
+support each other with the challenges they are facing, and promoting innovative uses of
+AI, leading to increased implementation. Communities of practice, peer learning, and the
+development of micro-teaching can also make a decisive contribution to AI literacy. Apart
+from the methods already used for teacher training in the studies [33,42,46,50], experiential
+learning, problem-solving learning, and AI pedagogy with embedded ethics, are also
+recommended. Training methods should include collaborative exchange of knowledge and
+practices, tools that help with self-assessment, pilot interventions in the classroom, analysis
+of real situations and scenarios, experiential workshops with AI, innovative scenarios and
+simulations, and the cultivation of a critical approach (pedagogy and ethics of AI).
+5.1.3. Pedagogical AI Integration in K-12 Classrooms
+The third level concerns the transformation of teaching practices and is the point at
+which the effectiveness of training is essentially evaluated. Evaluation practices should
+not only concern classroom teachers but also all those who, due to their position, may
+hinder the integration of AI. Here, AI is integrated not as a substitute for the teacher but
+as a collaborative tool, which is why there needs to be a greater focus on GenAI, as this
+rapidly evolving technology offers many practical uses in content creation, lesson planning,
+curriculum development, assessment, feedback, and differentiation [43]. The employment
+of appropriate prompts when using conversational agents, which should be adequate and
+clear to have the expected results, is therefore crucial for teachers, who need practical
+https://doi.org/10.3390/computers15010049
+
+## PAGE 20
+Computers 2026, 15, 49 20 of 30
+training in this area [49,55]. Some suggestions include developing prompting skills such
+as writing clear instructions, providing AI with information on the context, specifying the
+expected output format, tone, and style of writing, and the size/depth of analysis of the
+answer. Teachers can also practice with examples of good and bad prompts and apply
+them to their actual teaching needs, promoting 21st century skills and enhancing creativity,
+critical thinking, learner engagement, and motivation to participate [38,58,59,73]. Training
+must therefore include proposals for realistic, pedagogically approved practices that can be
+applied in real classroom conditions and in actual teaching contexts [70].
+5.1.4. Ethical and Sustainable Embedding of AI
+The fourth level concerns the long-term consolidation of AI in educational practice.
+The ethical use of AI (data, privacy, algorithmic biases, academic integrity) is not treated as
+an isolated issue but as a cross-cutting principle that permeates all levels of the framework.
+Although the focus of this review is mainly on in-service training for teachers, many
+suggestions can be used for teacher education in university and for graduate teachers. For
+teachers to understand the need for continuous PD, a distinction must be made between
+university education, pre-service training, and in-service training, and these must be linked
+to specific pedagogical objectives, durations, and forms. The structure of PD programs
+must be adapted to the context in terms of duration and format and should always align
+with the targeted teacher group [ 67,68,70]. Furthermore, for the effective integration of
+AI into teaching and learning, teachers need to attend training tailored to their specific
+needs [5,57]. Refs. [ 61,62] expressed that teachers benefited the most from ongoing PD
+programs, which led to effective AI implementation and improved skills. Continuous PD
+with a holistic approach that can transform teaching and learning processes should be
+the long-term goal of any intervention, rather than scattered training programs without
+specific pedagogical and didactic objectives. A barrage of tools and superficial practice is
+not effective; instead, long-term strategies and a holistic approach that analyzes educational
+needs, skills, attitudes, and perceptions to develop personalized learning paths. Training
+evaluation and feedback processes should take place at all levels: individual (teacher and
+learning outcomes) and organizational (school and regional levels), and everyone should
+participate, not just classroom teachers. PD strategies could be defined for every school
+community, and training should be integrated into daily routines rather than treated as an
+exceptional intervention.
+5.2. Limitations and Future Recommendations
+The research presented in this paper is subject to certain limitations. The diversity
+of study designs prevented the possibility of referring to a single standardized tool for
+assessing risk of bias. Future systematic reviews may include more fine-grained quality
+appraisals once the empirical literature on AI-related teacher PD continues to mature.
+Some of the categories may have conceptual overlaps, and the proposed framework does
+not suggest specific tools. In addition, some of our categories were strongly supported
+by many articles that highlighted general trends, while others had fewer references or
+specific cases, which nevertheless had to be mentioned. Future empirical studies could
+investigate these categories following qualitative approaches. In any case, some of the
+research data come from specific contexts and educational settings in certain areas with
+public or private school systems, policies, local curricula, and infrastructure that do not
+allow us to draw conclusions about all educational environments. In addition, most of the
+empirical studies come from the Asian continent. Therefore, future research is required
+to provide insights from other continents, countries, and educational systems. Similarly,
+researchers could explore how AI PD programs should be differentiated according to the
+https://doi.org/10.3390/computers15010049
+
+## PAGE 21
+Computers 2026, 15, 49 21 of 30
+needs of teachers at different educational levels (primary, secondary, higher), subject areas
+(language, mathematics, arts, physics), different roles (teacher, consultant, leader), and
+specific contexts (educational policies, local communities, stakeholders, specific difficulties).
+The main themes for PD that emerged from this review can be used to design a research
+pathway on teachers’ training needs in a specific context; then, by combining the results,
+a PD program could be organized, implemented, evaluated, and redesigned.
+Author Contributions: Conceptualization, S.A. and K.L.; methodology S.A. and K.L.; software,
+S.A. and S.P .; validation, S.A., K.L. and S.P .; formal analysis, S.A., K.L. and S.P .; investigation,
+S.A.; resources, V .K.; data curation, T.K.; writing—original draft preparation, S.A., K.L. and S.P .;
+writing—review and editing, S.A., K.L. and S.P .; visualization, V .K.; supervision, T.K.; project admin-
+istration, V .K. and T.K. All authors have read and agreed to the published version of the manuscript.
+Funding: This research received no external funding.
+Data Availability Statement: The data presented in this study are available on request from the
+corresponding author.
+Acknowledgments: This paper has been supported by the funding programme “MEDICUS” of the
+University of Patras.
+Conflicts of Interest: The authors declare no conflict of interest.
+Appendix A
+Table A1. Empirical studies.
+No. Reference Country–Region Research Aim
+1 [31] Saudi Arabia
+Propose a conceptual framework intended to leverage
+the capabilities of the ChatGPT artificial intelligence
+model to enhance the creative teaching proficiencies of
+secondary school mathematics teachers.
+2 [60] Saudi Arabia
+Investigate teachers’ perspectives and experiences with
+AI-powered technologies for creating customized
+learning materials and resources for students.
+3 [45] China
+Investigate EFL teachers’ perceptions, knowledge, and
+behavioral intention to use AI to support teaching and
+learning of English in middle schools.
+4 [73] Iran
+Uncover how Iranian EFL teachers’ ChatGPT-driven
+collaborative reflective practice (CRP), both
+independently and collaboratively, can contribute to their
+professional development.
+5 [55] USA
+Understand the experiences and perceptions of teachers
+in a K-12 setting regarding the use of ChatGPT as
+a pedagogical tool.
+6 [70] Nepal
+Examine teachers’ awareness of AI, particularly its
+implications for teaching and learning among school
+teachers in Nepal.
+7 [61]
+Europe, Australasia,
+America, and
+Others—exact countries
+not stated
+Examine the views of teachers from a diverse range of
+teaching levels, experience levels, discipline areas, and
+regions on the impact of AI on teaching and assessment;
+the ways they believe teaching and assessment should
+change; and the key motivations for changing
+their practices.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 22
+Computers 2026, 15, 49 22 of 30
+Table A1. Cont.
+No. Reference Country–Region Research Aim
+8 [65] Turkey
+Investigate how school principals and teachers perceived
+the use of ChatGPT in education and reveal their
+attitudes towards using AI-based tools to facilitate the
+teaching–learning experience.
+9 [71] China
+Assess teachers’ efficacy in understanding AI and
+teaching AI, with additional considerations of promoting
+ethical awareness and designing socially beneficial
+AI applications.
+10 [32] Hong Kong
+Explore the interplay between proactive digital
+leadership and the internal and external barriers teachers
+face in implementing AI.
+11 [68] Estonia
+Explore teachers’ perceptions about cutting-edge
+technologies (in this case, AI) and contextualize the
+results in the scope of Fairness, Accountability,
+Transparency, and Ethics (FATE).
+12 [33] USA
+Provide effective PD programs for elementary school
+teachers and administrators working with bilingual
+children, with the goal of improving their AI literacy and
+positively influencing their attitudes towards AI
+integration in bilingual/ESL education.
+13 [46] USA
+Examine the influence of a case-based AI professional
+development (PD) program on AI integration strategies
+and AI literacy.
+14 [58] Ukraine
+Determine how actively AI and AI-assisted possibilities
+are used in Ukrainian school education and assess the
+attitudes of both Ukrainian students and teachers toward
+the use of AI in teaching and learning.
+15 [51] China
+Examine the power of AI literacy and explore the
+determinants of behavioral intentions to learn AI among
+K-12 teachers.
+16 [34] Nigeria, South Africa Explore teachers’ awareness, utilization, and perceptionsof ChatGPT.
+17 [35] Kenya, East Africa
+Assess Kenyan K-12 in-service teachers’ confidence in AI,
+attitudes toward AI, AI ethics, subjective norms,
+perceived threats, and readiness to teach AI and assess
+how these factors influence their readiness to teach AI.
+18 [48] Cyprus Level of awareness regarding the use of AI.
+19 [66] Indonesia
+Explore the intricate interplay between principal
+leadership styles, teacher roles, and the implementation
+of AI-based ‘Merdeka’ curriculum initiatives within
+vocational high schools across Indonesia.
+20 [36] USA Determine the current perceptions and uses of ChatGPTin K-12 settings.
+21 [37] Republic of Korea
+Explore the educational uses, considerations, and
+changes in social and educational environments in the
+transformational era of GenAI.
+22 [49] Turkey
+Examine two key aspects: (i) how teachers adapt
+curricula within a specific framework, focusing on
+traditional adaptation patterns; and (ii) how GenAI tools,
+especially ChatGPT, can improve curriculum adaptation
+by exploring teachers’ experiences in using AI to tailor
+educational content.
+23 [41] USA Explore different types of Teacher–AI Collaboration andthe potential benefits and obstacles of TAC.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 23
+Computers 2026, 15, 49 23 of 30
+Table A1. Cont.
+No. Reference Country–Region Research Aim
+24 [59] Republic of Korea
+Explore teachers’ perspectives on (1) curriculum design,
+(2) student–AI interaction, and (3) learning environments
+required to design student–AI collaboration (SAC) in
+learning, and (4) how SAC would evolve.
+25 [38] Turkey Identify teachers’ views on their digital skills in researchstudies using AI tools.
+26 [52] China Propose a human-centered learning and teachingframework (HCLTF).
+27 [64] Republic of Korea
+Understand in-service teachers’ perceptions regarding AI
+education for teaching in schools and their AI teacher
+training programs.
+28 [53] China
+Contribute empirical evidence to the growing body of
+knowledge regarding the factors that influence the
+utilization of AI tools in the educational sector, focusing
+on primary mathematics education.
+29 [50] The Philippines Examine teachers’ engagement with ChatGPT.
+30 [62] The Philippines
+Contribute valuable insights to the ongoing discourse on
+integrating AI in language teaching and provide practical
+recommendations for teachers, curriculum developers,
+and educational policymakers seeking to harness AI’s
+potential to enhance language learning experiences.
+31 [39] Vietnam
+Investigate the relationship between teacher professional
+development, quality of lecture design, student
+engagement, teacher technical skills, pedagogical content
+knowledge, and teacher satisfaction in using artificial
+intelligence (AI)-powered facilitator for
+designing lectures.
+32 [5] The Russian Federation
+Add to the growing volume of research that focuses on
+teachers’ attitude towards AI, their views on its
+applicability in education, and the necessity to develop
+AI competences.
+33 [47] China
+To promote CS teachers’ AI teaching competency,
+a professional development (PD) program based on the
+Technological Pedagogical Content Knowledge (TPACK)
+framework was intentionally designed in this research,
+and its effectiveness was examined.
+34 [42] Vietnam
+Delve into the experiences, perceptions, and outcomes
+associated with integrating ChatGPT into the
+TPD framework.
+35 [72] Taiwan Explore how AI could enrich the physical educationcurriculum in elementary school.
+36 [63] Kazakhstan Evaluate students’ effectiveness in using AI.
+37 [56] Turkey
+Evaluate the potential of using ChatGPT at the primary
+school level from the teachers’ perspective within
+a sustainability framework.
+38 [43] South Africa
+Explore how a specific group of teachers partner with
+GenAI tools, particularly ChatGPT, to complement and
+enhance their teaching.
+39 [57] Sweden, Norway, Israel,Japan, USA, and Brazil
+Improve understanding of factors that influence teachers’
+adoption of AI-EdTech, investigating teachers’ trust in
+AI-EdTech, and two of its antecedents, perceived benefits
+and concerns about AI-EdTech, in the context of K-12
+education in six countries.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 24
+Computers 2026, 15, 49 24 of 30
+Table A1. Cont.
+No. Reference Country–Region Research Aim
+40 [67] China
+Explore predictors of teachers’ behavioral intentions to
+design AI-assisted learning and examine the structural
+relationships among these factors, by constructing
+a structural model of AI literacy, Technological
+Pedagogical Content Knowledge (TPACK), technostress,
+school support, teacher agency, teacher autonomy, and
+behavioral intentions.
+41 [40] China
+Understand barriers involved in how AI is interpreted
+and the realities Hong Kong K-12 schools face,
+strengthen knowledge of current obstructions, and
+generate strategies that could help Hong Kong K-12
+schools incorporate AI more effectively.
+42 [44] China
+Explore how teachers in an English as a foreign language
+(EFL) context perceived and use a GenAI-based tool,
+ChatPDF, to develop materials for reading lessons
+43 [54] Indonesia
+Assess the impact of the PD program on various aspects
+of AI teaching competence, including AI-powered tools
+knowledge test, teaching skills related to AI-powered
+tools, and AI-powered tools teaching self-efficacy.
+Table A2. Studies per theme.
+Training practices (n = 20)
+Professional learning
+communities (n = 10) [31–40]
+Self-reflection and prompting (n = 4) [41–44]
+Case-based and
+application-focused learning (n = 3) [45–47]
+Differentiation in level, subject, and
+needs (n = 3) [48–50]
+Teachers’ perceptions and
+attitudes (n = 18) [5,31,32,34,35,39,46–48,51–59]
+Ongoing PD programs (n = 17) [5,32,33,36,38,41,46,50,52,55–57,60–64]
+Multi-level support (n = 15) [32,36–38,40,43,45,50,53,55,59,65–68]
+AI literacy (n = 14) [5,37,45–47,51,53,54,56,57,67,70–72]
+Ethical and responsible use (n = 7) [5,35,37,43,51,71,73]
+Note: All these codes can be found in various empirical studies.
+Table A3. Previous systematic reviews and their main findings.
+Authors Main Findings
+[15]
+• Teachers can leverage AI chatbots to enhance their instruction, provide personalized support,
+and save time on routine tasks.
+• Concerns about reliability, accuracy, fairness, and ethical issues.
+• Offer customized feedback and instructional support, increasing student engagement and
+information retention, but not emotional support.
+• Educational institutions should implement preventative measures, including creating
+awareness among students and offering PD training for teachers.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 25
+Computers 2026, 15, 49 25 of 30
+Table A3. Cont.
+Authors Main Findings
+[16]
+Using ChatGPT in K-12 education (SWOT Analysis):
+• Strengths: personalized learning experiences, student achievement, personalized feedback,
+enhanced learning experiences, capability in various subjects, efficiency, time-saving
+attributes, ability to overcome language barriers, productivity, motivation and engagement,
+user-friendliness, conceptual understanding, language skills development, critical thinking,
+task correctness and adequacy, and high system usability.
+• Weaknesses: output quality, low task specificity, inability to handle certain questions, limited
+reasoning abilities, low productivity due to over-reliance, limited understanding, lack of
+contextual understanding, predictability, recognition of accents and dialects, slow response
+times, and lack of internet access for verification.
+• Opportunities: personalized learning applications, differentiated instruction, support for
+teachers to generate tasks and assessments, clear policies of use, critical thinking,
+revolutionizing teaching approaches, AI-supported curriculum development, best practice,
+and train teachers.
+• Threats: data privacy and ethical concerns, academic dishonesty, decreased productivity,
+prompt engineering, inaccurate information, lack of deep understanding, diminished
+interaction, superficial learning, harmful stereotypes, lack of teacher awareness, and users’
+potential disinterest.
+[17]
+• Ethical challenges from GenAI misinformation and disruption of student–teacher
+relationships, requiring accessible and inclusive programs to reduce inequalities.
+• Frameworks must consider legal, ethical, and technological aspects, with international
+regulations playing a key role.
+• GenAI offers opportunities to personalize and optimize teaching but poses challenges that
+require training programs for teachers.
+[18]
+• Need for ongoing PD for teachers to use new technologies with collaborative, innovative,
+inclusive, and transparent design.
+• There are ethical and privacy issues related to data security and student information, and
+a lack of practical examples that can inform implementation.
+• Challenges involve developing suitable curriculum and testing that incorporate AI tools in
+both an ethical and proper manner.
+• Development of appropriate and pedagogical tools for continuous review of teaching
+methodology and integration of technologies that enable diverse learning styles.
+[19]
+• Conceptual framework for Human–Machine Dialogic Learning (HMDL) in teacher
+education with three elements: Pedagogy (instructional strategies), Learning Environment
+(content and context), and Technological Platforms (pedagogical platform for
+human–machine interaction).
+[20]
+• The field of Human-Centered Artificial Intelligence (HCAI) is mainly characterized by
+theoretical studies, reflecting conceptual frameworks and model developments.
+• Dimensions covered in this literature include practical applications of HCAI, construction of
+theoretical models, integration of AI technology into educational systems, pedagogical
+approaches supported by HCAI, and ethical or value considerations.
+• The paper conceptualizes the HCAI evolution in education into a four-stage process, starting
+from genesis through convergence to place human needs at the center of mature
+integrated systems.
+• HCAI is applied in various educational scenarios such as personalized learning and teacher
+support. Ethical and value considerations attract attention with a view to ensure that
+technology aligns with human dignity, rights, and societal values.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 26
+Computers 2026, 15, 49 26 of 30
+Table A3. Cont.
+Authors Main Findings
+[21]
+• Studies on AI ethics in education explored themes such as Fairness and Equity, Privacy and
+Security, Non-maleficence and Beneficence, Agency and Autonomy, and Transparency
+and Intelligibility.
+• Fairness and equity are a central focus, with articles discussing personalized instructions,
+quality of education, fair learning opportunities, and social justice.
+• Privacy and security concerns governing data, including its collection, management, storage,
+access, and usage, involving the privacy of learners and teachers.
+• Multi-stakeholder collaborative efforts are needed to ensure that AI use does not
+dehumanize learning and has sustainable and positive effects on education.
+[22]
+• AI literacy involves a conceptual blend of digital literacy, computational thinking, critical
+data literacy, and AI ethics.
+• Utilization of constructivist methodologies results in positive academic, affective, and
+behavioral outcomes.
+• Inform teachers and policymakers about effective implementation while highlighting
+challenges like the need for a systematic AI curriculum and teacher PD.
+[23]
+• AI literacy definitions have varied from technical proficiency to socio-ethical frameworks;
+thus, a balanced approach is most obviously required.
+• AI literacy frameworks are technical or holistic, which need to be considered in curriculum
+development and integration across educational levels.
+• AI literacy is an important element in modern educational pedagogies for its ethical, social,
+and applicative dimensions.
+[24]
+• AI literacy involves knowing dimensions—understand, apply, and ethics—and stakeholder
+perceptions among teachers and parents.
+• AI literacy integration focuses on development—innovative teaching methods and
+influencing factors such as gender and grade levels.
+• AI literacy assessment: measurement (scale development and verification) and effects
+(behavioral intentions, learning efficacy).
+• Increased global attention towards AI in education, primarily at the K-12 level.
+• Factors that have an impact on AI literacy and stakeholder perceptions remain
+under-researched areas.
+• AI literacy development among K-12 teachers is scant yet an essential part of their
+AI education.
+[25]
+• AI Competence Frameworks for Teachers (AI CFTs) classified within Competence Construct
+Claims, providing a structured classification to understand their foci and characteristics.
+• The authors distinguished five types of frameworks: (1) existing competence model-oriented;
+(2) competence areas/domains-oriented; (3) process-driven (process competency model);
+(4) AI systems-driven (specific work/job model), and (5) competence
+level-driven (multidimensional).
+• The classification of AI Competence Frameworks (CFTs) can be instrumental for researchers
+and policymakers in comprehending approaches to teacher competence development.
+https://doi.org/10.3390/computers15010049
+
+## PAGE 27
+Computers 2026, 15, 49 27 of 30
+Table A3. Cont.
+Authors Main Findings
+[26]
+Teachers’ challenges with AI integration:
+• Technical expertise needs to develop into effective pedagogical practices.
+• Learning to navigate ethical considerations and contextual factors related to school culture
+and resources.
+• Struggle to understand and apply AI tools practically in instructional routines.
+• Lack of adequate awareness and guidance in addressing the ethical dilemmas related to AI
+use in the classroom.
+• Teachers’ perceptions of AI capabilities create challenges of trust and
+effective implementation.
+• Technological proficiency and teaching contexts complicate the adoption process.
+• Organizational and infrastructural barriers including school culture, available resources, and
+administrative support.
+• As AI technologies continue to evolve, it will be increasingly important for teachers to play
+a key role in properly integrating such innovations into practice.
+References
+1. Aravantinos, S.; Lavidas, K.; Voulgari, I.; Papadakis, S.; Karalis, T.; Komis, V . Educational Approaches with AI in Primary School
+Settings: A Systematic Review of the Literature Available in Scopus. Educ. Sci. 2024, 14, 744. [CrossRef]
+2. Voulgari, I.; Lavidas, K.; Aravantinos, S.; Sypsa, S.; Sfyroera, M. Exploring the Role, Implementation, and Educational Implications
+of AI in Early Childhood Education. In Artificial Intelligence in Education. Posters and Late Breaking Results, Workshops and Tutorials,
+Industry and Innovation Tracks, Practitioners, Doctoral Consortium and Blue Sky; Olney, A.M., Chounta, I.-A., Liu, Z., Santos, O.C.,
+Bittencourt, I.I., Eds.; Springer Nature: Cham, Switzerland, 2024; pp. 29–37. [CrossRef]
+3. Wijayanti, A.; Dwiningrum, S.I.A.; Saptono, B. Digital Literacy in Elementary Schools Post COVID-19: A Systematic Literature
+Review. Int. J. Learn. Teach. Educ. Res. 2024, 23, 96–112. [CrossRef]
+4. Su, J.; Zhong, Y.; Ng, D.T.K. A meta-review of literature on educational approaches for teaching AI at the K-12 levels in the
+Asia-Pacific region. Comput. Educ. Artif. Intell. 2022, 3, 100065. [CrossRef]
+5. Sadykova, G.; Kayumova, A. Educators’ Perception of Artificial Intelligence as Instructional Tool.TEM J. 2024, 13, 3194–3204.
+[CrossRef]
+6. Miao, F.; Cukurova, M. AI Competency Framework for Teachers; United Nations Educational, Scientific and Cultural Organization:
+Paris, France, 2024. [CrossRef]
+7. Ng, D.T.K.; Leung, J.K.L.; Chu, S.K.W.; Qiao, M.S. Conceptualizing AI literacy: An exploratory review. Comput. Educ. Artif. Intell.
+2021, 2, 100041. [CrossRef]
+8. Mishra, P .; Warr, M.; Islam, R. TPACK in the age of ChatGPT and Generative AI.J. Digit. Learn. Teach. Educ. 2023, 39, 235–251.
+[CrossRef]
+9. Celik, I. Towards Intelligent-TPACK: An empirical study on teachers’ professional knowledge to ethically integrate artificial
+intelligence (AI)-based tools into education. Comput. Hum. Behav. 2023, 138, 107468. [CrossRef]
+10. Ning, Y.; Zhang, C.; Xu, B.; Zhou, Y.; Wijaya, T.T. Teachers’ AI-TPACK: Exploring the Relationship between Knowledge Elements.
+Sustainability 2024, 16, 978. [CrossRef]
+11. Zou, D.; Xie, H.; Kohnke, L. Navigating the Future: Establishing a Framework for Educators’ Pedagogic Artificial Intelligence
+Competence. Eur. J. Educ. 2025, 60, e70117. [CrossRef]
+12. Filiz, O.; Kaya, M.H.; Adiguzel, T. Teachers and AI: Understanding the factors influencing AI integration in K-12 education. Educ.
+Inf. Technol. 2025, 30, 17931–17967. [CrossRef]
+13. Lin, C.-C.; Huang, A.Y.Q.; Lu, O.H.T. Artificial intelligence in intelligent tutoring systems toward sustainable education:
+A systematic review. Smart Learn. Environ. 2023, 10, 41. [CrossRef]
+14. Chiu, T.K.F.; Ahmad, Z.; Çoban, M. Development and validation of teacher artificial intelligence (AI) competence self-efficacy
+(TAICS) scale. Educ. Inf. Technol. 2025, 30, 6667–6685. [CrossRef]
+15. Labadze, L.; Grigolia, M.; Machaidze, L. Role of AI chatbots in education: Systematic literature review. Int. J. Educ. Technol. High.
+Educ. 2023, 20, 56. [CrossRef]
+16. Zhang, P .; Tur, G. A systematic review of C HATGPT use in K-12 education. Eur. J. Educ. 2024, 59, e12599. [CrossRef]
+17. García-López, I.M.; Trujillo-Liñán, L. Ethical and regulatory challenges of Generative AI in education: A systematic review. Front.
+Educ. 2025, 10, 1565938. [CrossRef] [PubMed]
+https://doi.org/10.3390/computers15010049
+
+## PAGE 28
+Computers 2026, 15, 49 28 of 30
+18. Marzano, D. Generative Artificial Intelligence (GAI) in Teaching and Learning Processes at the K-12 Level: A Systematic Review.
+Technol. Knowl. Learn. 2025, 30, 1–41. [CrossRef]
+19. Wan, P .; Gu, X. Developing teachers’ professional abilities: A systematic review of human-machine dialogic learning for teacher
+education. Interact. Learn. Environ. 2025, 33, 1–25. [CrossRef]
+20. Chen, X.; Hu, Z.; Li, Y.; Wang, C. The journey of challenges and triumphs: A systematic literature review of the dynamic evolution
+of human-centered artificial intelligence in education. Interact. Learn. Environ. 2025, 33, 4906–4931. [CrossRef]
+21. Fu, Y.; Weng, Z. Navigating the ethical terrain of AI in education: A systematic review on framing responsible human-centered
+AI practices. Comput. Educ. Artif. Intell. 2024, 7, 100306. [CrossRef]
+22. Yim, I.H.Y .; Su, J. Artificial intelligence literacy education in primary schools: A review.Int. J. T echnol. Des. Educ.2025, 35, 2175–2204.
+[CrossRef]
+23. Biagini, G. Towards an AI-Literate Future: A Systematic Literature Review Exploring Education, Ethics, and Applications. Int. J.
+Artif. Intell. Educ. 2025, 35, 2616–2666. [CrossRef]
+24. Tan, Q.; Tang, X. Unveiling AI literacy in K-12 education: A systematic literature review of empirical research.Interact. Learn.
+Environ. 2025, 33, 5347–5363. [CrossRef]
+25. Mikeladze, T.; Meijer, P .C.; Verhoeff, R.P . A comprehensive exploration of artificial intelligence competence frameworks for
+educators: A critical review. Eur. J. Educ. 2024, 59, e12663. [CrossRef]
+26. Dogan, S.; Nalbantoglu, U.Y.; Celik, I.; Agacli Dogan, N. Artificial intelligence professional development: A systematic review of
+TPACK, designs, and effects for teacher learning. Prof. Dev. Educ. 2025, 51, 519–546. [CrossRef]
+27. Martin, F.; Zhuang, M.; Schaefer, D. Systematic review of research on artificial intelligence in K-12 education (2017–2022). Comput.
+Educ. Artif. Intell. 2024, 6, 100195. [CrossRef]
+28. Noroozi, O.; Soleimani, S.; Farrokhnia, M.; Banihashem, S.K. Generative AI in Education: Pedagogical, Theoretical, and
+Methodological Perspectives. Int. J. Technol. Educ. 2024, 7, 373–385. [CrossRef]
+29. Page, M.J.; McKenzie, J.E.; Bossuyt, P .M.; Boutron, I.; Hoffmann, T.C.; Mulrow, C.D.; Shamseer, L.; Tetzlaff, J.M.; Akl, E.A.;
+Brennan, S.E.; et al. The PRISMA statement: An updated guideline for reporting systematic reviews. BMJ 2021, 372, n71.
+[CrossRef] [PubMed]
+30. Braun, V .; Clarke, V . Thematic analysis. InAP A Handbook of Research Methods in Psychology; Cooper, H., Camic, P .M., Long, D.L.,
+Panter, A.T., Rindskopf, D., Sher, K.J., Eds.; Research Designs: Quantitative, Qualitative, Neuropsychological, and Biological;
+American Psychological Association: Washington, DC, USA, 2012; Volume 2, pp. 57–71. [CrossRef]
+31. Alhazzani, N.S. Enhancing mathematics teachers’ pedagogical skills by using ChatGPT. Int. J. Innov. Res. Sci. Stud. 2024,
+7, 1614–1626. [CrossRef]
+32. Cheng, E.C.K.; Wang, T. Leading digital transformation and eliminating barriers for teachers to incorporate artificial intelligence
+in basic education in Hong Kong. Comput. Educ. Artif. Intell. 2023, 5, 100171. [CrossRef]
+33. Davoodi, A. Crafting innovative paths in non-linear professional learning for bilingual education: The role of connectivism in the
+age of AI. Prof. Dev. Educ. 2024, 51, 434–450. [CrossRef]
+34. Egara, F.O.; Mosimege, M. Exploring the Integration of Artificial Intelligence-Based ChatGPT into Mathematics Instruction:
+Perceptions, Challenges, and Implications for Educators. Educ. Sci. 2024, 14, 742. [CrossRef]
+35. Fundi, M.; Sanusi, I.T.; Oyelere, S.S.; Ayere, M. Advancing AI education: Assessing Kenyan in-service teachers’ preparedness for
+integrating artificial intelligence in competence-based curriculum. Comput. Hum. Behav. Rep. 2024, 14, 100412. [CrossRef]
+36. Hays, L.; Jurkowski, O.; Sims, S.K. ChatGPT in K-12 Education. TechTrends2024, 68, 281–294. [CrossRef]
+37. Jang, H.; Choi, H. A Double-Edged Sword: Physics Educators’ Perspectives on Utilizing ChatGPT and Its Future in Classrooms. J.
+Sci. Educ. Technol. 2025, 34, 267–283. [CrossRef]
+38. Kokoç, M. Factors influencing K-12 teachers’ experiences of using Generative AI Tools: Opportunities and barriers. J. E-Learn.
+Knowl. Soc. 2024, 20, 101–111. [CrossRef]
+39. Nguyen, T.H.C. Exploring the Role of Artificial Intelligence-Powered Facilitator in Enhancing Digital Competencies of Primary
+School Teachers. Eur. J. Educ. Res. 2024, 13, 219–231. [CrossRef]
+40. Wang, T.; Cheng, E.C.K. An investigation of barriers to Hong Kong K-12 schools incorporating Artificial Intelligence in education.
+Comput. Educ. Artif. Intell. 2021, 2, 100031. [CrossRef]
+41. Kim, J. Types of teacher-AI collaboration in K-12 classroom instruction: Chinese teachers’ perspective. Educ. Inf. Technol. 2024,
+29, 17433–17465. [CrossRef]
+42. Tran, T.T.; Pham, T.T.; Le, T.T. Transformative Interactions: ChatGPT’s Role in Facilitating Professional Development Among
+Vietnamese English as a Foreign Language Teachers. High. Learn. Res. Commun. 2024, 14, 48–63. [CrossRef]
+43. Van Den Berg, G. Generative AI and Educators: Partnering in Using Open Digital Content for Transforming Education.Open
+Prax. 2024, 16, 130–141. [CrossRef]
+44. Xin, J.J. Investigating EFL teachers’ use of generative AI to develop reading materials: A practice and perception study. Lang.
+Teach. Res. 2024, 29, 1–30. [CrossRef]
+https://doi.org/10.3390/computers15010049
+
+## PAGE 29
+Computers 2026, 15, 49 29 of 30
+45. An, X.; Chai, C.S.; Li, Y.; Zhou, Y.; Shen, X.; Zheng, C.; Chen, M. Modeling English teachers’ behavioral intention to use artificial
+intelligence in middle schools. Educ. Inf. Technol. 2023, 28, 5187–5208. [CrossRef]
+46. Ding, A.-C.E.; Shi, L.; Yang, H.; Choi, I. Enhancing teacher AI literacy and integration through different types of cases in teacher
+professional development. Comput. Educ. Open 2024, 6, 100178. [CrossRef]
+47. Sun, J.; Ma, H.; Zeng, Y.; Han, D.; Jin, Y. Promoting the AI teaching competency of K-12 computer science teachers: A TPACK-based
+professional development approach. Educ. Inf. Technol. 2023, 28, 1509–1533. [CrossRef]
+48. Güneyli, A.; Burgul, N.S.; Dericio˘ glu, S.; Cenkova, N.; Becan, S.; ¸ Sim¸ sek, ¸ S.E.; Güneralp, H. Exploring Teacher Awareness of
+Artificial Intelligence in Education: A Case Study from Northern Cyprus. Eur. J. Investig. Health Psychol. Educ. 2024, 14, 2358–2376.
+[CrossRef]
+49. Karata¸ s, F.; Eriçok, B.; Tanrikulu, L. Reshaping curriculum adaptation in the age of artificial intelligence: Mapping teachers’AI
+-driven curriculum adaptation patterns. Br. Educ. Res. J. 2025, 51, 154–180. [CrossRef]
+50. Magat, R.J.B.; Sangalang, E.M. Teachers’ Familiarity, Perceptions, and Training Needs on the Use of ChatGPT in Mathematics
+Instruction. Int. J. Educ. Math. Sci. Technol. 2024, 12, 1471–1487. [CrossRef]
+51. Du, H.; Sun, Y.; Jiang, H.; Islam, A.Y.M.A.; Gu, X. Exploring the effects of AI literacy in teacher learning: An empirical study.
+Humanit. Soc. Sci. Commun. 2024, 11, 559. [CrossRef]
+52. Kong, S.-C.; Yang, Y. A Human-Centered Learning and Teaching Framework Using Generative Artificial Intelligence for Self-
+Regulated Learning Development Through Domain Knowledge Learning in K–12 Settings. IEEE Trans. Learn. Technol. 2024,
+17, 1562–1573. [CrossRef]
+53. Li, M. Integrating Artificial Intelligence in Primary Mathematics Education: Investigating Internal and External Influences on
+Teacher Adoption. Int. J. Sci. Math. Educ. 2025, 23, 1283–1308. [CrossRef]
+54. Zulianti, H.; Hastuti, H.; Nurchurifiani, E.; Hastomo, T.; Maximilian, A.; Ajeng, G.D. Enhancing Novice EFL Teachers’ Competency
+in AI-Powered Tools Through a TPACK-Based Professional Development Program.World J. Engl. Lang. 2024, 15, 117. [CrossRef]
+55. Bateman, T. Teacher perspectives of ChatGPT as a pedagogical tool in the K-12 setting: A case study. Qual. Assur. Educ. 2025,
+33, 203–217. [CrossRef]
+56. U˘ gra¸ s, H.; U˘ gra¸ s, M.; Papadakis, S.; Kalogiannakis, M. ChatGPT-Supported Education in Primary Schools: The Potential of
+ChatGPT for Sustainable Practices. Sustainability 2024, 16, 9855. [CrossRef]
+57. Viberg, O.; Cukurova, M.; Feldman-Maggor, Y.; Alexandron, G.; Shirai, S.; Kanemune, S.; Wasson, B.; Tømte, C.; Spikol, D.; Milrad,
+M.; et al. What Explains Teachers’ Trust in AI in Education Across Six Countries?Int. J. Artif. Intell. Educ. 2025, 35, 1288–1316.
+[CrossRef]
+58. Dovgyi, S.; Babiichuk, S.; Davybida, L.; Biletska, M. Teachers’ and students’ attitudes towards the use of artificial intelligence:
+All-ukrainian research. Inf. Technol. Learn. Tools 2024, 104, 197–215. [CrossRef]
+59. Kim, J.; Lee, H.; Cho, Y.H. Learning design to support student-AI collaboration: Perspectives of leading teachers for AI in
+education. Educ. Inf. Technol. 2022, 27, 6069–6104. [CrossRef]
+60. Almuhanna, M.A. Teachers’ perspectives of integrating AI-powered technologies in K-12 education for creating customized
+learning materials and resources. Educ. Inf. Technol. 2025, 30, 10343–10371. [CrossRef]
+61. Bower, M.; Torrington, J.; Lai, J.W.M.; Petocz, P .; Alfano, M. How should we change teaching and assessment in response to
+increasingly powerful generative Artificial Intelligence? Outcomes of the ChatGPT teacher survey. Educ. Inf. Technol. 2024,
+29, 15403–15439. [CrossRef]
+62. Mananay, J.A. Integrating Artificial Intelligence (AI) in Language Teaching: Effectiveness, Challenges, and Strategies. Int. J. Learn.
+Teach. Educ. Res. 2024, 23, 361–382. [CrossRef]
+63. Uaidullakyzy, E.; Oralbekova, A.K.; Dosbenbetova, A.S.; Yerubay, B.; Nauryzbayev, B.A.; Turmanov, R. Examination of students’
+success in the use of artificial intelligence. S. Afr. J. Educ. 2024, 44, 1–11. [CrossRef]
+64. Lee, Y.-J.; Davis, R.O.; Ryu, J. Korean in-Service Teachers’ Perceptions of Implementing Artificial Intelligence (AI) Education for
+Teaching in Schools and Their AI Teacher Training Programs.Int. J. Inf. Educ. Technol. 2024, 14, 214–219. [CrossRef]
+65. Cetin, Y.; Ta¸ s, Ö.; Alaku¸ s, H.; Kaplan, H.˙I. Examining School Principals’ and Teachers’ Perceptions of Using ChatGPT in Education.
+Educ. Process Int. J. 2024, 13, 85–96. [CrossRef]
+66. Halomoan, H.; Hakiki, M.; Ramadhan, M.A.; Hidayah, Y.; Fakhri, J.; Aljamaliah, S.N.M.; Abi Hamid, M. Integrating Principal
+Leadership and Teacher Roles with AI-Based “Merdeka” Curriculum Innovation: The Quantitative Research. TEM J. 2024,
+13, 3397–3404. [CrossRef]
+67. Wang, K.; Chai, C.-S.; Liang, J.-C.; Sang, G. Exploring teachers’ behavioural intentions to design artificial intelligence-assisted
+learning in Chinese K–12 education. Technol. Pedagog. Educ. 2024, 33, 629–645. [CrossRef]
+68. Chounta, I.-A.; Bardone, E.; Raudsep, A.; Pedaste, M. Exploring Teachers’ Perceptions of Artificial Intelligence as a Tool to
+Support their Practice in Estonian K-12 Education. Int. J. Artif. Intell. Educ. 2022, 32, 725–755. [CrossRef]
+69. Leithwood, K. The Personal Resources of Successful Leaders: A Narrative Review. Educ. Sci. 2023, 13, 932. [CrossRef]
+https://doi.org/10.3390/computers15010049
+
+## PAGE 30
+Computers 2026, 15, 49 30 of 30
+70. Bohara, D.K.; Rana, K. Unmasking teachers’ proficiency in harnessing Artificial Intelligence (AI) for transformative education.
+SN Soc. Sci. 2024, 4, 203. [CrossRef]
+71. Chai, C.S.; Liang, S.; Wang, X. A survey study of chinese teachers’ continuous intentions to teach artificial intelligence. Educ. Inf.
+Technol. 2024, 29, 14015–14034. [CrossRef]
+72. Tseng, C.-W.; Chang, A.; Liu, E.-Y.Detecting Fitted Strategies for Integrating AI Applications into Physical Education Using Fuzzy Logic
+(No. 10); ICIC International: Kumamoto, Japan, 2024. [CrossRef]
+73. Arefian, M.H.; Çomo˘ glu, I.; Dikilita¸ s, K. Understanding EFL teachers’ experiences of ChatGPT-driven collaborative reflective
+practice through a community of practice lens. Innov. Lang. Learn. Teach. 2024, 19, 1–16. [CrossRef]
+74. United Nations Educational; Scientific and Cultural Organization. Recommendation on the Ethics of Artificial Intelligence. 2021.
+Available online: https://unesdoc.unesco.org/ark:/48223/pf0000381137 (accessed on 1 January 2026).
+75. OECD/LEGAL/0449; Recommendation of the Council on Artificial Intelligence. Organization for Economic Co-operation and
+Development: Paris, France, 2024. Available online: https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0449
+(accessed on 1 January 2026).
+76. Regulation (EU) 2024/1689 of the European Parliament and of the Council of 13 June 2024 Laying Down Harmonised Rules
+on Artificial Intelligence and Amending Regulations (EC) No 300/2008, (EU) No 167/2013, (EU) No 168/2013, (EU) 2018/858,
+(EU) 2018/1139 and (EU) 2019/2144 and Directives 2014/90/EU, (EU) 2016/797 and (EU) 2020/1828 (Artificial Intelligence
+Act). Official Journal L 2024/1689. 2024. Available online: https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng (accessed on
+1 January 2026).
+Disclaimer/Publisher’s Note: The statements, opinions and data contained in all publications are solely those of the individual
+author(s) and contributor(s) and not of MDPI and/or the editor(s). MDPI and/or the editor(s) disclaim responsibility for any injury to
+people or property resulting from any ideas, methods, instructions or products referred to in the content.
+https://doi.org/10.3390/computers15010049

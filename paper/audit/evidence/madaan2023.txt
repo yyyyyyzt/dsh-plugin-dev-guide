@@ -1,0 +1,1640 @@
+html { scroll-padding-top: 70px; /* height of sticky header plus extra */ }
+window.MathJax = {
+          tex: {
+            // Workshop/competition imports store inline formulas with doubled dollars.
+            inlineMath: [['$$', '$$'], ['$', '$'], ['\\(', '\\)']],
+            displayMath: [['\\[', '\\]']],
+            processEscapes: true,
+          },
+          options: {
+            ignoreHtmlClass: 'no-mathjax',
+          }
+        };
+(function (document, navigator, standalone) {
+
+        if ((standalone in navigator) && navigator[standalone]) {
+            var curnode, location = document.location, stop = /^(a|html)$/i;
+            document.addEventListener('click', function (e) {
+                curnode = e.target;
+                while (!(stop).test(curnode.nodeName)) {
+                    curnode = curnode.parentNode;
+                }
+
+                if (
+                    'href' in curnode && // is a link
+                    (chref = curnode.href).replace(location.href, '').indexOf('#') && // is not an anchor
+                    (!(/^[a-z\+\.\-]+:/i).test(chref) ||                       // either does not have a proper scheme (relative links)
+                        chref.indexOf(location.protocol + '//' + location.host) === 0) // or is in the same protocol and domain
+                ) {
+                    e.preventDefault();
+                    location.href = curnode.href;
+                }
+            }, false);
+        }
+    })(document, window.navigator, 'standalone');
+@media screen and (min-width: 767px) {
+        .blurb {
+            min-height: 260px;
+        }
+    }
+if (typeof jQuery === 'undefined') {
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = "/static/core/js/jquery-3.6.1.min.js";
+        document.head.appendChild(script);
+    }
+var $ = jQuery;
+body {
+            font-family: Exo;}
+NeurIPS Poster Self-Refine: Iterative Refinement with Self-Feedback
+{
+ "@context": "https://schema.org/",
+ "@type": "CreativeWork",
+ "name": "Self-Refine: Iterative Refinement with Self-Feedback",
+ "creditText": "NeurIPS 2023",
+ "author": [
+  {
+   "@type": "Person",
+   "name": "Aman Madaan"
+  },
+  {
+   "@type": "Person",
+   "name": "Niket Tandon"
+  },
+  {
+   "@type": "Person",
+   "name": "Prakhar Gupta"
+  },
+  {
+   "@type": "Person",
+   "name": "Skyler Hallinan"
+  },
+  {
+   "@type": "Person",
+   "name": "Luyu Gao"
+  },
+  {
+   "@type": "Person",
+   "name": "Sarah Wiegreffe"
+  },
+  {
+   "@type": "Person",
+   "name": "Uri Alon"
+  },
+  {
+   "@type": "Person",
+   "name": "Nouha Dziri"
+  },
+  {
+   "@type": "Person",
+   "name": "Shrimai Prabhumoye"
+  },
+  {
+   "@type": "Person",
+   "name": "Yiming Yang"
+  },
+  {
+   "@type": "Person",
+   "name": "Shashank Gupta"
+  },
+  {
+   "@type": "Person",
+   "name": "Bodhisattwa Prasad Majumder"
+  },
+  {
+   "@type": "Person",
+   "name": "Katherine Hermann"
+  },
+  {
+   "@type": "Person",
+   "name": "Sean Welleck"
+  },
+  {
+   "@type": "Person",
+   "name": "Amir Yazdanbakhsh"
+  },
+  {
+   "@type": "Person",
+   "name": "Peter Clark"
+  }
+ ],
+ "datePublished": "2023-09-26",
+ "dateModified": "2026-04-15"
+}
+/* ========================================
+           CSS Variables - Design System
+           ======================================== */
+        :root {
+            --primary-blue: #1976d2;
+            --zoom-blue: #2d8cff;
+            --project-purple: #6c5ce7;
+            --success-green: #28a745;
+            --warning-red: #dc3545;
+            --text-primary: #212121;
+            --text-secondary: #555;
+            --text-muted: #777;
+            --bg-light: #f8f9fa;
+            --bg-page: #f6f6f6;
+            --border-light: #e0e0e0;
+            --border-lighter: #f0f0f0;
+            --shadow-sm: 0 2px 6px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.12);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+        }
+
+        /* ========================================
+           Base Page Styling
+           ======================================== */
+        body {
+            background: var(--bg-page);
+        }
+
+        .detail-page-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 40px 24px;
+        }
+
+        /* ========================================
+           Hero Card - Main Event Info
+           ======================================== */
+        .hero-card {
+            display: block;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border-left: 5px solid #6c757d;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .hero-card::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* Event Type Colors - matches eventlistwithbios card accents */
+        .hero-card.invited-talk { border-left-color: #0d9488; }
+        /* Keynote talk: indigo accent + subtle gradient. Declared so that an event
+           with both `invited-talk` and `keynote-talk` classes (the keynote case —
+           type="Invited Talk", event_type="Keynote Talk") gets the keynote color. */
+        .hero-card.keynote-talk {
+            border-left-color: #4338ca;
+            background: linear-gradient(to right, #eef2ff 0%, #ffffff 12%, #ffffff 100%);
+        }
+        .hero-card.poster, .hero-card.poster-session { border-left-color: #c580fa; }
+        .hero-card.award {
+            border-left-color: gold;
+            background: linear-gradient(to right, #fffef0 0%, #ffffff 12%, #ffffff 100%);
+        }
+        .hero-card.tutorial { border-left-color: rgb(113, 180, 194); }
+        .hero-card.workshop { border-left-color: #52ad0d; }
+        .hero-card.demonstration { border-left-color: rgb(194, 190, 240); }
+        .hero-card.symposium { border-left-color: #5fadef; }
+        .hero-card.oral, .hero-card.oral-session { border-left-color: #fdbb02; }
+        .hero-card.social { border-left-color: #c1f197; }
+        .hero-card.competition { border-left-color: #c1f197; }
+        .hero-card.spotlight { border-left-color: #fdbb02; }
+        .hero-card.mentorship { border-left-color: rgb(141, 140, 138); }
+        .hero-card.town-hall { border-left-color: rgb(155, 232, 181); }
+        .hero-card.affinity-workshop,
+        .hero-card.affinity-event { border-left-color: rgb(53, 147, 144); }
+        .hero-card.affinity-poster-session { border-left-color: rgb(154, 203, 119); }
+        .hero-card.expo-workshop { border-left-color: rgb(250, 151, 72); }
+        .hero-card.expo-talk-panel { border-left-color: rgb(200, 221, 231); }
+        .hero-card.expo-demonstration { border-left-color: rgb(252, 175, 245); }
+        .hero-card.panel { border-left-color: #0510ea; }
+        .hero-card.creative-ai-session { border-left-color: #ff6b9d; }
+        .hero-card.education-track-session { border-left-color: #4ecdc4; }
+        .hero-card.break, .hero-card.registration-desk { border-left-color: #d7d6d3; }
+        .hero-card.remarks { border-left-color: #6a6d6f; }
+
+        .hero-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .bookmark-container {
+            flex-shrink: 0;
+        }
+
+        .hero-card .bookmark-right,
+        .hero-card .bookmark-cell,
+        .bookmark-container .bookmark-right,
+        .bookmark-container .bookmark-cell,
+        .bookmark-container > span {
+            float: none !important;
+            position: static !important;
+            left: auto !important;
+        }
+
+        /* Hide any bookmark text - but NOT the bookmark toggle itself */
+        .bookmark-container .bookmark-text {
+            display: none !important;
+        }
+
+        /* ========================================
+           Event Type Badge
+           ======================================== */
+        .event-type-badge {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-light);
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid var(--border-light);
+        }
+
+        /* ========================================
+           Title
+           ======================================== */
+        .event-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+            line-height: 1.25;
+        }
+
+        /* ========================================
+           Organizers/Speakers
+           ======================================== */
+        .event-organizers {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            line-height: 1.6;
+            margin-bottom: 4px;
+            overflow: hidden;
+            clear: both;
+        }
+
+        .event-organizers a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .event-organizers a:hover {
+            text-decoration: underline;
+        }
+
+        /* ========================================
+           Meta Pills Row
+           ======================================== */
+        .meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75em;
+            color: var(--text-secondary);
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+        }
+
+        .meta-pill i {
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        .hero-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .session-info {
+            color: var(--text-muted);
+            font-size: 0.8em;
+            margin-bottom: 16px;
+        }
+
+        /* ========================================
+           Action Buttons
+           ======================================== */
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+            margin-bottom: 12px;
+            font-size: 0;
+        }
+
+        .action-buttons > * {
+            font-size: 0.95rem;
+        }
+
+        .action-btn {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem !important;
+            font-weight: 500;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+            text-decoration: none;
+        }
+
+        .action-btn.project {
+            background: var(--bg-light) !important;
+            color: var(--text-secondary) !important;
+            border: 1px solid var(--border-light) !important;
+        }
+
+        .action-btn.project:hover {
+            background: #e9ecef !important;
+            color: var(--text-primary) !important;
+        }
+
+        .action-btn.metadata {
+            background: #f0f7ff !important;
+            color: #1976d2 !important;
+            border: 1px solid #c8e1f3 !important;
+        }
+
+        .action-btn.metadata:hover {
+            background: #e3f0fc !important;
+        }
+
+        .action-buttons .nowrap,
+        .action-buttons span.nowrap {
+            display: inline-flex !important;
+            white-space: nowrap;
+            font-size: 0;
+        }
+
+        .action-buttons .nowrap a,
+        .action-buttons a[href*="openreview"],
+        .action-buttons a[href*="pdf"] {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85em;
+            font-weight: 500;
+            text-decoration: none;
+            background: #e8f4fc;
+            color: #1976d2 !important;
+            border: 1px solid #c8e1f3;
+            transition: all 0.2s ease;
+        }
+
+        .action-buttons .nowrap a:hover,
+        .action-buttons a[href*="openreview"]:hover,
+        .action-buttons a[href*="pdf"]:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+            background: #d6ebf8;
+            text-decoration: none;
+        }
+
+        .action-buttons a[href*="openreview"] {
+            background: #fdf2f2;
+            color: #b31b1b !important;
+            border: 1px solid #f5d6d6;
+        }
+
+        .action-buttons a[href*="openreview"]:hover {
+            background: #fae8e8;
+        }
+
+        .action-buttons .nowrap a {
+            font-size: 0.95rem;
+        }
+
+        /* Zoom Button Group */
+        .zoom-btn-group {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .action-btn.zoom {
+            background: #e8f4ff;
+            color: #2d8cff;
+            border: 1px solid #c5e0ff;
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+        }
+
+        .action-btn.zoom:hover {
+            background: #d6ebff;
+            color: #1a7ae8;
+        }
+
+        .action-btn.zoom.no-dropdown {
+            border-radius: var(--radius-sm);
+        }
+
+        .zoom-dropdown-btn {
+            background: #e8f4ff;
+            color: #2d8cff;
+            border: 1px solid #c5e0ff;
+            border-left: none;
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .zoom-dropdown-btn:hover {
+            background: #d6ebff;
+        }
+
+        .zoom-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 500px;
+            background: white;
+            border-radius: var(--radius-md);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-light);
+            z-index: 1000;
+            display: none;
+        }
+
+        .zoom-dropdown.show {
+            display: block;
+        }
+
+        .zoom-dropdown-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-light);
+            font-weight: 600;
+            font-size: 0.9em;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .zoom-dropdown-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-dropdown-body {
+            padding: 14px 16px;
+        }
+
+        .zoom-info-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .zoom-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .zoom-info-label {
+            font-size: 0.75em;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .zoom-info-value {
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85em;
+            background: var(--bg-light);
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+        }
+
+        .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 0.8em;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        .copy-btn.copied {
+            background: var(--success-green);
+            color: white;
+            border-color: var(--success-green);
+        }
+
+        .zoom-host-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .zoom-host-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--warning-red);
+            font-weight: 600;
+            font-size: 0.8em;
+            margin-bottom: 10px;
+        }
+
+        .zoom-host-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .zoom-public-warning {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: #fff3cd;
+            color: #856404;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .zoom-public-warning i {
+            color: #e0a800;
+            font-size: 0.9em;
+        }
+
+        /* ========================================
+           Abstract Section
+           ======================================== */
+        .abstract-section {
+            clear: both !important;
+            display: block !important;
+            overflow: hidden !important;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-lighter);
+            position: relative;
+            width: 100%;
+        }
+
+        .abstract-header {
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .abstract-header i {
+            color: var(--primary-blue);
+            font-size: 0.9em;
+        }
+
+        .abstract-content {
+            display: block !important;
+            overflow: hidden !important;
+            position: relative;
+            width: 100%;
+        }
+
+        .abstract-text {
+            display: block !important;
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.8;
+            overflow: hidden !important;
+            word-wrap: break-word;
+            position: relative;
+            width: 100%;
+            text-align: left;
+        }
+
+        .abstract-text.collapsed {
+            max-height: 200px !important;
+        }
+
+        .abstract-text.expanded {
+            max-height: none !important;
+        }
+
+        .abstract-text-inner {
+            display: block !important;
+            position: relative !important;
+            width: 100% !important;
+        }
+
+        .show-more-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--primary-blue);
+            font-size: 0.9em;
+            font-weight: 600;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+
+        .show-more-btn:hover {
+            color: #1565c0;
+        }
+
+        .show-more-btn i {
+            transition: transform 0.2s;
+        }
+
+        .show-more-btn.expanded i {
+            transform: rotate(180deg);
+        }
+
+        /* Keywords */
+        .keywords-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .keywords-label {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .keyword-pill {
+            display: inline-block;
+            background: var(--bg-light);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            text-decoration: none;
+            border: 1px solid var(--border-light);
+            transition: all 0.2s;
+        }
+
+        .keyword-pill:hover {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        /* Awards */
+        .awards-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #fff7e6 0%, #fffbe6 100%);
+            border-radius: var(--radius-md);
+            border: 1px solid #ffd54f;
+        }
+
+        .award-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .award-item img {
+            max-height: 40px;
+            width: auto;
+        }
+
+        .award-name {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #b8860b;
+        }
+
+        /* Related Events */
+        .related-events {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: var(--bg-light);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+        }
+
+        .related-event-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 0.9em;
+        }
+
+        .related-event-item:not(:last-child) {
+            border-bottom: 1px solid var(--border-lighter);
+        }
+
+        .related-type-badge {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: var(--primary-blue);
+        }
+
+        .related-event-item a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .related-event-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* ========================================
+           Content Sections
+           ======================================== */
+        .content-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title i {
+            color: var(--primary-blue);
+            font-size: 0.9em;
+        }
+
+        /* Speaker bios — modern card layout, full bio (no clamping). Replaces
+           the old <table border="1"> rendering of the show_bios block. */
+        .speaker-bios-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 8px;
+        }
+
+        .speaker-bio-row {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .speaker-bio-pic {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .speaker-bio-info {
+            flex: 1;
+            min-width: 0;
+            text-align: left;
+        }
+
+        .speaker-bio-name {
+            font-size: 1.15em;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+        }
+
+        .speaker-bio-name a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .speaker-bio-name a:hover {
+            text-decoration: underline;
+        }
+
+        .speaker-bio-text {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+            line-height: 1.65;
+            text-align: left;
+        }
+
+        @media (max-width: 600px) {
+            .speaker-bio-row {
+                flex-direction: column;
+                align-items: flex-start;
+                text-align: left;
+            }
+            .speaker-bio-pic {
+                width: 120px;
+                height: 120px;
+            }
+        }
+
+        .timezone-link {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timezone-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .timezone-link a:hover {
+            text-decoration: underline;
+        }
+
+        .am-pm-timeframe-badge {
+            display: inline-block;
+            background: #e8f4ff;
+            color: #1565c0;
+            padding: 1px 7px;
+            border-radius: 3px;
+            font-weight: 700;
+            border: 1px solid #c5e0ff;
+            letter-spacing: 0.3px;
+        }
+
+        /* Video Section */
+        .video-embed {
+            margin-top: 16px;
+        }
+
+        .access-message {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin-bottom: 12px;
+        }
+
+        /* Chat Section - Override nested container */
+        .chat-section .container {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .chat-section .pp-card {
+            margin: 0 !important;
+            box-shadow: none;
+        }
+
+        .chat-section .m-3 {
+            margin: 0 !important;
+        }
+
+        /* Schedule Table Styles */
+        .content-section table.table {
+            width: 100%;
+            margin: 0;
+            border: none;
+        }
+
+        .content-section table.table,
+        .content-section table.table tbody,
+        .content-section table.table tr,
+        .content-section table.table td {
+            display: block;
+            border: none;
+            padding: 0;
+        }
+
+        .schedule-row {
+            border-bottom: 1px solid var(--border-lighter);
+        }
+
+        .schedule-row:last-child {
+            border-bottom: none;
+        }
+
+        .content-section table.table td.schedule-cell {
+            padding: 8px 0;
+        }
+
+        .schedule-main {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            min-height: 24px;
+        }
+
+        .schedule-time {
+            flex-shrink: 0;
+            width: 70px;
+            font-size: 0.8em;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .schedule-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .schedule-title-row {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .schedule-event-name {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .schedule-event-name a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .schedule-event-name a:hover {
+            color: var(--primary-blue);
+        }
+
+        .schedule-authors {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .schedule-authors a {
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .schedule-authors a:hover {
+            color: var(--primary-blue);
+        }
+
+        .schedule-authors details {
+            display: inline;
+        }
+
+        .schedule-authors details summary {
+            cursor: pointer;
+            color: var(--primary-blue);
+            display: inline;
+            list-style: none;
+        }
+
+        .schedule-authors details summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .schedule-meta {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .schedule-event-type {
+            display: inline-block;
+            background: var(--bg-light);
+            color: var(--text-muted);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border: 1px solid var(--border-light);
+            text-decoration: none;
+        }
+
+        .schedule-event-type:hover {
+            color: var(--primary-blue);
+            text-decoration: none;
+        }
+
+        .schedule-bookmark {
+            font-size: 0.85em;
+        }
+
+        .schedule-extras {
+            margin: 4px 0 0 82px;
+        }
+
+        .schedule-video-btn {
+            display: inline-block;
+            font-size: 0.75em;
+            color: var(--text-muted);
+            text-decoration: none;
+        }
+
+        .schedule-video-btn:hover {
+            color: var(--primary-blue);
+        }
+
+        .schedule-video-btn i {
+            margin-right: 3px;
+        }
+
+        .schedule-abstract {
+            background: var(--bg-light);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            margin: 6px 0 0 82px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .schedule-abstract .poster-location {
+            color: var(--text-muted);
+            font-size: 0.9em;
+            margin: 0 0 6px 0;
+        }
+
+        .schedule-abstract .poster-location i {
+            margin-right: 4px;
+        }
+
+        .schedule-abstract-link {
+            margin-top: 6px;
+        }
+
+        .schedule-abstract-link a {
+            color: var(--primary-blue);
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .content-section {
+                padding: 20px;
+            }
+
+            .schedule-main {
+                flex-wrap: wrap;
+            }
+
+            .schedule-time {
+                width: auto;
+            }
+
+            .schedule-info {
+                width: 100%;
+                order: 3;
+                margin-top: 2px;
+            }
+
+            .schedule-extras,
+            .schedule-abstract {
+                margin-left: 0;
+            }
+        }
+NeurIPS 2023
+Skip to yearly menu bar
+Skip to main content
+Main Navigation
+NeurIPS
+Help/FAQ
+Contact NeurIPS
+Create Profile
+Code of Ethics
+Code of Conduct
+Journal To Conference Track
+Diversity & Inclusion
+Proceedings
+Future Meetings
+Press
+Exhibitor Information
+Privacy Policy
+Downloads
+My Stuff
+Login
+Getting Started
+Schedule
+Main Conference
+Invited Talks
+Panels
+Orals
+Papers
+Competitions
+Datasets & Benchmarks
+Journal Track
+Outstanding Paper Awards
+Creative AI Track
+Workshops
+Community
+Sponsors
+Help
+What is a Draft Website
+Presenters Instructions
+Moderators Instructions
+FAQ
+Helpdesk in RocketChat
+Organizers
+Tutorials
+Select Year: (2023)
+2026
+2025
+2024
+2023
+2022
+2021
+2020
+2019
+2018
+2017
+2016
+2015
+2014
+2013
+2012
+2011
+2010
+2009
+2008
+2007
+2006
+Earlier Conferences
+Poster
+Self-Refine: Iterative Refinement with Self-Feedback
+Aman Madaan ⋅ Niket Tandon ⋅ Prakhar Gupta ⋅ Skyler Hallinan ⋅ Luyu Gao ⋅ Sarah Wiegreffe ⋅ Uri Alon ⋅ Nouha Dziri ⋅ Shrimai Prabhumoye ⋅ Yiming Yang ⋅ Shashank Gupta ⋅ Bodhisattwa Prasad Majumder ⋅ Katherine Hermann ⋅ Sean Welleck ⋅ Sean Welleck ⋅ Amir Yazdanbakhsh ⋅ Peter Clark
+2023 Poster
+Project Page
+[
+Paper
+]
+[
+Slides
+]
+[
+OpenReview
+]
+Abstract
+Like humans, large language models (LLMs) do not always generate the best output on their first try. Motivated by how humans refine their written text, we introduce Self-Refine, an approach for improving initial outputs from LLMs through iterative feedback and refinement. The main idea is to generate an initial output using an LLMs; then, the same LLMs provides *feedback* for its output and uses it to *refine* itself, iteratively. Self-Refine does not require any supervised training data, additional training, or reinforcement learning, and instead uses a single LLM as the generator, refiner and the feedback provider.  We evaluate Self-Refine across 7 diverse tasks, ranging from dialog response generation to mathematical reasoning, using state-of-the-art (GPT-3.5, ChatGPT, and GPT-4) LLMs. Across all evaluated tasks, outputs generated with Self-Refine are preferred by humans and automatic metrics over those generated with the same LLM using conventional one-step generation, improving by $\sim$20\% absolute on average in task performance. Our work demonstrates that even state-of-the-art LLMs like GPT-4 can be further improved at test-time using our simple, standalone approach.
+Show more
+Video
+Chat is not available.
+// Toggle abstract show more/less
+        function toggleAbstract() {
+            var abstractText = document.getElementById('abstractText');
+            var btn = document.getElementById('showMoreBtn');
+            var btnText = document.getElementById('showMoreText');
+
+            if (!abstractText || !btn) return;
+
+            if (abstractText.classList.contains('collapsed')) {
+                abstractText.classList.remove('collapsed');
+                abstractText.classList.add('expanded');
+                abstractText.style.maxHeight = abstractText.scrollHeight + 'px';
+                btnText.textContent = 'Show less';
+                btn.classList.add('expanded');
+            } else {
+                abstractText.classList.remove('expanded');
+                abstractText.classList.add('collapsed');
+                abstractText.style.maxHeight = '200px';
+                btnText.textContent = 'Show more';
+                btn.classList.remove('expanded');
+            }
+        }
+
+        // Toggle lay summary show more/less
+        function toggleLaySummary() {
+            var laySummaryText = document.getElementById('laySummaryText');
+            var btn = document.getElementById('showMoreLaySummaryBtn');
+            var btnText = document.getElementById('showMoreLaySummaryText');
+
+            if (!laySummaryText || !btn) return;
+
+            if (laySummaryText.classList.contains('collapsed')) {
+                laySummaryText.classList.remove('collapsed');
+                laySummaryText.classList.add('expanded');
+                laySummaryText.style.maxHeight = laySummaryText.scrollHeight + 'px';
+                btnText.textContent = 'Show less';
+                btn.classList.add('expanded');
+            } else {
+                laySummaryText.classList.remove('expanded');
+                laySummaryText.classList.add('collapsed');
+                laySummaryText.style.maxHeight = '200px';
+                btnText.textContent = 'Show more';
+                btn.classList.remove('expanded');
+            }
+        }
+
+        // Toggle zoom dropdown
+        function toggleZoomDropdown(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var dropdown = document.getElementById('zoomDropdown');
+            if (dropdown) {
+                dropdown.classList.toggle('show');
+            }
+        }
+
+        // Copy to clipboard function
+        function copyToClipboard(text, btn) {
+            navigator.clipboard.writeText(text).then(function() {
+                var originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Failed to copy: ', err);
+            });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            var dropdown = document.getElementById('zoomDropdown');
+            if (dropdown && !e.target.closest('.zoom-btn-group')) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if abstract needs show more button
+            var abstractText = document.getElementById('abstractText');
+            var btn = document.getElementById('showMoreBtn');
+
+            if (abstractText && btn) {
+                // Temporarily remove collapsed to measure full height
+                abstractText.classList.remove('collapsed');
+                abstractText.classList.add('expanded');
+                var fullHeight = abstractText.scrollHeight;
+                abstractText.classList.remove('expanded');
+                abstractText.classList.add('collapsed');
+
+                // If content fits within collapsed height, hide the button
+                if (fullHeight <= 200) {
+                    btn.style.display = 'none';
+                    abstractText.classList.remove('collapsed');
+                    abstractText.classList.add('expanded');
+                }
+            }
+
+            // Check if lay summary needs show more button
+            var laySummaryText = document.getElementById('laySummaryText');
+            var laySummaryBtn = document.getElementById('showMoreLaySummaryBtn');
+
+            if (laySummaryText && laySummaryBtn) {
+                laySummaryText.classList.remove('collapsed');
+                laySummaryText.classList.add('expanded');
+                var layFullHeight = laySummaryText.scrollHeight;
+                laySummaryText.classList.remove('expanded');
+                laySummaryText.classList.add('collapsed');
+
+                if (layFullHeight <= 200) {
+                    laySummaryBtn.style.display = 'none';
+                    laySummaryText.classList.remove('collapsed');
+                    laySummaryText.classList.add('expanded');
+                }
+            }
+
+            // CSP-compliant event listeners
+            var showMoreBtn = document.getElementById('showMoreBtn');
+            if (showMoreBtn) {
+                showMoreBtn.addEventListener('click', toggleAbstract);
+            }
+
+            var showMoreLaySummaryBtn = document.getElementById('showMoreLaySummaryBtn');
+            if (showMoreLaySummaryBtn) {
+                showMoreLaySummaryBtn.addEventListener('click', toggleLaySummary);
+            }
+
+            var zoomDropdownBtn = document.querySelector('.zoom-dropdown-btn');
+            if (zoomDropdownBtn) {
+                zoomDropdownBtn.addEventListener('click', function(e) {
+                    toggleZoomDropdown(e);
+                });
+            }
+
+            document.querySelectorAll('.copy-btn[data-copy-text]').forEach(function(copyBtn) {
+                copyBtn.addEventListener('click', function() {
+                    copyToClipboard(this.getAttribute('data-copy-text'), this);
+                });
+            });
+        });
+$(function () {
+        if ($(".editable").length == 0) {
+            $("#editFooter").hide();
+        }
+
+        // Event bindings for edit buttons
+        $('.startEditBtn').on('click', function() {
+            start_edit();
+        });
+        
+        $('.stopEditBtn').on('click', function() {
+            stop_edit();
+        });
+        $('#id_accepted_terms_and_conditions').on('change', function() {
+            this.form.submit();
+        });
+        $('.accepted_terms_and_conditions').on('change', function() {
+            this.form.submit();
+        });
+        $('.workshopstatus').on('change', function() {
+            changeStatus(this);
+        });
+        $('.action-select').on('change', function() {
+            actionChanged(this);
+        });
+        $('.extra').on('change', function() {
+            extraChanged(this);
+        });
+        $('.filter_workshop').on('change', function() {
+            this.form.submit();
+        });
+        $('.volunteer-status, .recommendation-letter-status').on('change', function() {
+            setStatus(this);
+        });
+        $('.status-form-show').on('change', function() {
+            this.form.submit();
+        });
+        $('.download-form-download').on('change', function() {
+            this.form.submit();
+        });
+        $('.presentation-type-form-presentation-type').on('change', function() {
+            this.form.submit();
+        });
+        $('.export-form-resource').on('change', function() {
+            showFieldsForResource(this.value);
+        });
+        $('.import-form-resource').on('change', function() {
+            showFieldsForResource(this.value);
+        });
+        $('.vol-email-form-to, .vol-email-form-template').on('change', function() {
+            this.form.submit();
+        });
+        $('.organizer-alert').on('click', function() {
+            getUserCreateForm(this.href);
+        });
+    })
+if (document.getElementsByClassName('editable').length > 0) {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = "/static/core/ckeditor/4.18/ckeditor.js";    // use this for linked script
+      script.onload = function () {
+        console.log("ckeditor loaded");
+        // Initial setup when each editor is ready
+        CKEDITOR.on("instanceReady", function (e) {
+          updateToggleDocName(e.editor);
+        });
+
+        // React to any editor entering/leaving read-only
+        CKEDITOR.on("readOnly", function (e) {
+          updateToggleDocName(e.editor);
+        });
+      };
+        document.body.appendChild(script);
+    }
+
+    function updateToggleDocName(editor) {
+      var id = editor && editor.name;
+      if (!id || id.indexOf("id_") !== 0) return;
+
+      var doc_name_element = document.getElementById("document_name_" + id.slice(3));
+      console.log(doc_name_element);
+      if (!doc_name_element) return;
+
+      doc_name_element.style.display = editor.readOnly ? "none" : "block";
+    }
+function fetchContent() {
+        $(".editable").each(function (index) {
+            var myself = this;
+            var docvID = this.getAttribute('id').replace("id_", "");
+            var blurbtext = this.getAttribute("blurbtext");
+            $.ajax({
+                url: "/Admin/RetrieveDocumentVersion",
+                type: "POST",
+                data: {
+                    docvID: docvID,
+                    blurbtext: blurbtext,
+                    csrfmiddlewaretoken: csrftoken,
+                },
+                success: function (data, textStatus, jqXHR) {
+                    myself.setAttribute("contenteditable", "true");
+                    myself.innerHTML = data;
+                    CKEDITOR.inline(myself.id);
+                },
+            });
+        })
+    }
+
+    $("#nopageedit").hide();
+
+    function start_edit() {
+
+        $(".editable").addClass("warning-ring");
+
+        //At the beginning of an edit, we need to replace the content of the
+        //editable div with it's databased content in order to preserve the
+        //template tags. We want the tag, not the rendered tag.
+
+        /* You must remove any countdown.js timers on the page before replacing the page with it's
+        document version otherwise, Javascript will throw an exception.  */
+
+
+        $("[class$='-countdown']").parent().remove();
+        fetchContent();
+        $(".editable").attr("onblur", "ckeditorsave(this)");
+        window.status.bold();
+        window.status = "Click outside the editable area to save. Changes are LIVE!! Refresh page to discard changes.";
+        $("#editpage").hide();
+        $("#noeditpage").show();
+    }
+
+
+    function stop_edit() {
+        ckeditorsave();
+        $("#noeditpage").hide();
+        $("#editpage").show();
+        window.location.reload();
+    }
+
+    function ckeditorsave(event) {
+        for (var name in CKEDITOR.instances) {
+            if (CKEDITOR.instances[name].checkDirty()) {
+                editor = CKEDITOR.instances[name];
+                saveEditable(editor);
+            }
+        }
+    }
+
+    function saveEditable(editor) {
+        var content = editor.getData();
+        var contentId = editor.name;
+        var pageId = window.location.pathname;
+        var originalContent = "N/A";
+        var documentversion = editor.container.getAttribute("id").replace("id_", "");
+        var blurbtext = editor.container.getAttribute("blurbtext");
+        if (contentId.match(/-aloha$/gi)) {
+            contentId = contentId.replace(/-aloha/gi, '');
+        }  /*I'm not sure what this does but it seems like it would matter*/
+        var request = jQuery.ajax({
+            url: "/Admin/SaveDocument",
+            type: "POST",
+            async: false,
+            data: {
+                content: content,
+                originalContent: originalContent,
+                contentId: contentId,
+                pageId: pageId,
+                documentversion: documentversion,
+                blurbtext: blurbtext,
+                csrfmiddlewaretoken: csrftoken
+            },
+            success: function (data) {
+                if (data['message']) {
+                    alert(data['message']);
+                }
+            },
+            error: function (xqXHR, textStatus) {
+                window.status = textStatus;
+                debugger;
+            }
+
+        });
+
+    };
+jQuery(document).ajaxSend(function (event, xhr, settings) {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function sameOrigin(url) {
+            // url could be relative or scheme relative or absolute
+            var host = document.location.host; // host + port
+            var protocol = document.location.protocol;
+            var sr_origin = '//' + host;
+            var origin = protocol + sr_origin;
+            // Allow absolute or scheme relative URLs to same origin
+            return (url == origin || url.slice(0, origin.length + 1) == origin + '/') ||
+                (url == sr_origin || url.slice(0, sr_origin.length + 1) == sr_origin + '/') ||
+                // or any other URL that isn't scheme relative or absolute i.e relative.
+                !(/^(\/\/|http:|https:).*/.test(url));
+        }
+
+        function safeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        if (!safeMethod(settings.type) && sameOrigin(settings.url)) {
+            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+        }
+    });
+Successful Page Load
+NeurIPS uses cookies for essential functions only. We do not sell your personal
+                        information.
+Our Privacy Policy »
+Accept
+function accept_cookies() {
+
+                $.ajax({
+                    method: "POST",
+                    url: "/conf_gdpr/accept",
+                    data: {
+                        csrfmiddlewaretoken: csrftoken,
+                    },
+                }).done(function (data) {
+                    console.log(data);
+                    $("#cookie-bar").fadeOut();
+                }).fail(function (jqXHR, textStatus) {
+                    alert(textStatus);
+                });
+            }
+            $("#accept_cookies_button").on("click", () => {
+                accept_cookies();
+            });
+The NeurIPS Logo above may be used on presentations. Right-click and choose
+                            download. It is a vector graphic and may be used at any scale.
+Useful links
+Press
+Proceedings
+Contact
+1269 Law St, San Diego CA 92109
+Email
+NeurIPS Proceedings

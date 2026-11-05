@@ -1,0 +1,14 @@
+npm warn deprecated @yuku-codegen/binding-linux-x64-gnu@0.8.7: yuku-codegen is pure JavaScript since 0.14
+npm warn deprecated @yuku-parser/binding-linux-x64-gnu@0.8.7: yuku-parser runs on yuku-core since 0.14
+
+added 165 packages, and audited 166 packages in 28s
+
+81 packages are looking for funding
+  run `npm fund` for details
+
+7 vulnerabilities (1 moderate, 4 high, 2 critical)
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.

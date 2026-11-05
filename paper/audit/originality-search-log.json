@@ -1,0 +1,603 @@
+[
+  {
+    "query_id": "Q01",
+    "paragraph_id": "P004",
+    "section": "Introduction",
+    "lines": [
+      61,
+      61
+    ],
+    "quote": "Three ingestion routes dominate practice, and each loses a different property",
+    "word_count": 11,
+    "query": "\"Three ingestion routes dominate practice, and each loses a different property\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://medium.com/@aiwithakashgoyal/the-complete-guide-to-knowledge-graph-ingestion-3-techniques-that-will-transform-your-graphrag-cea250f6f32e?sk=e64bbc0fd253cf7c8c915a7cd2acaeca",
+      "https://fredk8.dev/blog/document-ingestion-is-not-a-side-effect"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q02",
+    "paragraph_id": "P005",
+    "section": "Introduction",
+    "lines": [
+      63,
+      63
+    ],
+    "quote": "The less verifiable a requirement, the more it needs a model",
+    "word_count": 11,
+    "query": "\"The less verifiable a requirement, the more it needs a model\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://arxiv.org/pdf/2609.12039",
+      "https://medium.com/@daniel.dahlin/how-i-made-llm-extracted-requirements-verifiable-1777e0c3d75d"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q03",
+    "paragraph_id": "P004",
+    "section": "Introduction",
+    "lines": [
+      61,
+      61
+    ],
+    "quote": "knowledge is reassembled at every query and never consolidated",
+    "word_count": 9,
+    "query": "\"knowledge is reassembled at every query and never consolidated\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://blog.gopenai.com/your-llm-has-been-forgetting-everything-karpathys-wiki-pattern-is-the-fix-6931ad90017b",
+      "https://particula.tech/blog/karpathy-llm-wiki-compiled-knowledge-vs-rag"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Related-topic candidate, but full-text verification unavailable (web_fetch HTTP 403); no verbatim match established from snippets. This candidate remains unverified.",
+    "fetch": [
+      {
+        "url": "https://blog.gopenai.com/your-llm-has-been-forgetting-everything-karpathys-wiki-pattern-is-the-fix-6931ad90017b",
+        "tool": "web_fetch",
+        "status": "HTTP 403 / fetch failed"
+      }
+    ],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q04",
+    "paragraph_id": "P010",
+    "section": "Related Work",
+    "lines": [
+      109,
+      110
+    ],
+    "quote": "Checklist-based reading has been the backbone of document and code inspection",
+    "word_count": 11,
+    "query": "\"Checklist-based reading has been the backbone of document and code inspection\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://sciencedirect.com/science/article/abs/pii/S0164121200000522",
+      "https://doi.org/10.1109/32.922713"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Related-topic candidate, but full-text verification unavailable (web_fetch HTTP 403); no verbatim match established from snippets. This candidate remains unverified.",
+    "fetch": [
+      {
+        "url": "https://sciencedirect.com/science/article/abs/pii/S0164121200000522",
+        "tool": "web_fetch",
+        "status": "HTTP 403 / fetch failed"
+      }
+    ],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q05",
+    "paragraph_id": "P012",
+    "section": "Related Work",
+    "lines": [
+      115,
+      116
+    ],
+    "quote": "PolicyGuard compiles organisational policy into typed relational logic rules",
+    "word_count": 9,
+    "query": "\"PolicyGuard compiles organisational policy into typed relational logic rules\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://arxiv.org/html/2606.32004v1",
+      "https://alphaxiv.org/abs/2606.32004"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "cited_paraphrase_or_shared_technical_terms",
+    "note": "web_fetch HTTP200 verifies source abstract describes an executable review engine consisting of typed relational logic rules and atom-level extraction questions. Shared four-word technical term typed relational logic rules and source-specific conceptual paraphrase; no exact full query match established. Manuscript sentence cites malik2026, so not evidence of unattributed copying.",
+    "fetch": [
+      {
+        "url": "https://arxiv.org/html/2606.32004v1",
+        "tool": "web_fetch",
+        "status": "HTTP 200; visible abstract/introduction inspected; tool output truncated elsewhere"
+      }
+    ],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q06",
+    "paragraph_id": "P013",
+    "section": "Related Work",
+    "lines": [
+      118,
+      119
+    ],
+    "quote": "Reviewing a proposal is machine teaching whether or not anyone",
+    "word_count": 10,
+    "query": "\"Reviewing a proposal is machine teaching whether or not anyone\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://arxiv.org/pdf/2603.08281v1",
+      "https://arxiv.org/html/1707.06742v3"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q07",
+    "paragraph_id": "P022",
+    "section": "Materials and Methods",
+    "lines": [
+      191,
+      191
+    ],
+    "quote": "A tier decides who may speak; it does not decide",
+    "word_count": 10,
+    "query": "\"A tier decides who may speak; it does not decide\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://miscsubjects.com/api/articles/export?all=1",
+      "https://jeff-breece.github.io/homelab/engineering/ai/2026/08/03/helen-tier-system.html"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q08",
+    "paragraph_id": "P024",
+    "section": "Materials and Methods",
+    "lines": [
+      239,
+      239
+    ],
+    "quote": "a package is rejected as a whole if a rule",
+    "word_count": 10,
+    "query": "\"a package is rejected as a whole if a rule\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://raw.githubusercontent.com/ailev/FPF/main/FPF-Spec.md",
+      "https://nikaia-lang.org/CHANGELOG.html"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q09",
+    "paragraph_id": "P027",
+    "section": "Materials and Methods",
+    "lines": [
+      271,
+      271
+    ],
+    "quote": "Six verifier families and two combinators cover the package",
+    "word_count": 9,
+    "query": "\"Six verifier families and two combinators cover the package\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://link.springer.com/article/10.1007/11787006",
+      "https://usenix.org/system/files/usenixsecurity25-cai-yi.pdf"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q10",
+    "paragraph_id": "P029",
+    "section": "Materials and Methods",
+    "lines": [
+      300,
+      300
+    ],
+    "quote": "The LLM writes findings only through one tool whose implementation",
+    "word_count": 10,
+    "query": "\"The LLM writes findings only through one tool whose implementation\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://aclanthology.org/2026.acl-long.1951.pdf",
+      "https://arxiv.org/html/2608.30696"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q11",
+    "paragraph_id": "P031",
+    "section": "Materials and Methods",
+    "lines": [
+      328,
+      341
+    ],
+    "quote": "The suggested verdict is a function of the confirmed findings",
+    "word_count": 10,
+    "query": "\"The suggested verdict is a function of the confirmed findings\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://pubmed.ncbi.nlm.nih.gov/22490096",
+      "https://arxiv.org/html/2609.24200v1"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q12",
+    "paragraph_id": "P036",
+    "section": "Materials and Methods",
+    "lines": [
+      353,
+      353
+    ],
+    "quote": "Not every learned edit is a parameter tuning",
+    "word_count": 8,
+    "query": "\"Not every learned edit is a parameter tuning\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://arxiv.org/pdf/2509.22072",
+      "https://arxiv.org/html/2406.01436v2"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q13",
+    "paragraph_id": "P039",
+    "section": "Materials and Methods",
+    "lines": [
+      403,
+      403
+    ],
+    "quote": "the review cost is dominated by the number of candidate spans",
+    "word_count": 11,
+    "query": "\"the review cost is dominated by the number of candidate spans\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://raw.githubusercontent.com/ailev/FPF/main/FPF-Spec.md",
+      "https://arxiv.org/html/2606.28362v1"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q14",
+    "paragraph_id": "P042",
+    "section": "Results",
+    "lines": [
+      415,
+      416
+    ],
+    "quote": "The self-check also caught a defect in the shipped package",
+    "word_count": 10,
+    "query": "\"The self-check also caught a defect in the shipped package\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://github.com/KritankSingh/Terminal_Bench_Science_v0.2/blob/main/MASTER_CHECKLIST_TBSCI.md",
+      "https://arxiv.org/pdf/2608.23616v4"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q15",
+    "paragraph_id": "P045",
+    "section": "Results",
+    "lines": [
+      462,
+      462
+    ],
+    "quote": "The aggregate hides an asymmetry that matters more than F1",
+    "word_count": 10,
+    "query": "\"The aggregate hides an asymmetry that matters more than F1\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://bestaiweb.ai/optimizing-for-the-wrong-number-how-f1-score-masks-disparate-impact-in-high-stakes-classification",
+      "https://arxiv.org/pdf/2510.24884"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q16",
+    "paragraph_id": "P048",
+    "section": "Results",
+    "lines": [
+      492,
+      492
+    ],
+    "quote": "The severity rows carry a warning for the organisation",
+    "word_count": 9,
+    "query": "\"The severity rows carry a warning for the organisation\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC7432676",
+      "https://routebase.dev/guides/api-governance/api-rule-severity-and-enforcement"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q17",
+    "paragraph_id": "P051",
+    "section": "Results",
+    "lines": [
+      541,
+      541
+    ],
+    "quote": "The deterministic judge submitted 53 hybrid findings; 42 passed",
+    "word_count": 9,
+    "query": "\"The deterministic judge submitted 53 hybrid findings; 42 passed\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://arxiv.org/html/2605.11907v1",
+      "https://arxiv.org/html/2609.02246v1"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q18",
+    "paragraph_id": "P056",
+    "section": "Results",
+    "lines": [
+      592,
+      592
+    ],
+    "quote": "The walkthrough also shows what the design does not claim",
+    "word_count": 10,
+    "query": "\"The walkthrough also shows what the design does not claim\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://techcrunch.com/2013/01/05/in-defense-of-the-humble-walkthrough",
+      "http://columbus.exp.sis.pitt.edu/socialreader/readings/books/lewis/4-1-2.html"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q19",
+    "paragraph_id": "P059",
+    "section": "Discussion",
+    "lines": [
+      606,
+      607
+    ],
+    "quote": "Typing removed the failure mode rather than merely reducing it",
+    "word_count": 10,
+    "query": "\"Typing removed the failure mode rather than merely reducing it\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://raskincenter.org/ideas/modes-are-harmful",
+      "https://arxiv.org/html/2604.19884"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q20",
+    "paragraph_id": "P060",
+    "section": "Discussion",
+    "lines": [
+      609,
+      610
+    ],
+    "quote": "The gate did not make the mechanism more accurate",
+    "word_count": 9,
+    "query": "\"The gate did not make the mechanism more accurate\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://archive.org/stream/sim_electrical-west_1928-05-15_60_6/sim_electrical-west_1928-05-15_60_6_djvu.txt",
+      "https://llmmart.ai/artifacts/agent-optimize"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q21",
+    "paragraph_id": "P062",
+    "section": "Discussion",
+    "lines": [
+      617,
+      617
+    ],
+    "quote": "A false finding costs reviewer trust and, if it reaches",
+    "word_count": 10,
+    "query": "\"A false finding costs reviewer trust and, if it reaches\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://augmentcode.com/guides/ai-code-review-accuracy",
+      "https://prquorum.com/blog/reduce-ai-code-review-false-positives"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "web_fetch HTTP200: thematically similar false-positive/trust discussion, but feature quotation not found in returned body; conceptual overlap alone does not establish copying.",
+    "fetch": [
+      {
+        "url": "https://augmentcode.com/guides/ai-code-review-accuracy",
+        "final_url": "https://www.augmentcode.com/guides/ai-code-review-accuracy",
+        "tool": "web_fetch",
+        "status": "HTTP 200; relevant sections inspected; output has truncation warning"
+      }
+    ],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q22",
+    "paragraph_id": "P070",
+    "section": "Limitations and Future Work",
+    "lines": [
+      640,
+      641
+    ],
+    "quote": "Twenty-eight rules covering one capability's review checklist are not",
+    "word_count": 9,
+    "query": "\"Twenty-eight rules covering one capability's review checklist are not\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://github.com/microsoft/fabric-architecture-review/blob/main/config/review-checklist.yaml",
+      "https://github.com/w00fx/spec-anchored-agentic-development/blob/main/GUIDELINE.md"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q23",
+    "paragraph_id": "P072",
+    "section": "Limitations and Future Work",
+    "lines": [
+      646,
+      647
+    ],
+    "quote": "Both are study designs, not implementation gaps, and both belong",
+    "word_count": 10,
+    "query": "\"Both are study designs, not implementation gaps, and both belong\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://pmc.ncbi.nlm.nih.gov/articles/PMC3731143",
+      "https://pubmed.ncbi.nlm.nih.gov/36925811"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  },
+  {
+    "query_id": "Q24",
+    "paragraph_id": "P073",
+    "section": "Conclusions",
+    "lines": [
+      651,
+      651
+    ],
+    "quote": "its unit of authority is the tier, and its unit",
+    "word_count": 10,
+    "query": "\"its unit of authority is the tier, and its unit\"",
+    "tool": "web_search",
+    "reported_engine": "Keenable",
+    "returned_candidate_count": 8,
+    "candidate_urls_retained": [
+      "https://github.com/jaydubya818/ai-software-factory-mastery/blob/main/guide/appendix/glossary.md",
+      "https://docs.findex.io"
+    ],
+    "retention": "Selected representative candidates, not exhaustive eight-result dump",
+    "result": "not_found_in_search",
+    "note": "Returned snippets contain no quoted feature-string match; topical/keyword candidates only. Not fetched; not a full-page exclusion.",
+    "fetch": [],
+    "date_utc": "2026-11-05"
+  }
+]

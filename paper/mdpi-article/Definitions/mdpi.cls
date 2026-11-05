@@ -841,7 +841,7 @@
 				\ifthenelse{\equal{\@status}{submit}}{%	
 				\vspace{5pt}%
 					\hfill \href{https://www.mdpi.com}{%
-					\includegraphics[height=1cm]{Definitions/logo-mdpi.eps}}%
+					\includegraphics[height=1cm]{Definitions/logo-mdpi-eps-converted-to.pdf}}%
 					}{
 					\href{https://www.mdpi.com/journal/\@journal}{
 					\includegraphics[height=1.2cm]{Definitions/\@journal-logo.eps}}%
@@ -856,7 +856,7 @@
 						\ifthenelse{\equal{\@journal}{scipharm}}{%
 							\href{https://www.mdpi.com}{\includegraphics[height=1cm]{Definitions/logo-mdpi-scipharm.eps}}%
 						}{%
-							\href{https://www.mdpi.com}{\includegraphics[height=1cm]{Definitions/logo-mdpi.eps}}%
+							\href{https://www.mdpi.com}{\includegraphics[height=1cm]{Definitions/logo-mdpi-eps-converted-to.pdf}}%
 							}			
 				                 }%				
 				            }%				

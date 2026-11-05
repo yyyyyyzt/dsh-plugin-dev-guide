@@ -1,0 +1,80 @@
+{
+  "scope": "Editorial manuscript checks only; no ARS certification or submission approval",
+  "source_sha256": "ff4a080292c880f2d4d32484c5811865bd4471c301656846db93fd3401a49313",
+  "final_sha256": "3cbb06b8b5f01b3aa5a277aef4541bb47c9cb7814488db24bf72a1d2d7059ec1",
+  "protected_inputs": [
+    {
+      "role": "initial_review",
+      "sha256": "35eea70aad374729e5b5eaa0c1fb540cfac4175eb7872287d04d9e00cf46d3ae",
+      "unchanged": true
+    },
+    {
+      "role": "response",
+      "sha256": "21ace2976a9bfb8b13183339e4b8492bfdebbcd9a124c28e89056a8c2b89847a",
+      "unchanged": true
+    },
+    {
+      "role": "current_manuscript",
+      "sha256": "ff4a080292c880f2d4d32484c5811865bd4471c301656846db93fd3401a49313",
+      "unchanged": true
+    },
+    {
+      "role": "history",
+      "sha256": "0cf641769e5f8fa4c38a24aae2936189b187ad01ac54a8b960dd6e8ef9399ab0",
+      "unchanged": true
+    },
+    {
+      "role": "journal_examples",
+      "sha256": "1f0c71bae2a17f4c374eccd6e2e64c2dbf36157393616296a15f75a010e9c26d",
+      "unchanged": true
+    }
+  ],
+  "exact_patch_replay": true,
+  "final_copyedit_fragments": 31,
+  "citation_keys": 41,
+  "bibliography_definitions": 41,
+  "missing_citation_definitions": [],
+  "unused_bibliography_definitions": [],
+  "unique_labels": 30,
+  "references_resolved": true,
+  "latex_environments_balanced": true,
+  "abstract_word_count_approx": 191,
+  "author_confirmation_placeholders_retained": false,
+  "new_engineering_or_model_experiments": false,
+  "compilation": {
+    "engine": "Tectonic 0.17.0",
+    "exit_code": 0,
+    "pdf_pages": 23,
+    "pdf_sha256": "0e955f8097669089d147651d85ffa1132e632c3a8e955a063d88f4ebe2c80df4",
+    "undefined_citation_or_reference_warning": false,
+    "overfull_boxes": 0,
+    "remaining_warnings": "underfull boxes and legacy lineno.sty encoding warning"
+  },
+  "consistency_review": "model-assisted role-separated check; reported TikZ and adopted-state fixes applied; not independent human review",
+  "original_integrity_fail_closed": false,
+  "pdf_replacement_characters": 0,
+  "preview_visual_check": "selected first, architecture, tier and final bibliography pages; not every-page formal layout validation",
+  "class_compatibility_edit": "Definitions/mdpi.cls: two generic logo references changed from EPS to existing converted PDF; no logic changes",
+  "revision_record_rows": 34,
+  "revision_record_local_links_and_line_ranges_valid": true,
+  "dependency_class_sha256": "ea9905afad3909a69350ab92e0ddf04a3652e8e2174dc14c9dd6b2badee2dd96",
+  "final_main_sha_matches_compiled_source": true,
+  "bibliography_renumbered_first_citation_order": true,
+  "citation_first_appearance_order_verified": [
+    1,
+    41
+  ],
+  "author_identity_finalized": true,
+  "pre_submission_edits": {
+    "author_block": "Zhitong Yang (corresponding, ORCID 0009-0002-1803-1529), Kai Wang, Qingxian Wang, Qi Li, Lin Song, Dahai Jin, Hong Wang; affiliation State Grid Customer Service Center, Tianjin 300300, China; corresponding e-mail yyyyyyzt@tju.edu.cn only",
+    "declarations": "seven [AUTHOR CONFIRMATION REQUIRED] placeholders replaced with author-supplied statements: CRediT contributions, no external funding, IRB/consent not applicable, data availability with snapshot and archive DOI, generative-AI disclosure, no conflicts of interest",
+    "framing": "host-independent engine plus thin host integration described as a design position; engine imports no host modules",
+    "removed_meta_text": [
+      "the previously cited 'earlier version of this manuscript' comparison",
+      "'This revision reaggregates records' phrase",
+      "'not retained as verified inference in this revision' phrase"
+    ],
+    "bibliography": "all 41 entries reordered into first-citation order; previously uncited EU AI Act (Regulation (EU) 2024/1689) now cited in the introduction"
+  },
+  "declarations_split": "Acknowledgments and generative-AI disclosure are separate back-matter statements, as MDPI requires"
+}

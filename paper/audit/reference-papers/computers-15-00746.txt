@@ -1,0 +1,1440 @@
+## PAGE 1
+Academic Editor: Julio Gómez López
+Received: 6 September 2026
+Revised: 19 October 2026
+Accepted: 19 October 2026
+Published: 22 October 2026
+Copyright:© 2026 by the authors.
+Licensee MDPI, Basel, Switzerland.
+This article is an open access article
+distributed under the terms and
+conditions of the Creative Commons
+Attribution (CC BY) license.
+Systematic Review
+Spotlight on AI-Based Hybrid Phishing Detection Strategies: A
+Systematic Review
+Maruf Ahmed Tamal 1,2
+ , Kazi Imtiaz Kabir 3
+ , Rubaiyat Islam 2
+ , Fayazunnesa Chowdhury 2,
+Md. Mahbubur Rahman 1, Karim Mohammed Rezaul 4
+ , Kazy Noor e Alam Siddiquee 1
+and Md. Shabiul Islam 5,*
+1 Department of Computer Science and Engineering, Military Institute of Science and Technology (MIST),
+Dhaka 1216, Bangladesh; maruf@cse.mist.ac.bd (M.A.T.); mahbub@cse.mist.ac.bd (M.M.R.);
+knas11@gmail.com (K.N.e.A.S.)
+2 Department of Software Engineering, Daffodil International University, Dhaka 1216, Bangladesh;
+islam.swe@diu.edu.bd (R.I.); fayazunnesa.cse0405.c@diu.edu.bd (F.C.)
+3 R&D Wing, Military Institute of Science and Technology (MIST), Dhaka 1216, Bangladesh;
+imtiaz7966@gmail.com
+4 Centre for Applied Research in Software & IT (CARSIT), London E1 2BJ, UK; rezababu@gmail.com
+5 Faculty of Artificial Intelligence and Engineering, Multimedia University, Cyberjaya 63100, Malaysia
+*Correspondence: shabiul.islam@mmu.edu.my
+Abstract
+Phishing attacks have continued to increase globally over the past several decades and
+remain a major entry point for multi-vector cyberattacks. As conventional single-method
+detection techniques often struggle to identify increasingly sophisticated phishing attempts,
+researchers have increasingly focused on AI-based hybrid detection approaches. This
+systematic review, conducted in accordance with the PRISMA 2020 statement, provides
+a focused synthesis of these approaches. A comprehensive search was conducted across
+seven academic databases and one scholarly search engine. Three reviewers independently
+screened the records, extracted the data, and conducted the methodological quality as-
+sessment, with disagreements resolved through discussion and consensus. Following a
+multi-stage screening process, 18 peer-reviewed studies published between January 2020
+and June 2026 were included. The methodological quality of each study was evaluated
+using a structured quality-assessment checklist. The included studies were synthesized nar-
+ratively with emphasis on hybridization techniques, data modalities, model architectures,
+evaluation metrics, strengths, limitations, and future research directions. The findings indi-
+cate that AI-based hybrid approaches generally achieved strong benchmark performance
+and improved robustness against the phishing scenarios evaluated within the included
+studies. However, limitations were identified in relation to explainability, generalizability,
+computational complexity, and real-time deployment. The review also identified con-
+tinuing challenges involving the trade-off between accuracy and efficiency, dependence
+on unimodal or benchmark datasets, limited reproducibility reporting, and insufficient
+real-world validation. Future research should prioritize lightweight and fairness-aware
+hybrid architectures, multimodal data integration, continual learning, and stronger model
+interpretability to support reliable and scalable deployment in real-world environments.
+Keywords:phishing; artificial intelligence; hybrid-phishing detection; multi-vector
+cybercrime; systematic review
+Computers2026,15, 746 https://doi.org/10.3390/computers15110746
+
+## PAGE 2
+Computers2026,15, 746 2 of 20
+1. Introduction
+In this rapidly changing digital era, technology advances at a rate that frequently
+surpasses our capacity to address the increasing prevalence of cybercrimes [ 1]. Now,
+cybercriminals have become increasingly active and equipped with advanced strategies,
+adversely affecting both persons and enterprises. At present, instead of depending on a
+singular technique, cybercriminals often employ multi-vector strategies [2–4], complicating
+the detection and mitigation of these threats. In multi-vector strategies, phishing continues
+to be a predominant tactic employed by cybercriminals, primarily functioning as the entry
+point for launching more extensive attacks. Commonly termed “human hacking” [5], phish-
+ing is characterized as a cyber-enabled crime in which perpetrators utilize psychological
+manipulation, merging social engineering with technical deceit, to mislead individuals or
+organizations into revealing confidential information [6]. Where other cybercrimes entail
+direct manipulation of systems, phishing targets human psychology and exploits the cogni-
+tive vulnerabilities of the person behind the system [7,8]. So, despite being an old technique,
+phishing remains highly effective and a preferred method for initiating cyber-attacks due
+to its ability to bypass technological defenses by exploiting human behavior.
+Furthermore, the emergence of generative artificial intelligence (GenAI), particularly
+Large Language Models (LLMs), has further exacerbated this issue [9]. These advanced
+technologies enable cybercriminals to craft highly realistic phishing content, execute tar-
+geted attacks, and personalize their approaches [10]. Studies by [11,12] found that LLMs,
+such as ChatGPT and Claude, are capable of generating human-like text, engaging in
+coherent conversations, and performing linguistic tasks at superhuman levels, thereby
+making phishing attempts more sophisticated, harder to detect, and faster with less cost.
+Consequently, the incidence of phishing attacks continues to rise over recent years [13]. This
+continued proliferation of phishing attacks underscores the adaptability and dynamicity
+of cybercriminals, making phishing one of the most organized cybercrimes of the twenty-
+first century [14]. Consequently, it has recently gained increasing focus as an alarming
+cybercrime globally, from individuals to organizations.
+Previous review studies have extensively covered various aspects of phishing, high-
+lighting the multifaceted nature of the problem and the ongoing evolution of combat
+strategies. Studies such as [ 1,13,15–17], and [ 18] focused on history, lifecycle, motiva-
+tions, taxonomies, various attack vectors, and mitigation strategies. A subset of these,
+like [15] and [ 17], also discussed existing countermeasures and the challenges faced in
+combating phishing. Another category of reviews concentrated specifically on detection
+strategies. Some, like [ 19–22] and [ 23], analyzed and compared different detection ap-
+proaches, including rule-based, list-based, heuristic-based, visual-similarity-based, and
+various machine-learning-based techniques. More recent reviews, such as [24–30] and [31],
+delved into the specific application of advanced techniques like deep learning, graph-
+based, network-embedding-based, eye-tracking-based, and other AI-enabled approaches
+for phishing detection. On the other hand, few review articles focused on the human
+element of phishing, addressing user susceptibility and the effectiveness of training and
+awareness programs [32–35].
+Although previous reviews have examined AI-based phishing detection techniques
+broadly, they primarily focus on individual learning paradigms such as machine learning,
+deep learning, or specific detection modalities. However, the increasing adoption of hybrid
+architectures that combine multiple models, heterogeneous feature spaces, multimodal
+information sources, and operational components introduces unique design considerations,
+deployment challenges, and evaluation issues that remain insufficiently synthesized. To
+address this gap, this study spotlights AI-based hybrid phishing detection strategies, exam-
+ining their strengths and weaknesses, highlighting existing controversies, and outlining
+https://doi.org/10.3390/computers15110746
+
+## PAGE 3
+Computers2026,15, 746 3 of 20
+potential future developments in the field. Hence, the specific objectives of this study can
+be summarized as follows:
+a. To review the existing state-of-the-art AI-based hybrid anti-phishing strategies, includ-
+ing with an emphasis on their applications and effectiveness.
+b. To analyze the strengths and weaknesses of these strategies, identifying the challenges
+and opportunities inherent in combating phishing threats.
+c. To investigate and clarify existing controversies surrounding different AI-based hy-
+brid anti-phishing strategies, including debates on their implementation, scalability,
+and efficacy.
+d. To outline potential future developments in anti-phishing strategies, and provide
+actionable insights for researchers, practitioners, and policymakers to combat phishing
+more efficiently.
+2. Study Methodology
+This systematic review aims to provide a focused overview of AI-based hybrid phish-
+ing detection strategies. To ensure methodological rigor and transparency, the review was
+conducted and is reported in accordance with the Preferred Reporting Items for Systematic
+reviews and Meta-Analyses (PRISMA) 2020 statement [36]. The completed PRISMA 2020
+checklist, indicating the section and page on which each item is reported, is provided as
+a Supplementary File accompanying this submission. This study was not prospectively
+registered in a public protocol registry (e.g., PROSPERO), as focused reviews of this scope
+are not eligible for registration on that platform; consequently, checklist items relating to
+protocol registration are reported as not applicable. Because a narrative synthesis (rather
+than a meta-analysis) was performed, checklist items concerning effect measures, statistical
+heterogeneity, meta-analysis methods, and certainty-of-evidence (GRADE) assessment are
+also reported as not applicable.
+2.1. Eligibility Criteria
+This study applied predefined inclusion and exclusion criteria to ensure the relevance,
+reliability, and quality of the included studies. Peer-reviewed journal articles, conference
+papers, and book chapters published between January 2020 and June 2026 were consid-
+ered eligible for inclusion. The year 2020 was selected as the lower temporal boundary
+because this review specifically focuses on the contemporary generation of AI-based hybrid
+phishing detection approaches, including ensemble, multimodal, explainable, and adaptive
+architectures. Earlier phishing-detection studies and reviews were considered in estab-
+lishing the background and research gap; however, restricting the systematic synthesis to
+studies published from 2020 onward enabled a focused assessment of recent developments
+in hybrid AI-based phishing detection while reducing overlap with earlier broad reviews
+of phishing-detection techniques.
+Studies were included if they addressed AI-based hybrid phishing detection strate-
+gies, including their applications, effectiveness, strengths, and challenges. For this review,
+hybrid phishing detection was operationally defined as a phishing detection framework
+that integrates at least two functionally distinct detection or representation components
+within a unified detection pipeline, where the integrated components jointly contribute
+to feature representation, learning, classification, or the final phishing detection decision.
+The integration of these components had to be explicitly described in the methodology of
+the original study. Under this definition, hybrid approaches primarily included the inte-
+gration of multiple AI models, heterogeneous feature representations, and/or multimodal
+data sources. Examples include combining heterogeneous URL, HTML, DOM, email, or
+semantic features; integrating multiple machine learning or deep learning models through
+https://doi.org/10.3390/computers15110746
+
+## PAGE 4
+Computers2026,15, 746 4 of 20
+ensemble, stacking, cascading, or related mechanisms; and fusing distinct information
+modalities such as textual, visual, structural, metadata, or behavioral information. To
+ensure consistency in study selection, the presence of an additional technique alone was not
+considered sufficient evidence of hybridization. In particular, a study was not classified as
+hybrid solely because it employed an explainability technique, conventional optimization
+algorithm, class-balancing procedure, data augmentation method, or operational adap-
+tation mechanism together with a single detection model. Such techniques were treated
+as supporting characteristics unless they constituted a functionally distinct component
+explicitly integrated into the phishing detection pipeline.
+Studies focusing exclusively on single-method phishing detection, non-peer-reviewed
+publications, and publications lacking original research contributions, such as editorials,
+opinions, and commentaries, were excluded. Studies with insufficient methodological
+detail or insufficient information relevant to the analysis of hybrid detection strategies
+were also excluded from the selection pool. All included studies were grouped into a
+single narrative synthesis (Sections 3.1–3.5); no separate sub-syntheses or meta-analytic
+pooling were performed because of the heterogeneity of study designs, datasets, and
+evaluation metrics.
+2.2. Information Sources
+A targeted search was conducted across multiple academic databases and one general-
+purpose scholarly search engine to ensure comprehensive coverage of relevant articles.
+The databases searched, together with the date each was last searched, were: IEEE Xplore
+Digital Library (last searched: 12 July 2026), ScienceDirect (last searched: 12 July 2026),
+Springer (last searched: 12 July 2026), Emerald Insight (last searched: 12 July 2026), Wiley
+Online Library (last searched: 12 July 2026), SAGE (last searched: 12 July 2026), Taylor &
+Francis (last searched: 12 July 2026), and Google Scholar (last searched: 12 July 2026). An
+additional six records were identified through manual reference-list on 12 July 2026.
+2.3. Search Strategy
+To identify relevant studies, a structured search strategy was executed using a combi-
+nation of keywords and Boolean operators. The primary search string was: (“phishing”
+OR “phishing detection” OR “anti-phishing”) AND (“AI” OR “hybrid” OR “ensemble”
+OR “multimodal” OR “integrated approach”). This base string was adapted to align with
+the indexing and search functionalities and syntax of each database. The full, database-
+specific search strings, together with all filters and limits applied (e.g., document type,
+publication year, language, and subject-area restrictions), are reported in Table 1 to support
+reproducibility, in line with PRISMA 2020 item 7.
+Table 1.Full search strings, filters, and search dates by database.
+Database Full Search String Filters/Limits Applied Date Last Searched
+IEEE Xplore Digital
+Library
+(“phishing” OR “phishing detection” OR
+“anti-phishing”) AND (“AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”)
+Year: 2020–2026
+Type: Conferences,
+Journals, and Books
+12/07/2026
+ScienceDirect
+(“phishing” OR “phishing detection” OR
+“anti-phishing”) AND (“AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”)
+Year: 2020–2026
+Type: Research Articles,
+Book Chapters
+Language: English
+12/07/2026
+https://doi.org/10.3390/computers15110746
+
+## PAGE 5
+Computers2026,15, 746 5 of 20
+Table 1.Cont.
+Database Full Search String Filters/Limits Applied Date Last Searched
+Springer
+(phishing OR “phishing detection” OR
+“anti-phishing”) AND (AI OR “artificial
+intelligence” OR hybrid OR ensemble OR
+multimodal OR “integrated approach”)
+Year: 2020–2026
+Type: Research Article,
+Article, Conference
+Papers, Chapter
+Language: English
+12/07/2026
+Emerald Insight
+“phishing” OR “phishing detection” OR
+“anti-phishing” AND “AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”
+Year: 2020–2026
+Type: Journal Articles,
+Research Articles
+Language: English
+12/07/2026
+Wiley Online Library
+(“phishing” OR “phishing detection” OR
+“anti-phishing”) AND (“AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”)
+Year: 2020–2026
+Type: Books, Journals
+Language: English
+12/07/2026
+SAGE
+(“phishing” OR “phishing detection” OR
+“anti-phishing”) AND (“AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”)
+Year: 2020–2026
+Type: Research Article,
+Conference proceedings
+Language: English
+12/07/2026
+Taylor & Francis
+(“phishing” OR “phishing detection” OR
+“anti-phishing”) AND (“AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”)
+Year: 2020–2026
+Type: Research Article
+Language: English
+12/07/2026
+Google Scholar
+(“phishing” OR “phishing detection” OR
+“anti-phishing”) AND (“AI” OR “hybrid”
+OR “ensemble” OR “multimodal” OR
+“integrated approach”)
+Year: 2020–2026
+Type: Research Article,
+Conference proceedings
+Language: English
+12/07/2026
+2.4. Selection Process
+The study-selection process followed a systematic, multi-stage procedure conducted
+independently by three reviewers (Maruf Ahmed Tamal, Kazi Imtiaz Kabir, and Rubaiyat Is-
+lam). The database and search-engine searches yielded 41,301 records, and an additional six
+records were identified through manual reference-list searching, resulting in41,307 records
+in total.
+Before formal screening, the retrieved records were consolidated and checked for
+duplicate entries using available bibliographic information, including article titles, authors,
+publication details, and DOI information where available. This process resulted in the
+removal of 3219 duplicate records. The remaining 38,088 records were then subjected to
+preliminary filtering based on bibliographic information and search-result metadata to
+remove records that were clearly outside the predefined scope of the review. At this stage,
+37,017 records were excluded: 16,091 were clearly unrelated to phishing detection, 9781 fell
+outside the specified publication period, 7201 did not meet the eligible publication-type
+criteria, and 3944 failed to satisfy other basic eligibility requirements defined in Section 2.1.
+Each record was assigned to a single primary exclusion category to avoid double counting.
+Following duplicate removal and preliminary filtering, 1071 records remained for formal
+title and abstract screening.
+https://doi.org/10.3390/computers15110746
+
+## PAGE 6
+Computers2026,15, 746 6 of 20
+All three reviewers independently screened the titles and abstracts of these1071 records
+for relevance to AI-based hybrid phishing detection. Each reviewer conducted the assessment
+independently, without access to the decisions of the other reviewers. Following title and
+abstract screening, 964 records were excluded because they did not meet the eligibility
+criteria, leaving 107 reports for which full texts were sought. Full-text retrieval was at-
+tempted through the respective publisher websites, available institutional or library access,
+Google Scholar, DOI-based searches, and additional searches using article titles and author
+names where necessary. Despite these efforts, 70 reports could not be retrieved and were
+excluded at the retrieval stage. The remaining 37 reports proceeded to full-text eligibility
+review. During this stage, one additional record that initially appeared retrievable could
+not ultimately be obtained in complete form and was therefore excluded because it could
+not be fully assessed against the eligibility criteria. The remaining 36 reports underwent
+substantive full-text assessment against the predefined eligibility criteria specified in Sec-
+tion 2.1. During this assessment, the reviewers explicitly applied the operational definition
+of hybrid phishing detection established in Section 2.1. In particular, each reviewer assessed
+whether the proposed detection framework integrated at least two functionally distinct
+detection or representation components within a unified detection pipeline, whether these
+components jointly contributed to feature representation, learning, classification, or the
+final phishing detection decision, and whether the integration was explicitly described in
+the study methodology. The reviewers also distinguished genuine hybridization from the
+presence of supporting techniques, such as explainability, optimization, class balancing,
+data augmentation, or operational adaptation, when these techniques did not constitute a
+functionally distinct integrated detection or representation component. Eighteen reports
+were excluded for substantive eligibility reasons, while one additional report was excluded
+because the complete full text remained unavailable, resulting in a total of 19 exclusions at
+the full-text eligibility-review stage, as summarized in Table 2. Consequently, 18 studies
+were included in the final narrative synthesis. Disagreements at any stage were resolved
+through discussion and consensus among the reviewers. In particular, disagreements
+concerning whether a study satisfied the operational hybridization criterion were resolved
+by jointly reviewing the study’s methodological description against the predefined eligibil-
+ity criteria in Section 2.1. No automation tools were used during retrieval, screening, or
+study selection.
+Table 2.Reasons for exclusion at the full-text screening stage (n= 19).
+Exclusion Reason n %
+Addressed single-method (non-hybrid) phishing detection only 7 36.84%
+Not peer-reviewed (e.g., preprint, editorial, opinion, commentary) 2 10.53%
+Insufficient methodological detail to extract reliable data 7 36.84%
+Off-topic/outside scope of phishing or hybrid AI detection 1 5.26%
+Complete full text unavailable after initial retrieval attempt 1 5.26%
+Duplicate not identified at earlier de-duplication stage 1 5.26%
+Total 19 100%
+Note:The 70 reports that could not be retrieved before full-text eligibility review were excluded at
+the retrieval stage and are therefore not included in this table. The single retrieval-related exclusion
+reported here refers to a record that initially appeared retrievable but for which the complete full text
+could not subsequently be obtained.
+https://doi.org/10.3390/computers15110746
+
+## PAGE 7
+Computers2026,15, 746 7 of 20
+2.5. Data Extraction and Synthesis
+Data were independently extracted from the 18 included studies by all three reviewers
+using a standardized, piloted extraction form covering study methodology, AI model(s)
+employed (hybrid strategy), dataset(s) used, evaluation metrics, key findings, reported
+strengths and limitations, and identified future research directions. In addition, the extrac-
+tion process recorded the principal hybridization characteristics of each included study
+according to the operational definition established in Section 2.1, including the integration
+of heterogeneous feature representations, multiple AI models, and/or multimodal data
+sources, as applicable. Extracted data were cross-checked between reviewers, and dis-
+crepancies were resolved through discussion and, where necessary, re-examination of the
+source article. No automation tools were used for data extraction. Where a study reported
+results across multiple datasets or configurations, the extraction form captured the range or
+best-performing configuration. The extracted data were subsequently synthesized using a
+narrative synthesis approach, following the framework of Campbell et al. [37], highlighting
+recurrent themes and patterns across the included studies. The synthesis was structured
+to address the study’s research objectives, including an analysis of state-of-the-art hybrid
+anti-phishing strategies, their strengths and limitations, existing debates, and potential
+future developments (Sections 3.2–3.5). To assess the influence of methodological quality
+on the review findings, a qualitative sensitivity analysis was performed by excluding the
+only low-quality study and reassessing whether the principal hybridization strategies, per-
+formance trends, methodological limitations, and research challenges remained supported
+by the other included studies.
+2.6. Methodological Quality Assessment
+Because the included studies primarily involved algorithmic evaluations rather than
+clinical, epidemiological, or observational research, established risk-of-bias instruments
+designed for clinical and observational studies, such as Cochrane RoB 2, ROBINS-I, and the
+Newcastle-Ottawa Scale, were not directly applicable. Therefore, methodological quality
+was assessed using a seven-item checklist developed specifically for this review. The seven
+criteria assessed (C1) clarity of research objectives, (C2) adequacy of dataset reporting, (C3)
+appropriateness of evaluation methodology, (C4) comparison with baseline or existing
+methods, (C5) explicit discussion of study limitations, (C6) availability of code or data
+supporting reproducibility, and (C7) evidence of large-scale or real-world validation. These
+criteria were selected to capture research transparency, evaluation rigor, reproducibility,
+and generalizability. Each criterion was scored as 1 (fully met), 0.5 (partially met), or 0 (not
+met), producing a maximum total score of 7. Studies scoring 6.0–7.0 were classified as high
+quality, 4.0–5.5 as moderate quality, and below 4.0 as low quality. These review-specific
+thresholds were selected to distinguish studies meeting nearly all assessment criteria from
+those with more substantial methodological or reporting deficiencies. All seven criteria
+received equal weight, and the categories were intended for descriptive interpretation
+rather than as externally validated quality classifications. Three reviewers independently
+assessed all 18 included studies. Inter-rater agreement was evaluated using Cohen’s kappa,
+calculated as Formula (1):
+κ= Po −P e
+1−P e
+(1)
+whereP o represents the observed agreement andP e represents the agreement expected by
+chance. For the three reviewers, the arithmetic mean of the three pairwise Cohen’s kappa
+coefficients were calculated as Formula (2):
+κ= κ12 +κ 13 +κ 23
+3 =0.82 (2)
+https://doi.org/10.3390/computers15110746
+
+## PAGE 8
+Computers2026,15, 746 8 of 20
+Here, κ12, κ13, and κ23 denote Cohen’s kappa for reviewers 1–2, 1–3, and 2–3, respectively.
+The resulting coefficient (0.82) indicates strong inter-rater agreement among the reviewers.
+Scoring disagreements were resolved through discussion and re-examination of the original
+articles until consensus was reached. Final scores were obtained by summing the seven
+agreed criterion-level ratings for each study. Quality scores were used to contextualize the
+methodological strengths, limitations, and reliability of the evidence during narrative syn-
+thesis. They were not used as statistical weights. No minimum quality threshold had been
+predefined as an eligibility criterion, and all 18 eligible studies were retained in the synthe-
+sis. Findings from studies with lower scores were interpreted more cautiously, particularly
+where limitations in evaluation design, reproducibility, or external validation affected the
+strength of the supporting evidence. Detailed criterion-level scores are presented in Table 3,
+with the assessment checklist provided in Appendix A (Table A1).
+Table 3.Methodological quality assessment of the included studies (0 = not met, 0.5 = partially met, 1
+= fully met).
+Ref. Study C1 C2 C3 C4 C5 C6 C7 Total/7 Quality
+[38] Opara et al.—WebPhish 1 1 1 1 1 1 1 7.0 High
+[39] Remya et al.—BGL-PhishNet 1 1 1 1 0.5 1 1 6.5 High
+[40] Alsubaei et al.—RNT-J hybridframework 1 0.5 0.5 1 0 0 0.5 3.5 Low
+[41] Yang and Sun—Hybridensemble–DNN framework 1 1 1 1 1 1 1 7.0 High
+[42] Shaukat et al.—Alluring adsphishing detection 1 1 0.5 1 0.5 0.5 0.5 5.0 Moderate
+[43] Doshi et al.—PhishHunter-XLD 1 1 1 1 0.5 1 1 6.5 High
+[44] Kalabarige et al.—Boosting-basedmultilayer stacked ensemble 1 1 1 1 0.5 1 1 6.5 High
+[45] Alshehri et al.—HybridGCN–Attention–LSTM framework 1 1 1 1 1 0.5 1 6.5 High
+[46] Alsakarnah et al.—HXRF 1 1 1 1 0.5 0.5 1 6.0 High
+[47] Rao et al.—Phish-Jam mobilephishing detector 1 1 1 1 0.5 0.5 1 6.0 High
+[48]
+Ghadami and
+Rahebi—Explainable hybrid
+DL-optimization framework
+1 1 1 1 1 0.5 1 6.5 High
+[49] Reda et al.—HAMF 1 1 1 1 1 1 1 7.0 High
+[50] Gupta et al.—CNN–Brown-BearOptimization framework 1 1 0.5 1 1 1 0.5 6.0 High
+[51] Li et al.—FedPhishLLM 1 1 1 1 0.5 0.5 1 6.0 High
+[52] Preeti and Priti—Multimodalhybrid expert system 1 1 1 1 1 0.5 1 6.5 High
+https://doi.org/10.3390/computers15110746
+
+## PAGE 9
+Computers2026,15, 746 9 of 20
+Table 3.Cont.
+Ref. Study C1 C2 C3 C4 C5 C6 C7 Total/7 Quality
+[53] Lakshmi and Swetha—NeuroSymbolicPhishDefend 1 1 1 1 1 1 1 7.0 High
+[54]
+Mandela et al.—Hybrid
+CNN–LSTM email detection
+model
+1 1 1 1 1 0.5 1 6.5 High
+[55] Vulfin et al.—Multimodal XAIphishing detection system 1 1 1 1 1 0.5 1 6.5 High
+3. Results and Discussions
+3.1. Study Selection and Quality Assessment
+Of the 41,301 records identified through the searched sources, together with six addi-
+tional records identified through manual reference-list searching, 1071 records remained
+after duplicate removal and preliminary relevance filtering (Figure 1). Following indepen-
+dent title and abstract screening by three reviewers, 964 records were excluded because
+they did not address AI-based hybrid phishing detection, leaving 107 reports for which
+full texts were sought. Of these, 70 reports could not be retrieved, and the remaining
+37 full-text reports were assessed against the predefined eligibility criteria. Nineteen re-
+ports were excluded following full-text assessment for the reasons summarized in Table 2.
+Consequently, 18 studies met all eligibility criteria and were included in the narrative
+synthesis. The methodological quality of the included studies was evaluated using the
+seven-item checklist described in Section 2.6 and Appendix A (Table A1), with detailed
+scores presented in Table 3. Among the 18 studies, 16 (88.9%) were classified as high quality,
+one (5.6%) as moderate quality, and one (5.6%) as low quality. Shaukat et al. [42] received
+a moderate-quality classification (5.0/7), whereas Alsubaei et al. [40] received the lowest
+score (3.5/7). The latter study exhibited incomplete dataset reporting, limited evaluation-
+methodology details, an absence of explicit discussion of study limitations, insufficient
+reproducibility resources, and limited evidence of broader validation. These deficiencies
+warrant caution when interpreting its reported performance improvements, particularly
+those associated with SMOTE-based class balancing and hyperparameter optimization.
+Overall, most studies clearly stated their research objectives, adequately described their
+datasets, employed appropriate evaluation procedures, and compared their proposed mod-
+els with baseline or previously published approaches. The evaluation strategies included
+train–test splitting, cross-validation, ablation analysis, cross-dataset testing, adversarial
+evaluation, and deployment-oriented experiments. Nevertheless, reproducibility remained
+a common methodological weakness, as several studies did not provide complete source
+code, processed datasets, trained models, or configuration files required for independent
+replication. Furthermore, evaluations conducted on individual benchmark datasets or un-
+der controlled experimental conditions limited the generalizability of reported performance
+to evolving real-world phishing attacks. Some studies also provided insufficient discussion
+of their methodological constraints.
+https://doi.org/10.3390/computers15110746
+
+## PAGE 10
+Computers2026,15, 746 10 of 20
+Figure 1.PRISMA flow diagram.
+3.2. Hybrid Anti-Phishing Strategies
+This review includes 18 peer-reviewed studies published between 2020 and 2026, all
+of which met the predefined inclusion criteria. The selected articles differ in their levels of
+hybridization, data modalities, model architectures, fusion strategies, evaluation settings,
+and performance metrics. Collectively, they represent the current development of AI-based
+hybrid phishing detection, ranging from feature-level and mod-el-level combinations to
+multimodal, explainable, adaptive, and deployment-oriented frameworks. Table 4 presents
+a comparative summary of the included studies, high-lighting their hybrid strategies, ob-
+jectives, key findings, strengths, limitations, unresolved challenges, and future research
+directions. The selected 18 studies demonstrate a clear shift from single-method phishing
+detection toward hybrid systems that combine complementary data sources, learning al-
+gorithms, and, in some cases, additional operational components. To provide a consistent
+taxonomy, the hybridization characteristics observed across the included studies can be
+organized into three primary forms of hybridization—feature-level, model-level, and mul-
+timodal hybridization—together with an additional pipeline- and lifecycle-level dimension
+describing supporting operational characteristics. The three primary forms correspond
+directly to the operational definition established in Section 2.1 because they involve the ex-
+plicit integration of multiple functionally distinct feature representations, learning models,
+https://doi.org/10.3390/computers15110746
+
+## PAGE 11
+Computers2026,15, 746 11 of 20
+or information modalities within the detection pipeline. Pipeline- and lifecycle-level mech-
+anisms, in contrast, describe additional characteristics that enhance robustness, explainabil-
+ity, adaptability, or deployment readiness and are not considered sufficient by themselves
+to classify a single-model detector as hybrid. First, feature-level hybridization remains a
+common strategy, where heterogeneous features such as URL lexical characteristics, HTML
+content, DOM structures, email metadata, sender reputation, and semantic embeddings are
+jointly used [38,39,46,54]. These approaches generally improve detection by combining syn-
+tactic, contextual, and structural signals that may not be sufficiently informative when used
+independently. For example, the hybrid CNN–LSTM model in [54] integrates email text
+with metadata, URL characteristics, and sender-reputation information, enabling the model
+to capture both local linguistic cues and longer sequential dependencies. Second, model-
+level hybridization is widely adopted through ensemble learning, stacking, super-learning,
+and parallel deep architectures [38,40,41,43–45,47]. These approaches combine multiple
+classifiers or specialized branches to exploit their complementary strengths. Several studies
+report-ed accuracies above 99%, while learned stacking and super-learner architectures
+produced measurable gains over individual base models. The new multimodal expert sys-
+tem in [52], for example, processes email text through DistilBERT, URL features through an
+MLP , webpage screenshots through ResNet-18, and behavioural logs through TF-IDF with
+Logistic Regression. Their outputs are combined using a Logistic Regression meta-learner
+in a late-fusion design. Third, multimodal hybridization has become more prominent.
+Earlier studies mainly combined URL and HTML features, while newer systems integrate
+textual, visual, structural, metadata, and behavioural modalities [42,51–53,55]. The frame-
+work in [53] combines textual, visual, and metadata representations through cross-attention
+and supplements learned representations with symbolic rules. Similarly [55], employs four
+modality-specific branches based on CatBoost, CNN1D, CodeBERT, and EfficientNet-B7,
+followed by weighted late fusion. These studies show that multimodal integration can
+detect phishing evidence distributed across different channels, including brand imitation,
+malicious page structure, suspicious text, and URL manipulation. Finally, a smaller group
+of studies extends hybrid phishing detection beyond the core feature, model, and modality
+integration toward the broader pipeline and lifecycle level, incorporating class balancing,
+feature optimization, adversarial augmentation, explainability, concept-drift handling, con-
+tinual learning, fairness auditing, and human-in-the-loop adaptation [40,41,46,48–50,53,55].
+These mechanisms should be interpreted as supporting or operational characteristics of
+hybrid detection frameworks rather than independent evidence of hybridization when used
+alone with a single detection model. Their relevance lies in extending the capabilities of an
+already integrated detection framework toward robustness, interpretability, adaptability,
+and real-world deployment. The NeuroSym-bolicPhishDefend framework in [53] combines
+multimodal learning, explicit rule-based reasoning, diffusion-based adversarial augmenta-
+tion, SHAP explanations, and online learning with a replay buffer. In contrast [55], focuses
+on operational deployment through a micro-service architecture integrated with security
+operations infrastructure, while also incorporating SHAP , Grad-CAM, attention analysis,
+and LLM-generated explanations. Study [48] similarly integrates deep learning and opti-
+mization components through a GAN- and transformer-based feature-learning framework,
+while [49] addresses automated lifecycle management and adaptive phishing detection
+through a hybrid MLOps framework. These developments indicate that recent research is
+moving beyond classification accuracy toward resilience, explainability, adaptability, and
+real-world usability.
+https://doi.org/10.3390/computers15110746
+
+## PAGE 12
+Computers2026,15, 746 12 of 20
+Table 4.AI-based hybrid phishing detection strategies (summary of the selected 18 articles).
+Ref. Strategy Followed Objective Key Findings Strengths (S) &Limitations (L) Challenges/Controversies Future Direction
+[38]
+Hybrid CNN using
+URL character +
+HTML word
+embeddings
+(WebPhish)
+Detect phishing
+webpages without
+handcrafted
+features
+Acc: 98.1%, Prec:
+98.2%, Rec: 98.1%, F1:
+98.1%, FPR: ~2%;
+45,373 webpages;
+outperformed
+URL-only (95.9%) and
+HTML-only (96.5%)
+S: High accuracy, low
+FPR, robust to clones.
+L: Higher training
+cost; text-only
+Accuracy–
+complexity
+trade-off;
+scalability
+Add visual/
+DOM features;
+lightweight
+real-time variants
+[39]
+Hybrid BERT + GNN
++ LightGBM
+(BGL-PhishNet)
+Detect phishing
+websites by fusing
+linguistic,
+structural and
+metadata
+evidence
+Acc: 97.3%, F1: 97.3%;
+549,346 URLs (public
+Kaggle dataset)
+S: Complementary
+text, graph and
+metadata views; large
+dataset. L:
+Three-model pipeline
+adds complexity;
+single public
+benchmark
+Dataset
+dependency;
+deployment cost
+Visual/HTML
+features; real-time
+and streaming
+evaluation
+[40]
+ResNeXt + GRU
+hybrid (RNT) with
+SMOTE balancing and
+Jaya hyperparameter
+optimization (RNT-J)
+Real-time
+phishing detection
+for cybercrime
+forensics
+Acc: 98% with
+SMOTE vs. 83%
+without; +11–19%
+over state-of-the-art
+baselines; mean run
+time 36.99 s
+S: High accuracy;
+imbalance handling;
+stable run time. L:
+Strong dependence on
+SMOTE; optimization
+overhead
+Class-imbalance
+sensitivity;
+metaheuristic
+tuning cost
+Broader
+real-world
+datasets;
+lightweight
+real-time
+deployment
+[41]
+Soft-voting ensemble
+(RF + XGBoost +
+LightGBM) combined
+with a DNN;
+hyperparameters
+tuned by Weevil
+Damage and Energy
+Valley optimizers
+Scalable malicious
+website detection
+Acc: 98.60% for the
+best WDOA-tuned
+hybrids (DNWD,
+RXLW)
+S: Optimized hybrid
+outperformed
+individual classifiers;
+interpretability;
+scalability. L: Long
+tuning times; tabular
+application-/network-
+layer features
+Optimization cost
+vs. accuracy gain;
+feature
+dependence
+Real-time
+deployment;
+richer
+content-based
+features
+[42] Three-layer hybrid(URL + NLP + OCR) Detect ads-basedphishing
+40k URLs; URL Acc:
+91%; NLP: 87–88%;
+image-text improves
+image-only phishing
+S: Multimodal
+coverage. L: OCR
+latency; moderate
+accuracy
+Browser-scale
+deployment
+End-to-end
+multimodal DL;
+lightweight vision
+[43]
+Hybrid stacked
+ensemble (DistilBERT
++ LSTM + XGBoost)
+Real-time
+phishing URL
+detection
+Acc: 99.83%, F1: 99%,
+AUC: 0.998; 822k
+URLs; 97.64% on
+imbalanced data; >6
+URLs/s
+S: Large-scale
+validation; strong
+zero-day robustness.
+L: URL-only;
+ensemble complexity
+Latency vs.
+accuracy trade-off
+Multimodal
+fusion; pruning;
+XAI-guided
+defense
+[44]
+Boosting-based
+feature selection +
+stacked ensemble
+(BMLSELM)
+Improve accuracy
+with reduced
+features
+Acc: 96.18–98.80% (4
+datasets); feature
+reduction 25–40%;
+MCC up to 97.6
+S: Consistent
+multi-dataset gains;
+reduced
+dimensionality. L:
+Complex ensemble;
+tabular features
+Marginal gains vs.
+simpler models
+Lightweight
+ensembles;
+HTML/visual
+features
+[45]
+Hybrid GCN–
+Attention–LSTM
+(GCA-LSTM) on
+TF-IDF-encoded raw
+URL strings
+Classify malicious
+vs. benign URLs
+from structural
+and sequential
+URL patterns
+Acc: 99.09%, F1: 0.991
+(113,874 URLs); Acc:
+85.13%, F1: 0.858
+(194,798 URLs)
+S: Raw-URL input
+only (no HTML
+needed); structural +
+sequential modelling.
+L: URL-only; accuracy
+fell on the larger
+dataset; ANN and
+GCN-LSTM baselines
+matched or exceeded
+it in some runs
+Generalization on
+larger, more
+diverse data;
+higher training
+time
+HTML/JavaScript
+features;
+shortened URLs;
+real-time and
+adversarial testing
+[46]
+Hybrid XAI +
+Random Forest
+(HXRF): SHAP , LIME,
+PDP and permutation-
+importance feature
+selection, then RF
+classifier
+Compact,
+interpretable
+feature selection
+for phishing
+website detection
+Acc: 98.2% on an
+independent
+2000-page test set (RF
+on all features:
+~96.5%); ~500k
+samples; 12 selected
+features vs. ~80
+S: Compact,
+interpretable feature
+set; significant gain
+over full-feature RF. L:
+Costly XAI ranking
+(SHAP ~4 min;
+LIME/PDI ~35 min);
+external
+feature-extraction
+services; dataset on
+request only
+Feature-extraction
+dependencies;
+training-time cost
+Deep-learning
+classifiers; online
+detection;
+adaptive feature
+selection
+https://doi.org/10.3390/computers15110746
+
+## PAGE 13
+Computers2026,15, 746 13 of 20
+Table 4.Cont.
+Ref. Strategy Followed Objective Key Findings Strengths (S) &Limitations (L) Challenges/Controversies Future Direction
+[47]
+Super-learner
+ensemble
+(handcrafted +
+LSTM-attn + BERT)
+Mobile-friendly
+phishing URL
+detection
+Acc: 98.93%, F1:
+99.07%, MCC: 97.81;
+331k URLs; +2.2%
+over best single model
+S: High accuracy;
+mobile-safe. L:
+URL-only; ensemble
+overhead
+Misses
+content-based
+phishing
+HTML/visual
+signals;
+LLM-based URL
+attacks
+[48]
+Explainable hybrid
+pipeline (GAN +
+CNN–GRU–
+Transformer + SVM)
+Robust phishing
+URL detection
+with imbalance
+handling
+Acc: 99.53%, 99.26%,
+97.83% (3 datasets);
+AUC: 0.958; 20k URLs;
+SVM time: 3.64 s;
+~55% feature
+reduction
+S: Very high accuracy;
+imbalance handling;
+SHAP explainability.
+L: Heavy pipeline;
+URL-only
+Real-time
+feasibility; GAN
+generalization
+Multimodal
+inputs; model
+compression; edge
+deployment
+[49]
+Hybrid MLOps
+framework (drift +
+SHAP + fairness +
+HITL)
+Maintain
+performance
+under drift
+Drift detect: 18 s; Acc:
+99.52%; F1: 0.995;
+Latency <50 ms; 2300
+req/s
+S: Lifecycle
+robustness;
+fairness-aware. L:
+Operational
+complexity
+Deployment skill
+barrier
+LLM phishing;
+federated MLOps
+[50]
+RF feature selection +
+Brown-Bear-
+optimized CNN
+(CNN–BBOA)
+Optimized
+phishing URL
+detection
+Acc: 93%, Prec: 92%;
+30 URL-derived
+features; 11k URLs; 5
+epochs
+S: Lightweight CNN;
+optimized training. L:
+Lower accuracy;
+URL-only
+Feature sensitivity
+Multimodal &
+federated
+optimization
+[51]
+Federated learning +
+fine-tuned
+multimodal LLMs
+(FedPhishLLM)
+Privacy-
+preserving,
+explainable
+phishing detection
+without sharing
+raw data
+Up to 95% Acc, Prec
+and F1; 96% Rec;
+outperformed all
+baselines
+S: Privacy-preserving;
+explainable; no
+reliance on
+commercial LLMs. L:
+Moderate accuracy
+relative to other
+included studies;
+federated training
+overhead
+Heterogeneous
+client data; LLM
+deployment cost
+Larger-scale
+federated
+evaluation;
+lightweight LLMs
+[52]
+Multimodal
+late-fusion expert
+system: DistilBERT +
+MLP + ResNet-18 +
+TF-IDF/LR
+Detect phishing
+using text, URL,
+image, and
+behaviour data
+Acc: 99.91%; Prec:
+100%; Rec: 99.83%; F1:
+99.91%; AUC: 1.00
+S: Very high accuracy;
+broad modality
+coverage; explainable.
+L: Complex data
+alignment;
+dataset-dependent
+results
+Scalability;
+missing
+modalities
+Real-world
+validation;
+lightweight fusion
+[53]
+Neuro-symbolic
+multimodal model
+with cross-attention,
+symbolic rules,
+adversarial
+augmentation, online
+learning, and SHAP
+Improve
+robustness,
+adaptation, and
+explainability
+Acc: 96.8%; F1: 96.6%;
+AUC: 97.8%; 6–7%
+cross-dataset AUC
+gain
+S: Adaptive,
+explainable,
+adversarially robust.
+L: High complexity;
+rule maintenance
+Online-learning
+stability;
+computational
+cost
+Larger real-world
+testing; safer
+continual learning
+[54]
+Hybrid CNN-LSTM
+with text, metadata,
+URL, and
+sender-reputation
+features
+Detect phishing
+emails using local
+and sequential
+patterns
+Acc: 96.86%; F1:
+96.02%; AUC: 0.99;
+ensemble Acc: 97.20%;
+adversarial Acc:
+95.30%
+S: Strong
+cross-domain and
+adversarial
+performance. L:
+Limited
+image/attachment
+analysis; high
+resource use
+Scalability;
+incomplete
+multimodal
+coverage
+Add im-
+age/attachment
+features;
+multilingual
+testing
+[55]
+Four-branch
+late-fusion system:
+CatBoost + CNN1D +
+CodeBERT +
+EfficientNet-B7 with
+XAI and LLM
+explanations
+Develop an
+explainable
+phishing website
+detector for SOC
+deployment
+F1: 0.989 and 0.953 on
+two datasets;
+500–1100 events/s
+S: Strong multimodal
+performance;
+extensive XAI;
+deployable prototype.
+L: LLM latency;
+infrastructure
+complexity
+Data drift;
+explanation
+latency
+Improve
+adversarial
+robustness; wider
+SOC validation
+N.B.Acc = Accuracy; Prec = Precision; Rec = Recall; F1 = F1-score; FPR = False Positive Rate;
+MCC = Matthews Correlation Coefficient; AUC = Area Under the ROC Curve; URL = Uniform
+Resource Locator; HTML = HyperText Markup Language; DOM = Document Object Model; CNN
+= Convolutional Neural Network; RNN = Recurrent Neural Network; LSTM = Long Short-Term
+Memory; GRU = Gated Recurrent Unit; BERT = Bidirectional Encoder.
+https://doi.org/10.3390/computers15110746
+
+## PAGE 14
+Computers2026,15, 746 14 of 20
+3.3. Strengths and Limitations
+Across the included studies, hybrid phishing detection strategies generally demon-
+strated strong predictive performance under their respective experimental settings (see
+Table 4). Most models reported accuracies between approximately 95% and 99.9%, with
+several achieving AUC values above 0.99 and false-positive rates below 3%. However, these
+performance values should not be interpreted as directly comparable across studies because
+the reviewed works used different datasets, class distributions, feature representations,
+validation strategies, and baseline configurations. Therefore, the observed performance
+gains are more appropriately interpreted as within-study improvements over the corre-
+sponding baseline or competing models evaluated under the same experimental conditions.
+For example, the hybrid CNN in [38] outperformed URL-only and HTML-only variants
+within the same evaluation setting, SMOTE increased accuracy from 83% to 98% in [40],
+and the ensembles in [41] and [47] outperformed their respective individual base classifiers.
+However, the performance improvement reported in [40] should be interpreted cautiously
+given the study’s low methodological quality score and limitations in evaluation reporting
+and external validation. Apart from this, feature fusion, ensemble learning, and class bal-
+ancing were recurrent strategies associated with improved performance within individual
+studies. Models that combined semantic embeddings with sequential, statistical, visual, or
+metadata features also demonstrated improved capability for handling homograph URLs,
+shortened links, syntactic manipulation, and multimodal phishing content within their
+evaluated datasets [39,43,52–55]. Large-scale evaluations involving hundreds of thousands
+or millions of samples further provided evidence of scalability and performance stability
+for the specific datasets and evaluation settings considered by those studies [39,43,47,55].
+These findings indicate the potential benefits of hybridization, but they do not establish a
+universal performance advantage across datasets or deployment environments. Despite
+these strengths, several limitations were identified across the reviewed literature. Com-
+putational complexity is a recurring concern, especially in deep ensembles, multimodal
+pipelines, optimization-heavy frameworks, and systems that combine multiple explainabil-
+ity components [43,44,46,48,49,51–55]. Higher training costs, memory requirements, and
+inference latency may restrict real-time deployment, particularly in resource-constrained
+environments. Many high-performing models also remain URL-centric, which may limit
+their ability to detect content-rich, image-based, attachment-based, or voice-based phishing
+attacks [43,45,47,50]. In addition, reliance on handcrafted features, static datasets, external
+reputation services, or synchronized multimodal inputs may reduce robustness when
+phishing tactics and data distributions evolve [44,47,50,52–55]. These limitations are consis-
+tent with the quality appraisal in Section 3.1, which identified reproducibility reporting
+and large-scale real-world validation as the most frequently under-reported aspects across
+the included studies. So, the evidence suggests that hybridization can improve perfor-
+mance within specific experimental settings, while questions concerning generalizability,
+deployment efficiency, reproducibility, and robustness remain insufficiently addressed.
+3.4. Challenges and Controversies
+Despite the generally strong empirical results reported within individual studies,
+several unresolved challenges remain in hybrid phishing detection. A central concern
+is the trade-off between detection performance and computational efficiency. Complex
+ensembles, multimodal pipelines, and adaptive frameworks may improve performance
+over their respective baselines, but they also increase training costs, memory requirements,
+inference latency, and deployment complexity, particularly in browser, mobile, and edge
+environments [43–45,49,52–55]. Consequently, performance improvements reported under
+https://doi.org/10.3390/computers15110746
+
+## PAGE 15
+Computers2026,15, 746 15 of 20
+controlled experimental conditions do not necessarily translate into equivalent benefits in
+resource-constrained or real-time deployment environments.
+Generalization and dataset dependency also remain important challenges. Many stud-
+ies rely on benchmark or curated datasets that may not fully represent evolving real-world
+phishing patterns [38,39,47,48,52–55]. Data augmentation, synthetic sample generation,
+and resampling may improve class balance and, in some cases, robustness, but they can also
+introduce distributional artifacts or fail to represent genuinely unseen attacks [40,48,53,54].
+In particular, the performance improvements reported by Alsubaei et al. [ 40] should be
+interpreted cautiously because of limitations in methodological reporting, reproducibil-
+ity, and broader validation. The use of separately collected multimodal datasets further
+raises concerns regarding data alignment and evaluation realism [52,53]. Thus, reported
+performance should be interpreted in relation to the dataset characteristics, modalities,
+and evaluation designs of individual studies rather than as evidence of general superior-
+ity across the literature. Temporal validation, cross-dataset evaluation, and adversarial
+testing warrant greater attention when estimating practical performance under evolving
+attack conditions.
+Explainability represents another continuing challenge. Although several frameworks
+incorporate SHAP , attention mechanisms, symbolic rules, Grad-CAM, or LLM-generated
+explanations [48,49,52–55], many deep hybrid models still operate largely as black boxes.
+Post-hoc explanations may improve transparency, but they do not necessarily guarantee
+causal reliability or consistent interpretation by security analysts. Symbolic and rule-
+based components may also become outdated as phishing tactics evolve [ 53,55]. These
+observations indicate a need to evaluate not only whether explanations can be generated but
+also whether they remain reliable, stable, and useful under changing attack distributions.
+Other issues, including fairness, privacy, and continual adaptation, appear less ex-
+tensively represented in the reviewed literature. Apart from a small number of lifecycle-
+oriented or adaptive frameworks, limited attention was given to performance disparities
+across user groups, privacy-preserving learning, and the risks associated with continual
+model updates [49,53]. These topics should therefore be regarded as underexplored areas
+within the reviewed evidence rather than as extensively established research gaps. More
+broadly, the literature indicates a need to extend hybridization beyond model architec-
+ture toward robust evaluation, drift monitoring, secure adaptation, and human-in-the-
+loop validation. Such extensions may help bridge the gap between strong performance
+under study-specific experimental conditions and sustainable deployment in dynamic
+phishing environments.
+To examine the influence of methodological quality on the review findings, a qual-
+itative sensitivity analysis was undertaken by excluding Alsubaei et al. [ 40], the only
+study classified as low quality (3.5/7), and reconsidering the evidence from the remaining
+17 studies. The exclusion removed the study-specific performance improvements attributed
+to SMOTE-based class balancing and hyperparameter optimization from the sensitivity
+comparison. The principal challenges concerning computational efficiency, dataset depen-
+dency, generalizability, explainability, and reproducibility remained represented across
+other included studies [38,39,43–45,47–49,52–55]. Accordingly, the exclusion did not mate-
+rially alter the principal qualitative themes of the review, although it reduced the evidence
+supporting the specific performance gains reported by Alsubaei et al. [40].
+3.5. Future Directions
+The future research directions proposed in this study are informed by the limitations
+and challenges identified in the reviewed literature, while also incorporating emerging
+areas that were only lightly represented among the included studies. To address the
+https://doi.org/10.3390/computers15110746
+
+## PAGE 16
+Computers2026,15, 746 16 of 20
+accuracy-efficiency trade-off, future work should prioritize lightweight hybrid architec-
+tures that reduce computational overhead while preserving the within-study performance
+advantages of hybridization. Techniques such as model pruning, quantization, modular
+late-fusion designs, and efficient ensemble construction may support real-time deployment
+in resource-constrained environments. To address generalization and dataset dependency,
+future studies should place greater emphasis on temporal validation, cross-dataset eval-
+uation, and real-world testing. Continual learning and adaptive retraining mechanisms
+may further improve robustness against evolving and previously unseen phishing at-
+tacks. Replay-buffer-based online learning and controlled adaptation strategies could
+also be investigated to support model updates while reducing the risk of catastrophic
+forgetting or uncontrolled adaptation. These approaches should be evaluated using clearly
+defined temporal and cross-domain settings rather than relying solely on performance
+within a single benchmark dataset. The limitations of predominantly URL-centric detection
+also motivate further investigation of multimodal hybrid frameworks that integrate URL,
+HTML, visual, textual, and behavioral signals. Metadata, sender reputation, webpage
+screenshots, attachment content, and missing-modality handling could be incorporated
+to improve robustness in more realistic environments. However, multimodal integration
+should be accompanied by explicit evaluation of data alignment, computational cost, and
+the contribution of individual modalities to ensure that additional complexity provides
+measurable practical benefits. To enhance explainability, future AI-based hybrid models
+could incorporate interpretable AI components at both the feature and decision levels.
+SHAP , Grad-CAM, attention mechanisms, symbolic reasoning, and analyst-oriented LLM-
+generated explanations may provide complementary forms of interpretability [48,49,52–55].
+Future evaluations should additionally examine explanation stability, fidelity, and useful-
+ness to security analysts rather than treating the presence of an explanation mechanism
+alone as evidence of trustworthy interpretation. Fairness-aware and privacy-preserving
+hybrid detection also represent promising emerging research directions. Because these
+topics received relatively limited attention among the included studies [ 49,53], future
+research could investigate performance disparities across relevant user or data groups,
+privacy-preserving learning mechanisms, and secure model adaptation. Such work would
+extend the scope of hybrid phishing detection beyond predictive performance toward
+responsible and trustworthy deployment. These directions are proposed as opportunities
+for further investigation rather than as extensively established gaps directly demonstrated
+by the current review. Finally, the increasing use of AI and large language models to
+generate or facilitate phishing content creates an emerging security challenge. Although
+this topic was only lightly represented in the reviewed literature, future studies could
+investigate hybrid defenses capable of detecting semantically sophisticated, obfuscated,
+and AI-generated phishing content. Diffusion-based adversarial augmentation, neuro-
+symbolic reasoning, semantic analysis, and broader adversarial testing may provide useful
+directions for evaluating robustness against such threats. Because the evidence base for
+LLM-generated phishing within the included studies remains limited, these directions
+should be considered emerging research opportunities rather than conclusions directly
+established by the systematic review.
+4. Conclusions
+This systematic review examined 18 peer-reviewed studies on AI-based hybrid phish-
+ing detection published between 2020 and June 2026 following the systematic literature
+review guidance of Kitchenham and Charters [ 56]. The findings indicate that hybrid
+approaches integrating multiple feature types, learning models, data modalities, and op-
+erational components generally achieved strong detection performance and frequently
+https://doi.org/10.3390/computers15110746
+
+## PAGE 17
+Computers2026,15, 746 17 of 20
+outperformed the single-method baselines evaluated within individual studies. Recent
+research also demonstrates a shift from URL-centered approaches toward multimodal,
+explainable, adaptive, and deployment-oriented frameworks. Despite these advances,
+several methodological and practical limitations remain. Many studies relied on bench-
+mark or curated datasets, provided insufficient resources for reproducibility, and lacked
+extensive cross-dataset or real-world validation. Computational complexity, inference
+latency, and limited explainability further constrain practical deployment, particularly
+in resource-limited environments. Consequently, high detection performance under con-
+trolled experimental conditions should not be interpreted as evidence of equivalent effec-
+tiveness against evolving real-world phishing threats. A qualitative sensitivity analysis
+excluding Alsubaei et al. [40], the only low-quality study, indicated that the principal find-
+ings remained supported by the remaining 17 studies. However, the exclusion reduced the
+evidence supporting the specific performance improvements associated with SMOTE-based
+resampling and hyperparameter optimization reported by that study. This finding high-
+lights the importance of considering methodological quality when interpreting reported
+detection performance. Future research should prioritize lightweight and scalable hybrid
+architectures, broader multimodal integration, continual learning, and rigorous evaluation
+through temporal testing, cross-dataset validation, adversarial assessment, and realistic
+deployment scenarios. Greater attention is also needed to reproducibility, privacy, fairness,
+robustness against AI-generated phishing, and interpretable decision-making. Addressing
+these challenges will be essential for translating promising experimental performance into
+reliable, adaptable, and sustainable phishing detection systems.
+Supplementary Materials:The following supporting information can be downloaded at https:
+//www.mdpi.com/article/10.3390/computers15110746/s1, Table S1: PRISMA 2020 Checklist.
+Author Contributions:M.A.T.: Writing—Original Draft, Conceptualization, Methodology, Data
+Curation, Formal Analysis. K.I.K.: Writing—review & editing, Data curation, Formal anal-
+ysis, Investigation; R.I.: Writing—review & editing, Conceptualization, Data curation; F.C.:
+Writing—review & editing, Methodology, Supervision; M.M.R.: Writing—review & editing, Method-
+ology, Supervision; K.M.R.: Writing—review & editing, Methodology, Supervision; K.N.e.A.S.:
+Writing—review & editing, Methodology, Supervision; M.S.I.: Writing—review & editing, Methodol-
+ogy, Supervision. All authors have read and agreed to the published version of the manuscript.
+Funding:This research received no external funding.
+Data Availability Statement:The data supporting the findings of this systematic literature review
+are contained within the article. The information was extracted from previously published studies,
+which are cited in the manuscript.
+Acknowledgments:During the preparation of this manuscript, the authors used AI-assisted tech-
+nologies for language polishing and code debugging. The authors subsequently reviewed and edited
+the generated content as needed and take full responsibility for the content of the published article.
+Conflicts of Interest:The authors declare no conflicts of interest.
+Appendix A
+Table A1.Quality assessment checklist.
+Code Criterion 1—Fully Met 0.5—Partially Met 0—Not Met
+C1 Clarity of research objective Clear, specific objectives Objectives stated but vague Absent or unclear objectives
+C2 Dataset description Source, size and compositionadequately reported Some dataset details missing Insufficient datasetinformation
+https://doi.org/10.3390/computers15110746
+
+## PAGE 18
+Computers2026,15, 746 18 of 20
+Table A1.Cont.
+Code Criterion 1—Fully Met 0.5—Partially Met 0—Not Met
+C3 Evaluation methodology
+Appropriate validation and
+evaluation procedures
+described
+Evaluation reported with
+important omissions
+Inadequate or unclear
+methodology
+C4 Baseline comparison Relevant baselines orprevious methods compared Limited or insufficientlydescribed comparison No meaningful comparison
+C5 Discussion of limitations Explicit, substantivediscussion Superficial acknowledgment No explicit discussion
+C6 Code/data availability
+Sufficient accessible code
+and/or data for
+reproducibility
+Partial resources available No supporting resourcesavailable
+C7 Large-scale or real-worldvalidation
+Convincing large-scale,
+cross-dataset, cross-domain
+or deployment-oriented
+validation
+Limited evidence beyond
+controlled benchmark
+No broader validation
+evidence
+References
+1. Alkhalil, Z.; Hewage, C.; Nawaf, L.; Khan, I. Phishing Attacks: A recent comprehensive study and a new anatomy.Front. Comput.
+Sci.2021,3, 563060. [CrossRef]
+2. Chaskos, E.; Diakoumakos, J.; Kolokotronis, N.; Lepouras, G. Gamification mechanisms in cyber range and cyber security training
+environments. InHandbook of Research on Gamification Dynamics and User Experience Design; Advances in web technologies and
+engineering book series; IGI Global Scientific Publishing: Hershey, PA, USA, 2022; pp. 363–383. [CrossRef]
+3. Kim, K.; Shin, Y.; Lee, J.; Lee, K. Automatically Attributing Mobile Threat Actors by Vectorized ATT&CK Matrix and Paired
+Indicator.Sensors2021,21, 6522. [CrossRef] [PubMed]
+4. Rose, J.R.; Swann, M.; Grammatikakis, K.P .; Koufos, I.; Bendiab, G.; Shiaeles, S.; Kolokotronis, N. IDERES: Intrusion detection and
+response system using machine learning and attack graphs.J. Syst. Archit.2022,131, 102722. [CrossRef]
+5. Klimburg-Witjes, N.; Wentland, A. Hacking humans? Social engineering and the construction of the “Deficient user” in
+cybersecurity discourses.Sci. Technol. Hum. Values2021,46, 1316–1339. [CrossRef]
+6. Tamal, M.A.; Islam, M.K.; Bhuiyan, T.; Sattar, A.; Prince, N.U. Unveiling suspicious phishing attacks: Enhancing detection with
+an optimal feature vectorization algorithm and supervised machine learning.Front. Comput. Sci.2024,6, 1428013. [CrossRef]
+7. Gallo, L.; Gentile, D.; Ruggiero, S.; Botta, A.; Ventre, G. The human factor in phishing: Collecting and analyzing user behavior
+when reading emails.Comput. Secur.2023,139, 103671. [CrossRef]
+8. Mutlutürk, M.; Wynn, M.; Metin, B. Phishing and the Human Factor: Insights from a Bibliometric Analysis.Information2024,
+15, 643. [CrossRef]
+9. Eze, C.S.; Shamir, L. Analysis and prevention of AI-Based phishing email attacks.Electronics2024,13, 1839. [CrossRef]
+10. Schmitt, M.; Flechais, I. Digital deception: Generative artificial intelligence in social engineering and phishing.Artif. Intell. Rev.
+2024,57, 324. [CrossRef]
+11. Heiding, F.; Schneier, B.; Vishwanath, A.; Bernstein, J.; Park, P .S. Devising and detecting phishing emails using large language
+models.IEEE Access2024,12, 42131–42146. [CrossRef]
+12. Yao, Y.; Duan, J.; Xu, K.; Cai, Y.; Sun, Z.; Zhang, Y. A survey on large language model (LLM) security and privacy: The Good, The
+Bad, and The Ugly.High-Confid. Comput.2024,4, 100211. [CrossRef]
+13. Naqvi, B.; Perova, K.; Farooq, A.; Makhdoom, I.; Oyedeji, S.; Porras, J. Mitigation strategies against the phishing attacks: A
+systematic literature review.Comput. Secur.2023,132, 103387. [CrossRef]
+14. Vayansky, I.; Kumar, S. Phishing—Challenges and solutions.Comput. Fraud. Secur.2018,2018, 15–20. [CrossRef]
+15. Gupta, B.B.; Tewari, A.; Jain, A.K.; Agrawal, D.P . Fighting against phishing attacks: State of the art and future challenges.Neural
+Comput. Appl.2016,28, 3629–3654. [CrossRef]
+16. Aleroud, A.; Zhou, L. Phishing environments, techniques, and countermeasures: A survey.Comput. Secur.2017,68, 160–196.
+[CrossRef]
+17. Jain, A.K.; Gupta, B. A survey of phishing attack techniques, defence mechanisms and open research challenges.Enterp. Inf. Syst.
+2021,16, 527–565. [CrossRef]
+18. Goenka, R.; Chawla, M.; Tiwari, N. A comprehensive survey of phishing: Mediums, intended targets, attack and defence
+techniques and a novel taxonomy.Int. J. Inf. Secur.2024,23, 819–848. [CrossRef]
+19. Varshney, G.; Misra, M.; Atrey, P .K. A survey and classification of web phishing detection schemes.Secur. Commun. Netw.2016,9,
+6266–6284. [CrossRef]
+https://doi.org/10.3390/computers15110746
+
+## PAGE 19
+Computers2026,15, 746 19 of 20
+20. Chiew, K.L.; Yong, K.S.C.; Tan, C.L. A survey of phishing attacks: Their types, vectors and technical approaches.Expert Syst. Appl.
+2018,106, 1–20. [CrossRef]
+21. Qabajeh, I.; Thabtah, F.; Chiclana, F. A recent review of conventional vs. automated cybersecurity anti-phishing techniques.
+Comput. Sci. Rev.2018,29, 44–55. [CrossRef]
+22. Safi, A.; Singh, S. A systematic literature review on phishing website detection techniques.J. King Saud Univ.-Comput. Inf. Sci.
+2023,35, 590–611. [CrossRef]
+23. Zieni, R.; Massari, L.; Calzarossa, M.C. Phishing or not phishing? A survey on the detection of phishing websites.IEEE Access
+2023,11, 18499–18519. [CrossRef]
+24. Basit, A.; Zafar, M.; Liu, X.; Javed, A.R.; Jalil, Z.; Kifayat, K. A comprehensive survey of AI-enabled phishing attacks detection
+techniques.Telecommun. Syst.2021,76, 139–154. [CrossRef] [PubMed]
+25. Do, N.Q.; Selamat, A.; Krejcar, O.; Herrera-Viedma, E.; Fujita, H. Deep Learning for Phishing Detection: Taxonomy, Current
+Challenges and Future Directions.IEEE Access2022,10, 36429–36463. [CrossRef]
+26. Thakur, K.; Ali, M.L.; Obaidat, M.A.; Kamruzzaman, A. A Systematic Review on Deep-Learning-Based Phishing Email Detection.
+Electronics2023,12, 4545. [CrossRef]
+27. Kritika, E. A comprehensive literature review on phishing URL detection using deep learning techniques.J. Cyber Secur. Technol.
+2024,9, 315–343. [CrossRef]
+28. Li, W.; Manickam, S.; Chong, Y.; Leng, W.; Nanda, P . A state-of-the-art review on phishing website detection techniques.IEEE
+Access2024,12, 187976–188012. [CrossRef]
+29. Thomopoulos, G.A.; Lyras, D.P .; Fidas, C.A. A systematic review and research challenges on phishing cyberattacks from an
+electroencephalography and gaze-based perspective.Pers. Ubiquitous Comput.2024,28, 449–470. [CrossRef]
+30. Kavya, S.; Sumathi, D. Staying ahead of phishers: A review of recent advances and emerging methodologies in phishing detection.
+Artif. Intell. Rev.2024,58, 50. [CrossRef]
+31. Popescul, D.; Radu, L.D. AI in phishing detection: A bibliometric review.Front. Artif. Intell.2025,8, 1496580. [CrossRef] [PubMed]
+32. Jampen, D.; Gür, G.; Sutter, T.; Tellenbach, B. Don’t click: Towards an effective anti-phishing training: A comparative literature
+review.Hum.-Centric Comput. Inf. Sci.2020,10, 33. [CrossRef]
+33. Sarker, O.; Jayatilaka, A.; Haggag, S.; Liu, C.; Babar, M.A. A Multi-vocal Literature Review on challenges and critical success
+factors of phishing education, training and awareness.J. Syst. Softw.2023,208, 111899. [CrossRef]
+34. Marshall, N.; Sturman, D.; Auton, J.C. Exploring the evidence for email phishing training: A scoping review.Comput. Secur.2023,
+139, 103695. [CrossRef]
+35. Yasin, A.; Fatima, R.; Wen, L.; Zheng, J.; Niazi, M. What goes wrong during phishing education? A probe into a game-based
+assessment with unfavorable results.Entertain. Comput.2024,52, 100815. [CrossRef]
+36. Page, M.J.; McKenzie, J.E.; Bossuyt, P .M.; Boutron, I.; Hoffmann, T.C.; Mulrow, C.D.; Shamseer, L.; Tetzlaff, J.M.; Akl, E.A.;
+Brennan, S.E.; et al. The PRISMA 2020 statement: An updated guideline for reporting systematic reviews.BMJ2021,372, n71.
+[CrossRef] [PubMed]
+37. Campbell, M.; Thomson, H.; Katikireddi, S.V .; Sowden, A. Reporting of narrative synthesis in systematic reviews of public health
+interventions: A methodological assessment.Lancet2016,388, S34. [CrossRef]
+38. Opara, C.; Chen, Y.; Wei, B. Look before you leap: Detecting phishing web pages by exploiting raw URL and HTML characteristics.
+Expert Syst. Appl.2023,236, 121183. [CrossRef]
+39. Remya, S.; Pillai, M.J.; Aparna, B.S.; Subbareddy, S.R.; Cho, Y.Y. BGL-PhishNet: Phishing website detection using hybrid
+Model-BERT, GNN, and LightGBM.IEEE Access2025,13, 47552–47569. [CrossRef]
+40. Alsubaei, F.S.; Almazroi, A.A.; Ayub, N. Enhancing Phishing Detection: A novel hybrid deep learning framework for cybercrime
+forensics.IEEE Access2024,12, 8373–8389. [CrossRef]
+41. Yang, T.; Sun, J. A hybrid ensemble deep learning framework with novel metaheuristic optimization for scalable malicious
+website detection.Sci. Rep.2025,15, 44630. [CrossRef] [PubMed]
+42. Shaukat, M.W.; Amin, R.; Muslam, M.M.A.; Alshehri, A.H.; Xie, J. A hybrid approach for alluring ads phishing attack detection
+using machine learning.Sensors2023,23, 8070. [CrossRef] [PubMed]
+43. Doshi, T.; Patel, V .; Shah, N.; Swain, D.; Swain, D.; Acharya, B. PhishHunter-XLD: An ensemble approach integrating machine
+learning and deep learning for phishing URL classification.Frankl. Open2025,12, 100349. [CrossRef]
+44. Kalabarige, L.R.; Rao, R.S.; Pais, A.R.; Gabralla, L.A. A Boosting-Based hybrid feature selection and Multi-Layer stacked ensemble
+learning model to detect phishing websites.IEEE Access2023,11, 71180–71193. [CrossRef]
+45. Alshehri, S.M.; Sharaf, S.A.; Molla, R.A. A hybrid Graph neural network framework for malicious URL classification.Electronics
+2025,14, 4387. [CrossRef]
+46. Alsakarnah, R.; Masoud, M.Z.; Ghababsheh, A. Hybridizing Explainable AI (XAI) for intelligent feature extraction in phishing
+website detection.Electronics2026,15, 350. [CrossRef]
+https://doi.org/10.3390/computers15110746
+
+## PAGE 20
+Computers2026,15, 746 20 of 20
+47. Rao, R.S.; Kondaiah, C.; Pais, A.R.; Lee, B. A hybrid super learner ensemble for phishing detection on mobile devices.Sci. Rep.
+2025,15, 16839. [CrossRef] [PubMed]
+48. Ghadami, R.; Rahebi, J. An explainable hybrid deep learning-optimization framework for robust phishing attack detection using
+GAN and transformer-based feature learning.Ain Shams Eng. J.2025,16, 103745. [CrossRef]
+49. Reda, A.; Taie, S.A.; Shaheen, M.E. Hybrid MLOps framework for automated lifecycle management of adaptive phishing detection
+models.Sci. Rep.2025,15, 38478. [CrossRef] [PubMed]
+50. Gupta, B.B.; Gaurav, A.; Attar, R.W.; Arya, V .; Bansal, S.; Alhomoud, A.; Chui, K.T. A hybrid CNN-Brown-Bear optimization
+framework for enhanced detection of URL phishing attacks.Comput. Mater. Contin./Comput. Mater. Contin.2024,81, 4853–4874.
+[CrossRef]
+51. Li, W.; Manickam, S.; Chong, Y. FedPhishLLM: A privacy-preserving and explainable phishing detection mechanism using
+federated learning and LLMs.J. King Saud Univ.-Comput. Inf. Sci.2025,37, 252. [CrossRef]
+52. Preeti; Priti. An expert system for phishing detection: A multimodal hybrid framework integrating deep and shallow machine
+learning.Neural Comput. Appl.2026,38, 391. [CrossRef]
+53. Lakshmi, G.; Swetha, P . NeuroSymbolicPhishDefend for adaptive multimodal phishing detection against evolving artificial
+intelligence driven threats.Sci. Rep.2026,16, 28177. [CrossRef] [PubMed]
+54. Mandela, N.; Mwendwa, G.; Etyang, F. Hybrid CNN-LSTM model for phishing email detection.J. Electr. Syst. Inf. Technol.2026,
+13, 45. [CrossRef]
+55. Vulfin, A.; Sulavko, A.; Vasiliev, V .; Minko, A.; Kirillova, A.; Samotuga, A. A multimodal phishing website detection system using
+explainable artificial intelligence technologies.Mach. Learn. Knowl. Extr.2026,8, 11. [CrossRef]
+56. Kitchenham, B.; Charters, S.Guidelines for Performing Systematic Literature Reviews in Software Engineering; EBSE Technical Report
+EBSE-2007-01; Keele University: Keele, UK; Durham University: Durham, UK, 2007.
+Disclaimer/Publisher’s Note:The statements, opinions and data contained in all publications are solely those of the individual
+author(s) and contributor(s) and not of MDPI and/or the editor(s). MDPI and/or the editor(s) disclaim responsibility for any injury to
+people or property resulting from any ideas, methods, instructions or products referred to in the content.
+https://doi.org/10.3390/computers15110746
