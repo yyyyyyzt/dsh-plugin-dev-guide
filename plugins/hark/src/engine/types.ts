@@ -268,6 +268,8 @@ export interface RuleAudit {
   who: string
   at: string
   reviewId?: string
+  /** The expert's own words that authorise a change to a rule's authority (severity or status). */
+  basis?: string
   change: { field: string; from: unknown; to: unknown }
 }
 

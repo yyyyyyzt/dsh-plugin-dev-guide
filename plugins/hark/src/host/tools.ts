@@ -384,6 +384,7 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
     name: 'rules_propose',
     description:
       '按专家要求调整规则：disable / enable / set_severity / set_suggestion / set_param 修改规则生效方式（不改 shipped 文件），reset 恢复出厂值；' +
+      'disable / enable / set_severity 改动规则的裁决权，必须附 basis.quote（专家原话），未附则拒绝执行；' +
       'draft 把候选规则写成规则 YAML（工具用规则 schema 校验）；accept_draft 使草稿生效；dismiss 关闭候选。只在专家明确要求时调用。',
     parameters: {
       action: { type: 'string', required: true, enum: [...PROPOSE_ACTIONS] },
@@ -403,6 +404,15 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
       draft: { type: 'string', description: '单条规则的 YAML 文本（id/title/dimension/severity/tier/question/rationale/suggestion[/verifier]）' },
       who: { type: 'string', description: '审计记录的操作人（专家姓名/工号）' },
       reviewId: { type: 'string', description: '关联的审查记录' },
+      basis: {
+        type: 'object',
+        additionalProperties: false,
+        description: '改动裁决权（disable/enable/set_severity）时必填：{ quote } 为专家在对话中的原句（去空白后 ≥8 字），写入审计；缺失或过短则工具拒绝执行',
+        properties: {
+          quote: { type: 'string', description: '专家原话，逐字引用' },
+          reviewId: { type: 'string', description: '该原话所在的审查记录' },
+        },
+      },
     },
     output: {
       schema: JSON_OUTPUT,
@@ -428,6 +438,7 @@ export function createReviewTools(store: ReviewStore, io: ToolIo): ToolDefinitio
           draft: args.draft,
           who: args.who,
           reviewId: args.reviewId,
+          basis: args.basis as { quote?: string; reviewId?: string } | undefined,
         }),
       )
     },

@@ -243,6 +243,10 @@ export interface DashboardEvalRun extends EvalRunRecord {
   runId: string
 }
 
+/** Actions that widen or narrow what a rule may settle on its own. */
+const AUTHORITY_ACTIONS = new Set<ProposeAction>(['disable', 'enable', 'set_severity'])
+const AUTHORITY_BASIS_MIN = 8
+
 export type ProposeAction = 'disable' | 'enable' | 'set_severity' | 'set_suggestion' | 'set_param' | 'reset' | 'draft' | 'accept_draft' | 'dismiss'
 
 export interface ProposeInput {
@@ -255,6 +259,10 @@ export interface ProposeInput {
   draft?: string | undefined
   who?: string | undefined
   reviewId?: string | undefined
+  /** Verbatim expert instruction that authorises an authority-changing edit (severity or status). */
+  basis?: { quote?: string | undefined; reviewId?: string | undefined } | undefined
+  /** Where the edit came from: the agent tool (needs a quoted instruction) or the expert console (a human click). */
+  via?: 'tool' | 'console' | undefined
 }
 
 export interface ProposeResult {
@@ -482,10 +490,18 @@ export class ReviewStore {
     const overrides = this.domain.table('rule_overrides')
     const candidates = this.domain.table('rule_candidates')
 
+    const basisQuote = typeof input.basis?.quote === 'string' ? input.basis.quote.replace(/\s+/g, ' ').trim() : ''
+    if (AUTHORITY_ACTIONS.has(input.action) && input.via !== 'console' && basisQuote.length < AUTHORITY_BASIS_MIN) {
+      throw new ReviewToolError(
+        'AUTHORITY_UNCONFIRMED',
+        `rules_propose(${input.action}) 改动规则的裁决权，必须附 basis.quote（专家原话，去空白后 ≥${AUTHORITY_BASIS_MIN} 字）；未附则不改，先向专家确认原话。`,
+      )
+    }
     const audit = (field: string, from: unknown, to: unknown) => ({
       who,
       at,
       ...(input.reviewId ? { reviewId: input.reviewId } : {}),
+      ...(basisQuote ? { basis: basisQuote } : {}),
       change: { field, from, to },
     })
     const upsert = async (ruleId: string, mutate: (rec: RuleOverrideRecord) => void): Promise<RuleOverrideRecord> => {

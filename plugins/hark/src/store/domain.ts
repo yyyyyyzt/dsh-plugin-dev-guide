@@ -190,6 +190,7 @@ export const RuleOverrideRecordSchema = z.object({
       who: z.string(),
       at: z.string(),
       reviewId: z.string().optional(),
+      basis: z.string().optional(),
       change: z.object({ field: z.string(), from: z.unknown(), to: z.unknown() }),
     }),
   ),

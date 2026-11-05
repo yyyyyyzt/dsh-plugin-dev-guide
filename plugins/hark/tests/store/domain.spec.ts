@@ -148,7 +148,7 @@ describe('rule overrides persistence (T-REQ-16, T-DES-10)', () => {
     const before = await o.store.check((await o.store.parse({ source: seed })).reviewId)
     expect(before.checklist.some((c) => c.ruleId === 'CAP-001')).toBe(true)
 
-    await o.store.rulesPropose({ action: 'disable', ruleId: 'CAP-001', who: 'tester' })
+    await o.store.rulesPropose({ action: 'disable', ruleId: 'CAP-001', who: 'tester', basis: { quote: '这条现在要停用，别再报了。' } })
     expect(o.store.domain.table('rule_overrides').get('CAP-001')?.status).toBe('retired')
 
     const after = await o.store.check((await o.store.parse({ source: seed, reuse: false })).reviewId)
@@ -160,16 +160,16 @@ describe('rule overrides persistence (T-REQ-16, T-DES-10)', () => {
     const file = join(rulesDir, 'capability-open-access.rules.yaml')
     const bytes = readFileSync(file)
     const o = await store()
-    await o.store.rulesPropose({ action: 'set_severity', ruleId: 'CAP-002', severity: 'minor', who: 'tester' })
-    await o.store.rulesPropose({ action: 'disable', ruleId: 'CAP-003', who: 'tester' })
+    await o.store.rulesPropose({ action: 'set_severity', ruleId: 'CAP-002', severity: 'minor', who: 'tester', basis: { quote: '压测这条降成一般问题即可。' } })
+    await o.store.rulesPropose({ action: 'disable', ruleId: 'CAP-003', who: 'tester', basis: { quote: '容量评估这条先关掉。' } })
     expect(o.store.rulesList({}).rules.find((r) => r.ruleId === 'CAP-002')?.severity).toBe('minor')
     expect(readFileSync(file).equals(bytes)).toBe(true)
   })
 
   it('every override write appends an audit entry {who, at, reviewId?, change}', async () => {
     const o = await store()
-    await o.store.rulesPropose({ action: 'disable', ruleId: 'CAP-001', who: 'tester' })
-    await o.store.rulesPropose({ action: 'enable', ruleId: 'CAP-001', who: 'tester', reviewId: 'rv_20261019_k3m7qa' })
+    await o.store.rulesPropose({ action: 'disable', ruleId: 'CAP-001', who: 'tester', basis: { quote: '这条现在要停用，别再报了。' } })
+    await o.store.rulesPropose({ action: 'enable', ruleId: 'CAP-001', who: 'tester', reviewId: 'rv_20261019_k3m7qa', basis: { quote: '限流这条恢复启用。' } })
     const audit = o.store.domain.table('rule_overrides').get('CAP-001')?.audit ?? []
     expect(audit).toHaveLength(2)
     expect(audit[0]).toMatchObject({ who: 'tester', at: fixedDeps.now!().toISOString(), change: { field: 'status', from: 'active', to: 'retired' } })

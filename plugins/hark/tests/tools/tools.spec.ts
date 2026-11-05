@@ -639,7 +639,7 @@ describe('review_finalize (T-DES-09, T-REQ-14, T-REQ-15)', () => {
     expect(r.store.domain.table('rule_overrides').get(ruleId)?.stats.shown).toBe(1)
     expect(r.store.effectiveRules().version).toBe(base)
     expect((await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === ruleId).overridden).toBe(false)
-    await r.call('rules_propose', { action: 'set_severity', ruleId, severity: 'minor' })
+    await r.call('rules_propose', { action: 'set_severity', basis: { quote: '按专家要求调整严重度' }, ruleId, severity: 'minor' })
     expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
     expect((await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === ruleId).overridden).toBe(true)
   })
@@ -659,11 +659,11 @@ describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () =
     const r = await rig()
     const base = r.store.effectiveRules().version
     const shipped = (await r.call('rules_list', {})).rules.find((x: any) => x.ruleId === 'CAP-001')
-    await r.call('rules_propose', { action: 'set_severity', ruleId: 'CAP-001', severity: 'minor' })
-    await r.call('rules_propose', { action: 'disable', ruleId: 'CAP-001' })
+    await r.call('rules_propose', { action: 'set_severity', basis: { quote: '按专家要求调整严重度' }, ruleId: 'CAP-001', severity: 'minor' })
+    await r.call('rules_propose', { action: 'disable', basis: { quote: '按专家要求停用该规则' }, ruleId: 'CAP-001' })
     expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
-    await r.call('rules_propose', { action: 'set_severity', ruleId: 'CAP-001', severity: shipped.severity })
-    await r.call('rules_propose', { action: 'enable', ruleId: 'CAP-001' })
+    await r.call('rules_propose', { action: 'set_severity', basis: { quote: '按专家要求调整严重度' }, ruleId: 'CAP-001', severity: shipped.severity })
+    await r.call('rules_propose', { action: 'enable', basis: { quote: '按专家要求恢复该规则' }, ruleId: 'CAP-001' })
     const rec = r.store.domain.table('rule_overrides').get('CAP-001')!
     expect(rec.severity).toBeUndefined()
     expect(rec.status).toBeUndefined()
@@ -711,8 +711,8 @@ describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () =
     const ruleId = r.store.issuesOf(reviewId).find((i) => i.ruleId && i.status === 'adopted' && i.origin === 'verifier')!.ruleId!
     const shown = r.store.domain.table('rule_overrides').get(ruleId)!.stats.shown
     const shipped = r.store.ruleDetail(ruleId).detail.shipped!
-    await r.call('rules_propose', { action: 'disable', ruleId })
-    await r.call('rules_propose', { action: 'set_severity', ruleId, severity: shipped.severity === 'minor' ? 'major' : 'minor' })
+    await r.call('rules_propose', { action: 'disable', basis: { quote: '按专家要求停用该规则' }, ruleId })
+    await r.call('rules_propose', { action: 'set_severity', basis: { quote: '按专家要求调整严重度' }, ruleId, severity: shipped.severity === 'minor' ? 'major' : 'minor' })
     await r.call('rules_propose', { action: 'set_suggestion', ruleId, suggestion: '改过的建议' })
     expect(r.store.effectiveRules().version).toBe(`${base}+ov1`)
     const out = await r.call('rules_propose', { action: 'reset', ruleId })
@@ -740,8 +740,8 @@ describe('rules_list / rules_propose / memory_recall (T-DES-10, T-REQ-10)', () =
     const r = await rig()
     const all = await r.call('rules_list', {})
     expect(all.rules).toHaveLength(28)
-    await r.call('rules_propose', { action: 'set_severity', ruleId: 'CAP-002', severity: 'minor' })
-    await r.call('rules_propose', { action: 'disable', ruleId: 'CAP-003' })
+    await r.call('rules_propose', { action: 'set_severity', basis: { quote: '按专家要求调整严重度' }, ruleId: 'CAP-002', severity: 'minor' })
+    await r.call('rules_propose', { action: 'disable', basis: { quote: '按专家要求停用该规则' }, ruleId: 'CAP-003' })
     const cap = await r.call('rules_list', { dimension: 'capacity' })
     expect(cap.rules.every((x: any) => x.dimension === 'capacity')).toBe(true)
     expect(cap.rules.find((x: any) => x.ruleId === 'CAP-002')?.severity).toBe('minor')

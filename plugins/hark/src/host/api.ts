@@ -249,6 +249,7 @@ export function apply(ctx: Context): void {
       if (!param || typeof param.key !== 'string') return sendError(res, 400, 'BAD_PARAM', 'param 需要 key 字符串')
     }
     const result = await store.rulesPropose({
+      via: 'console',
       action,
       ruleId,
       ...(typeof body.severity === 'string' ? { severity: body.severity as 'blocker' | 'major' | 'minor' } : {}),
@@ -279,6 +280,7 @@ export function apply(ctx: Context): void {
       ruleId = candidate.draftRuleId
     }
     const result = await store.rulesPropose({
+      via: 'console',
       action,
       candidateId,
       ...(ruleId ? { ruleId } : {}),

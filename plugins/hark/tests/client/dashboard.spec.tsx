@@ -245,7 +245,7 @@ describe('rules model (T-DSH-03, T-DSH-05, T-DSH-06, T-DSH-07)', () => {
     const title = rules.find((r) => r.ruleId === 'CAP-002')!.title
     expect(filterRules(rules, { query: title }).map((r) => r.ruleId)).toContain('CAP-002')
     expect(filterRules(rules, { overriddenOnly: true })).toEqual([])
-    await s.rulesPropose({ action: 'set_severity', ruleId: 'CAP-002', severity: 'minor' })
+    await s.rulesPropose({ action: 'set_severity', ruleId: 'CAP-002', severity: 'minor', via: 'console' })
     expect(filterRules(rulesPayload(s).rules, { overriddenOnly: true }).map((r) => r.ruleId)).toEqual(['CAP-002'])
   })
 
@@ -433,7 +433,7 @@ describe('rules tab (T-DSH-02, T-DSH-03, T-DSH-05)', () => {
     expect(plain).toContain('停用')
     expect(plain).toContain('样本不足')
     expect(plain).not.toContain('data-rule-reset')
-    await s.rulesPropose({ action: 'set_severity', ruleId: 'CAP-002', severity: 'minor', who: 'dashboard' })
+    await s.rulesPropose({ action: 'set_severity', ruleId: 'CAP-002', severity: 'minor', who: 'dashboard', via: 'console' })
     const changed = html(<RulesView {...rulesDefaults} data={rulesPayload(s)} memory={s.dashboardMemory()} expanded="CAP-002" detail={s.ruleDetail('CAP-002')} />)
     expect(changed).toContain('data-rule-reset')
     expect(changed).toContain('恢复出厂')

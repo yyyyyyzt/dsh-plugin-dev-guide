@@ -12,6 +12,7 @@ export type ReviewToolErrorCode =
   | 'REVIEWER_REQUIRED'
   | 'ISSUE_NOT_FOUND'
   | 'BAD_ACTION'
+  | 'AUTHORITY_UNCONFIRMED'
   | 'BAD_DRAFT'
   | 'CANDIDATE_NOT_FOUND'
   | 'REVIEW_CLOSED'
